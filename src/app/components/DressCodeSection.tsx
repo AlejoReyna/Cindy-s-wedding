@@ -190,12 +190,16 @@ export default function DressCodeSection() {
                   Con mucho amor hemos planeado una celebración íntima. Les pedimos amablemente que este evento sea solo para adultos.
                 </p>
                 
-                <p className="text-stone-800 text-2xl md:text-4xl font-bold tracking-wide mt-8" style={{
-                  fontFamily: 'Georgia, serif',
-                  textShadow: '0 1px 2px rgba(255,255,255,0.4)'
+                <div className="mt-8 inline-block px-6 py-3 rounded" style={{
+                  backgroundColor: '#efad98'
                 }}>
-                  NO NIÑOS
-                </p>
+                  <p className="text-stone-800 text-2xl md:text-4xl font-bold tracking-wide" style={{
+                    fontFamily: 'Georgia, serif',
+                    textShadow: '0 1px 2px rgba(255,255,255,0.4)'
+                  }}>
+                    NO NIÑOS
+                  </p>
+                </div>
               </div>
               
               

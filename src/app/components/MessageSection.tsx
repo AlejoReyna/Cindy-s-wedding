@@ -70,31 +70,25 @@ export default function MessageSection({ className }: { className?: string }) {
   return (
     <div className={`mx-8 md:mx-0 bg-white/10 backdrop-blur-md border border-white/20 shadow-elegant hover:shadow-elegant-hover hover:border-white/40 transition-all duration-700 transform hover:-translate-y-2 ${className}`}>
       
-      {/* Content Section */}
+      {/* Content Section - Comentado */}
+      {/*
       <div className="p-8 md:p-10 relative">
-        
-        {/* Title */}
         <h3 className="text-2xl md:text-3xl font-light text-white mb-6 tracking-wide text-center garamond-300">
           MENSAJE
         </h3>
         
-        {/* Subtitle */}
         <p className="text-white/80 text-sm font-light tracking-[0.15em] uppercase mb-6 text-center garamond-300">
           Comparte tus 
           <br />
           buenos deseos
         </p>
         
-        
-        
-        {/* Web3Forms Form */}
         <form 
           action="https://api.web3forms.com/submit" 
           method="POST"
           onSubmit={handleSubmit}
           className="space-y-4"
         >
-          {/* Web3Forms required hidden fields */}
           <input type="hidden" name="access_key" value={WEB3FORMS_ACCESS_KEY} />
           <input type="hidden" name="subject" value="Nuevo mensaje de invitación de boda" />
           <input type="hidden" name="from_name" value="Invitación de Boda" />
@@ -138,7 +132,6 @@ export default function MessageSection({ className }: { className?: string }) {
             />
           </div>
           
-          {/* Submit Button */}
           <div className="pt-2">
             <button 
               type="submit"
@@ -152,7 +145,6 @@ export default function MessageSection({ className }: { className?: string }) {
             </button>
           </div>
 
-          {/* Status Messages */}
           <div className="min-h-[40px] flex items-center justify-center pt-2">
             {formStatus === 'loading' && (
               <div className="flex items-center justify-center gap-2 text-white/90 text-sm">
@@ -176,6 +168,7 @@ export default function MessageSection({ className }: { className?: string }) {
           </div>
         </form>
       </div>
+      */}
 
       <style jsx>{`
         .shadow-elegant {

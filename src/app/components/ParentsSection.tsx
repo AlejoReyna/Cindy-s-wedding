@@ -101,13 +101,13 @@ export default function ParentsSection() {
           <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#C4985B]/30 to-transparent transform -translate-x-1/2 hidden md:block"></div>
           
           <div className="text-center">
-            <h3 className="text-2xl font-semibold tracking-widest uppercase text-[#5c5c5c] mb-4 garamond-300">Papás de la Novia</h3>
+            <h3 className="text-2xl font-semibold tracking-widest uppercase text-[#5c5c5c] mb-4 garamond-300">Padres de la novia</h3>
             {/* Nombres originales comentados para placeholder */}
             <p className="text-lg text-stone-600 garamond-300">María Magdalena Sánchez Ibarra</p>
             <p className="text-lg text-stone-600 garamond-300">Jorge Medina López</p>
           </div>
           <div className="text-center">
-            <h3 className="text-2xl font-semibold tracking-widest uppercase text-[#5c5c5c] mb-4 garamond-300">Papás del Novio</h3>
+            <h3 className="text-2xl font-semibold tracking-widest uppercase text-[#5c5c5c] mb-4 garamond-300">Padres del novio</h3>
             {/* Nombres originales comentados para placeholder */}
             <p className="text-lg text-stone-600 garamond-300"> Patricia Perez Hernandez</p>
             <p className="text-lg text-stone-600 garamond-300"> Jorge Alberto González Rodriguez</p>

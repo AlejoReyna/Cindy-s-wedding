@@ -170,11 +170,10 @@ export default function GiftSection() {
   );
 
   const bankDetails = [
-    { label: "Banco", value: "BANCO_PLACEHOLDER" },
-    { label: "CLABE", value: "000 000 00000000000 0" },
-    { label: "Tarjeta", value: "0000 0000 0000 0000" },
-    // Nombre original comentado para placeholder
-    { label: "Titular", value: "NOMBRE COMPLETO (PLACEHOLDER)" }
+    { label: "Banco", value: "BBVA" },
+    { label: "CLABE", value: "012580015127660240" },
+    { label: "Tarjeta", value: "4152 3141 2145 2463" },
+    { label: "Titular", value: "CINDY JANETH MEDINA SANCHEZ" }
   ];
 
   return (
@@ -290,80 +289,7 @@ export default function GiftSection() {
             }`}
             style={{ transitionDelay: '1000ms' }}
           >
-            <div
-              className="relative overflow-hidden rounded-lg h-full border border-dashed border-[#d4c4b0]/60 px-6 py-7 md:px-10 md:py-9"
-              style={{
-                backgroundColor: '#f7f3ee',
-                backgroundImage: `
-                  linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(240,235,229,0.4) 100%),
-                  repeating-linear-gradient(45deg, rgba(139,115,85,0.05) 0, rgba(139,115,85,0.05) 6px, transparent 6px, transparent 12px)
-                `,
-                boxShadow: `
-                  inset 1px 1px 2px rgba(139,115,85,0.12),
-                  inset -1px -1px 2px rgba(255,255,255,0.5),
-                  0 6px 12px rgba(139,115,85,0.10)
-                `
-              }}
-            >
-              {/* Sutil banda superior */}
-              <div
-                className="absolute left-0 right-0 top-0 h-1"
-                style={{ background: 'linear-gradient(90deg, rgba(196,152,91,0.35), rgba(139,115,85,0.25), rgba(196,152,91,0.35))' }}
-              />
-
-              <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                {/* Texto */}
-                <div>
-                  <h3
-                    className="text-xl md:text-2xl font-light tracking-[0.12em] uppercase text-[#2c2826] mb-1"
-                    style={{ fontFamily: 'Playfair Display, serif' }}
-                  >
-                    Mesa de Regalos
-                  </h3>
-                  <p
-                    className="text-[#5a4f45] leading-relaxed text-sm md:text-base"
-                    style={{ fontFamily: 'Inter, sans-serif' }}
-                  >
-                    Si prefieres, también puedes obsequiarnos desde nuestra mesa de regalos en Amazon.
-                  </p>
-                </div>
-
-                {/* Botón creativo tipo “gift-tag” */}
-                <div className="md:text-right">
-                  <a
-                    href="https://www.amazon.com.mx/wedding/share/placeholder"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="gift-tag-btn group inline-flex items-center"
-                    aria-label="Abrir Mesa de Regalos de [NOMBRE_1] y [NOMBRE_2] en Amazon"
-                    title="Mesa de Regalos de [NOMBRE_1] y [NOMBRE_2]"
-                  >
-                    {/* Efecto brillo barrido */}
-                    <span className="shine" aria-hidden="true" />
-                    {/* Agujero del tag */}
-                    <span className="tag-hole" aria-hidden="true" />
-                    {/* Contenido */}
-                    <span className="flex items-center gap-2 z-10">
-                      <FaGift className="text-[#5a4a3a] text-base md:text-lg" />
-                      <span className="btn-text uppercase tracking-[0.12em] text-xs md:text-sm">
-                        Abrir mesa en Amazon
-                      </span>
-                    </span>
-                    {/* Flecha */}
-                    <svg
-                      className="ml-2 w-4 h-4 md:w-5 md:h-5 stroke-[#8B7355] transition-transform duration-300 group-hover:translate-x-0.5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      strokeWidth="1.5"
-                      aria-hidden="true"
-                    >
-                      <path d="M7 17L17 7" />
-                      <path d="M7 7h10v10" />
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            </div>
+           
           </div>
           {/* END Horizontal Card */}
         </div>
