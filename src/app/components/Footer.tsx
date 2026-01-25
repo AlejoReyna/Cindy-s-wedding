@@ -30,17 +30,17 @@ type FooterProps = {
 };
 
 const defaultBrand: BrandInfo = {
-  name: "Alexis Reyna",
-  slogan: "Hecho con calma — y café",
-  href: "https://alexisreyna.dev",
+  name: "Nombre Apellido (placeholder)",
+  slogan: "Slogan (placeholder)",
+  href: "https://example.com",
   logoSrc: "/assets/logos/IMG_0340.PNG",
 };
 
 const defaultSocial: SocialItem[] = [
-  { label: "GitHub", href: "https://github.com/AlejoReyna", icon: <FiGithub />, ariaLabel: "GitHub" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/alexis-alberto-reyna-sánchez-6953102b4", icon: <FiLinkedin />, ariaLabel: "LinkedIn" },
-  { label: "Instagram", href: "https://www.instagram.com/_alexisreyna/", icon: <FiInstagram />, ariaLabel: "Instagram" },
-  { label: "WhatsApp", href: "https://wa.me/8140490960?text=%C2%A1Hola%21%20Me%20gustar%C3%ADa%20hablar%20de%20...", icon: <FaWhatsapp />, ariaLabel: "WhatsApp" },
+  { label: "GitHub", href: "https://example.com", icon: <FiGithub />, ariaLabel: "GitHub" },
+  { label: "LinkedIn", href: "https://example.com", icon: <FiLinkedin />, ariaLabel: "LinkedIn" },
+  { label: "Instagram", href: "https://example.com", icon: <FiInstagram />, ariaLabel: "Instagram" },
+  { label: "WhatsApp", href: "https://wa.me/0000000000?text=Hola%20...", icon: <FaWhatsapp />, ariaLabel: "WhatsApp" },
 ];
 
 export default function Footer({
@@ -102,7 +102,7 @@ export default function Footer({
           {/* CTA */}
           <div className="md:col-span-8 flex justify-end md:justify-center items-center">
             <TalkCTA
-              href="https://wa.me/8140490960?text=%C2%A1Hola%21%20Me%20gustar%C3%ADa%20hablar%20de%20..."
+              href="https://wa.me/0000000000?text=Hola%20..."
               prefix="¿Tienes una idea?"
               displayText={displayText}
               showCaret={isVisible && displayText.length < targetText.length}

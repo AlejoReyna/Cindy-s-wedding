@@ -170,10 +170,11 @@ export default function GiftSection() {
   );
 
   const bankDetails = [
-    { label: "Banco", value: "BBVA" },
-    { label: "CLABE", value: "012 180 01571801772 5" },
-    { label: "Tarjeta", value: "4152 3143 6348 6377" },
-    { label: "Titular", value: "Aldo Berlanga Mendoza" }
+    { label: "Banco", value: "BANCO_PLACEHOLDER" },
+    { label: "CLABE", value: "000 000 00000000000 0" },
+    { label: "Tarjeta", value: "0000 0000 0000 0000" },
+    // Nombre original comentado para placeholder
+    { label: "Titular", value: "NOMBRE COMPLETO (PLACEHOLDER)" }
   ];
 
   return (
@@ -330,12 +331,12 @@ export default function GiftSection() {
                 {/* Botón creativo tipo “gift-tag” */}
                 <div className="md:text-right">
                   <a
-                    href="https://www.amazon.com.mx/wedding/share/aldoyandrea"
+                    href="https://www.amazon.com.mx/wedding/share/placeholder"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="gift-tag-btn group inline-flex items-center"
-                    aria-label="Abrir Mesa de Regalos de Aldo Berlanga y Andrea Reyna en Amazon"
-                    title="Mesa de Regalos de Aldo Berlanga y Andrea Reyna"
+                    aria-label="Abrir Mesa de Regalos de [NOMBRE_1] y [NOMBRE_2] en Amazon"
+                    title="Mesa de Regalos de [NOMBRE_1] y [NOMBRE_2]"
                   >
                     {/* Efecto brillo barrido */}
                     <span className="shine" aria-hidden="true" />

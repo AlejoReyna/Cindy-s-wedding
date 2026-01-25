@@ -1,9 +1,9 @@
-"use client"
 import { useEffect, useRef, useState } from 'react';
 import { MdDirections } from 'react-icons/md';
 import Image from 'next/image';
-import sagradoCorazon from '../../../assets/robada.jpg';
-import museum from '../../../assets/museum.jpg';
+
+// Import images from assets - ajustando rutas
+import receptionImg from '../../../assets/museum.jpg';
 
 export default function LocationSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -112,139 +112,136 @@ export default function LocationSection() {
           
           {/* Ceremonia Card */}
           <div
-            className={`group transition-all duration-2500 ease-out ${
+            className={`group transition-all duration-2500 ease-out h-[550px] md:h-[600px] ${
               isVisible ? 'opacity-100 translate-y-0 md:translate-x-4' : 'opacity-0 translate-y-8 translate-x-0'
             }`}
             style={{ transitionDelay: '600ms' }}
           >
             {/* FRAME + PAPER SURFACE (reemplaza el cuadro blanco) */}
-            <div className="card-frame">
-              <div className="card-surface">
-                <div className="accent-bar" aria-hidden />
-                
-                {/* Image Section */}
-                <div className="relative h-80 md:h-96 overflow-hidden">
-                  <Image
-                    src={sagradoCorazon}
-                    alt="Ceremonia Religiosa"
-                    fill
-                    className="object-cover transition-transform duration-700 scale-105"
-                    sizes="(max-width: 768px) 100vw, 50vw"
+            <div className="card-frame h-full relative overflow-hidden">
+                {/* Imagen de fondo que cubre toda la card */}
+                <div className="absolute inset-0 z-0">
+                  <Image 
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Templo_Parroquial_Sagrado_Coraz%C3%B3n_de_Jes%C3%BAs.jpg/330px-Templo_Parroquial_Sagrado_Coraz%C3%B3n_de_Jes%C3%BAs.jpg"
+                    alt="Ceremonia religiosa - Iglesia Sagrado Corazón" 
+                    fill 
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent transition-all duration-700"></div>
-                  
-                  {/* Overlay Content */}
-                  <div className="absolute bottom-6 left-6 text-white opacity-100 transition-all duration-500 transform translate-y-0">
-                    <div className="w-12 h-px bg-white mb-3"></div>
-                    <p className="text-sm tracking-[0.2em] uppercase font-light">Iglesia &apos;Sagrado corazón de Jesús&apos;</p>
-                  </div>
+                  {/* Overlay oscuro para legibilidad - Se ilumina al hover (menos opacidad) */}
+                  <div className="absolute inset-0 bg-black/60 group-hover:bg-black/30 transition-all duration-700"></div>
                 </div>
 
-                {/* Content Section */}
-                <div className="p-10 md:p-12 text-center relative">
-                  {/* Title */}
-                  <h3 className="text-3xl md:text-4xl font-light text-stone-800 mb-6 tracking-wide" style={{fontFamily: 'Georgia, serif'}}>
-                    Ceremonia religiosa
-                  </h3>
+                <div className="relative z-10 h-full flex flex-col">
+                    <div className="accent-bar" aria-hidden />
+                    
+                    {/* Content Section - Ahora sobre la imagen */}
+                    <div className="p-10 md:p-12 text-center relative flex-grow flex flex-col justify-center items-center text-white">
+                      
+                      {/* Decorative top icon/text */}
+                      <div className="mb-6 opacity-80">
+                        <div className="w-12 h-px bg-white/60 mx-auto mb-3"></div>
+                        <p className="text-xs tracking-[0.2em] uppercase font-light">LUGAR DE CEREMONIA</p>
+                      </div>
 
-                  {/* Time (opcional) */}
-                  <div className="mb-8"></div>
+                      {/* Title */}
+                      <h3 className="text-3xl md:text-4xl font-light text-white mb-6 tracking-wide drop-shadow-md" style={{fontFamily: 'Georgia, serif'}}>
+                        Ceremonia religiosa
+                      </h3>
 
-                  {/* Location */}
-                  <div className="space-y-2 mb-10">
-                    <p className="text-stone-800 text-lg font-medium tracking-wide">
-                      Iglesia Sagrado Corazón de Jesús
-                    </p>
-                    <p className="text-stone-600 text-sm leading-relaxed">
-                      Calle Ignacio Zaragoza 700, Centro de Montemorelos
-                    </p>
-                    <p className="text-stone-600 text-sm">
-                      67500 Montemorelos, N.L.
-                    </p>
-                  </div>
-                  
-                  {/* Action Button */}
-                  <div className="mt-10">
-                    <a 
-                      href="https://www.google.com/maps?client=firefox-b-d&sca_esv=289557ae53a63d3d&uact=5&gs_lp=Egxnd3Mtd2l6LXNlcnAiOWdvb2dsZSBtYXBzIGlnbGVzaWEgc2FncmFkbyBjb3Jhem9uIGRlIGplc3VzIG1vbnRlbW9yZWxvc0gAUABYAHAAeAGQAQCYAQCgAQCqAQC4AQPIAQD4AQGYAgCgAgCYAwCSBwCgBwCyBwC4BwDCBwDIBwA&um=1&ie=UTF-8&fb=1&gl=mx&sa=X&geocode=KafWv5En13yGMVJTeLebkJ03&daddr=Calle+Ignacio+Zaragoza+700,+Centro+de+Montemorelos,+67500+Montemorelos,+N.L."
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group/btn inline-flex items-center gap-3 px-8 py-4 border border-stone-500 text-stone-900 transition-all duration-400 relative overflow-hidden"
-                    >
-                      <div className="absolute inset-0 bg-stone-100 translate-x-0 transition-transform duration-400"></div>
-                      <MdDirections className="text-lg relative z-10 rotate-12 transition-transform duration-300" />
-                      <span className="font-light tracking-[0.1em] uppercase text-sm relative z-10">Ver en Maps</span>
-                    </a>
-                  </div>
+                      {/* Location Info */}
+                      <div className="space-y-2 mb-10 text-white/90">
+                        <p className="text-xl font-medium tracking-wide drop-shadow-sm">
+                          Parroquia Maria Auxiliadora
+                        </p>
+                        <p className="text-sm leading-relaxed font-light opacity-90">
+                          Calle 3 8-72
+                        </p>
+                        <p className="text-sm font-light opacity-90">
+                          Cartago, Valle del Cauca
+                        </p>
+                      </div>
+                      
+                      {/* Action Button - Estilo transparente/blanco */}
+                      <div className="mt-4">
+                        <a 
+                          href="https://maps.app.goo.gl/3q4Q1"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group/btn inline-flex items-center gap-3 px-8 py-3 border border-white/50 text-white hover:bg-white/10 transition-all duration-400 relative overflow-hidden backdrop-blur-sm"
+                        >
+                          <MdDirections className="text-lg relative z-10 rotate-12 transition-transform duration-300" />
+                          <span className="font-light tracking-[0.1em] uppercase text-sm relative z-10">Ver en Maps</span>
+                        </a>
+                      </div>
+                    </div>
                 </div>
-              </div>
             </div>
           </div>
 
           {/* Recepción Card */}
           <div
-            className={`group transition-all duration-2500 ease-out ${
+            className={`group transition-all duration-2500 ease-out h-[550px] md:h-[600px] ${
               isVisible ? 'opacity-100 translate-y-0 md:-translate-x-4' : 'opacity-0 translate-y-8 translate-x-0'
             }`}
             style={{ transitionDelay: '800ms' }}
           >
-            <div className="card-frame">
-              <div className="card-surface">
-                <div className="accent-bar" aria-hidden />
-                
-                {/* Image Section */}
-                <div className="relative h-80 md:h-96 overflow-hidden">
-                  <Image
-                    src={museum}
-                    alt="Lugar de Recepción"
-                    fill
-                    className="object-cover transition-transform duration-700 scale-105"
-                    sizes="(max-width: 768px) 100vw, 50vw"
+            <div className="card-frame h-full relative overflow-hidden">
+                {/* Imagen de fondo que cubre toda la card */}
+                <div className="absolute inset-0 z-0">
+                  <Image 
+                    src={receptionImg} 
+                    alt="Recepción" 
+                    fill 
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent transition-all duration-700"></div>
-                  
-                  {/* Overlay Content */}
-                  <div className="absolute bottom-6 left-6 text-white opacity-100 transition-all duration-500 transform translate-y-0">
-                    <div className="w-12 h-px bg-white mb-3"></div>
-                    <p className="text-sm tracking-[0.2em] uppercase font-light">Salón del museo &apos;Valle del Pilón&apos;</p>
-                  </div>
+                  {/* Overlay oscuro para legibilidad - Se ilumina al hover (menos opacidad) */}
+                  <div className="absolute inset-0 bg-black/60 group-hover:bg-black/30 transition-all duration-700"></div>
                 </div>
 
-                {/* Content Section */}
-                <div className="p-10 md:p-12 text-center relative">
-                  {/* Title */}
-                  <h3 className="text-3xl md:text-4xl font-light text-stone-800 mb-6 tracking-wide" style={{fontFamily: 'Georgia, serif'}}>
-                    Recepción
-                  </h3>
+                <div className="relative z-10 h-full flex flex-col">
+                    <div className="accent-bar" aria-hidden />
+                    
+                    {/* Content Section */}
+                    <div className="p-10 md:p-12 text-center relative flex-grow flex flex-col justify-center items-center text-white">
+                      
+                      {/* Decorative top icon/text */}
+                      <div className="mb-6 opacity-80">
+                        <div className="w-12 h-px bg-white/60 mx-auto mb-3"></div>
+                        <p className="text-xs tracking-[0.2em] uppercase font-light">LUGAR DE RECEPCIÓN</p>
+                      </div>
 
-                  {/* Location */}
-                  <div className="space-y-2 mb-10">
-                    <p className="text-stone-800 text-lg font-medium tracking-wide">
-                      Museo histórico &apos;Valle del Pilón&apos;
-                    </p>
-                    <p className="text-stone-600 text-sm leading-relaxed">
-                      Prolongación Frontera, s/n, Barrio Parar
-                    </p>
-                    <p className="text-stone-600 text-sm">
-                      67500 Montemorelos, N.L.
-                    </p>
-                  </div>
+                      {/* Title */}
+                      <h3 className="text-3xl md:text-4xl font-light text-white mb-6 tracking-wide drop-shadow-md" style={{fontFamily: 'Georgia, serif'}}>
+                        Recepción
+                      </h3>
 
-                  {/* Action Button */}
-                  <div className="mt-10">
-                    <a 
-                      href="https://www.google.com/maps/dir//Prolongaci%C3%B3n+Frontera,+s%2Fn,+Barrio+Parar,+67500+Montemorelos,+N.L./@25.1930478,-99.9006511,12z/data=!4m8!4m7!1m0!1m5!1m1!1s0x867cd727ceb145f5:0x1500ee5283da0c71!2m2!1d-99.8182496!2d25.1930706?entry=ttu&g_ep=EgoyMDI1MDYzMC4wIKXMDSoASAFQAw%3D%3D"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group/btn inline-flex items-center gap-3 px-8 py-4 border border-stone-500 text-stone-900 transition-all duration-400 relative overflow-hidden"
-                    >
-                      <div className="absolute inset-0 bg-stone-100 translate-x-0 transition-transform duration-400"></div>
-                      <MdDirections className="text-lg relative z-10 rotate-12 transition-transform duration-300" />
-                      <span className="font-light tracking-[0.1em] uppercase text-sm relative z-10">Ver en Maps</span>
-                    </a>
-                  </div>
+                      {/* Location Info */}
+                      <div className="space-y-2 mb-10 text-white/90">
+                        <p className="text-xl font-medium tracking-wide drop-shadow-sm">
+                          Casa Museo del Virrey
+                        </p>
+                        <p className="text-sm leading-relaxed font-light opacity-90">
+                          Cra. 4 #13-130
+                        </p>
+                        <p className="text-sm font-light opacity-90">
+                          Cartago, Valle del Cauca
+                        </p>
+                      </div>
+
+                      {/* Action Button */}
+                      <div className="mt-4">
+                        <a 
+                          href="https://maps.app.goo.gl/w1R1"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group/btn inline-flex items-center gap-3 px-8 py-3 border border-white/50 text-white hover:bg-white/10 transition-all duration-400 relative overflow-hidden backdrop-blur-sm"
+                        >
+                          <MdDirections className="text-lg relative z-10 rotate-12 transition-transform duration-300" />
+                          <span className="font-light tracking-[0.1em] uppercase text-sm relative z-10">Ver en Maps</span>
+                        </a>
+                      </div>
+                    </div>
                 </div>
-              </div>
             </div>
           </div>
         </div>
@@ -274,32 +271,6 @@ export default function LocationSection() {
             0 0 0 1px rgba(0,0,0,0.04) inset;
         }
 
-        .card-surface {
-          position: relative;
-          border-radius: 21px;
-          overflow: hidden;
-          /* Papel fino con leve brillo y veta sutil en la misma paleta */
-          background:
-            radial-gradient(120% 70% at 10% 0%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 55%),
-            linear-gradient(180deg, #f7f3ee 0%, #faf8f5 60%, #f6f1ea 100%);
-          box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.65),
-            inset 0 -1px 0 rgba(139,115,85,0.06);
-          transition: box-shadow 400ms ease, transform 400ms ease;
-        }
-        /* Textura orgánica muy ligera (sin ruido pesado) */
-        .card-surface::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          background:
-            radial-gradient(1px 1px at 12% 18%, rgba(139,115,85,0.06) 50%, transparent 51%),
-            radial-gradient(1px 1px at 78% 72%, rgba(196,152,91,0.05) 50%, transparent 51%),
-            radial-gradient(1px 1px at 45% 40%, rgba(180,147,113,0.045) 50%, transparent 51%);
-          mix-blend-mode: multiply;
-          opacity: .8;
-        }
         /* Barra superior “filo dorado” para remate de lujo */
         .accent-bar {
           position: absolute;
@@ -307,22 +278,9 @@ export default function LocationSection() {
           height: 3px;
           background: linear-gradient(90deg, #C4985B, #8B7355, #C4985B);
           opacity: .8;
+          z-index: 20;
         }
 
-        .shadow-elegant {
-          box-shadow: 
-            0 4px 6px -1px rgba(0, 0, 0, 0.1),
-            0 20px 25px -5px rgba(0, 0, 0, 0.1),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
-        }
-        
-        .shadow-elegant-hover {
-          box-shadow: 
-            0 10px 15px -3px rgba(0, 0, 0, 0.1),
-            0 25px 50px -12px rgba(0, 0, 0, 0.15),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
-        }
-        
         @keyframes fadeInSeparate {
           0% { opacity: 0; transform: translateY(20px) translateX(0); }
           70% { opacity: 1; transform: translateY(0) translateX(0); }

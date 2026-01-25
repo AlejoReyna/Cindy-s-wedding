@@ -239,7 +239,13 @@ export default function ItineraryItemCard({ item, index }: ItineraryItemCardProp
               : 'border border-[#d4c4b0]/40'
           }`} style={{
             // Fondo base con color de cartón
-            backgroundColor: isNightMode ? '#2a2a2a' : '#f0ebe5',
+            backgroundColor: isNightMode 
+              ? '#2a2a2a' 
+              : item.title === 'Ceremonia Civil' 
+                ? 'rgba(213, 160, 144, 0.92)' 
+                : item.title === 'Recepción' 
+                  ? 'rgba(193, 194, 152, 0.92)' 
+                  : 'rgba(226, 175, 92, 0.92)',
             // Textura de cartón sutil sin puntos
             backgroundImage: isNightMode 
               ? `

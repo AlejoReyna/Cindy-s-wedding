@@ -2,7 +2,7 @@ export default function Detalles() {
   return (
     <div className="min-h-screen p-4">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-8">Detalles de la Boda</h1>
+        <h1 className="text-4xl font-bold text-center mb-8">Detalles del Evento</h1>
         
         <div className="grid md:grid-cols-2 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -10,8 +10,9 @@ export default function Detalles() {
             <div className="space-y-2">
               <p><strong>Fecha:</strong> 15 de Agosto, 2025</p>
               <p><strong>Hora:</strong> 4:00 PM</p>
-              <p><strong>Lugar:</strong> Iglesia San José</p>
-              <p><strong>Dirección:</strong> Av. Principal #123, Ciudad</p>
+              {/* Lugares originales comentados para placeholder */}
+              <p><strong>Lugar:</strong> Lugar de ceremonia (placeholder)</p>
+              <p><strong>Dirección:</strong> Dirección (placeholder)</p>
             </div>
           </div>
           
@@ -19,8 +20,9 @@ export default function Detalles() {
             <h2 className="text-2xl font-semibold mb-4">Recepción</h2>
             <div className="space-y-2">
               <p><strong>Hora:</strong> 6:00 PM</p>
-              <p><strong>Lugar:</strong> Salón de Eventos El Jardín</p>
-              <p><strong>Dirección:</strong> Calle de la Flores #456, Ciudad</p>
+              {/* Lugares originales comentados para placeholder */}
+              <p><strong>Lugar:</strong> Lugar de recepción (placeholder)</p>
+              <p><strong>Dirección:</strong> Dirección (placeholder)</p>
               <p><strong>Código de vestimenta:</strong> Formal</p>
             </div>
           </div>

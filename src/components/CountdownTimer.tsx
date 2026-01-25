@@ -11,9 +11,10 @@ interface TimeLeft {
 interface CountdownTimerProps {
   targetDate: string; // Formato: "2024-06-19T00:00:00"
   className?: string;
+  variant?: 'light' | 'dark';
 }
 
-export default function CountdownTimer({ targetDate, className = "" }: CountdownTimerProps) {
+export default function CountdownTimer({ targetDate, className = "", variant = 'dark' }: CountdownTimerProps) {
   // Este es nuestro "estado" - como una pizarra donde escribimos el tiempo restante
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({
     days: 0,
@@ -81,6 +82,8 @@ export default function CountdownTimer({ targetDate, className = "" }: Countdown
     return num.toString().padStart(2, '0');
   };
 
+  const isLight = variant === 'light';
+
   return (
     <div className={`countdown-timer ${className}`}>
       {/* Contenedor principal con diseño elegante */}
@@ -93,11 +96,11 @@ export default function CountdownTimer({ targetDate, className = "" }: Countdown
           
           {/* Días */}
           <div className="flex flex-col items-center">
-            <div className="bg-white/10 backdrop-blur-sm  p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center">
-              <div className="text-2xl md:text-4xl font-light text-white tracking-wide garamond-300">
+            <div className={`${isLight ? 'bg-transparent' : 'bg-white/10'} backdrop-blur-sm p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
+              <div className={`text-2xl md:text-4xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-white'} tracking-wide garamond-300`}>
                 {formatNumber(timeLeft.days)}
               </div>
-              <div className="text-xs md:text-sm text-white/70 mt-1 uppercase tracking-wider garamond-300">
+              <div className={`text-xs md:text-sm ${isLight ? 'text-[#5e5e5a]/70' : 'text-white/70'} mt-1 uppercase tracking-wider garamond-300`}>
                 Días
               </div>
             </div>
@@ -105,11 +108,11 @@ export default function CountdownTimer({ targetDate, className = "" }: Countdown
 
           {/* Horas */}
           <div className="flex flex-col items-center">
-            <div className="bg-white/10 backdrop-blur-sm  p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center">
-              <div className="text-2xl md:text-4xl font-light text-white tracking-wide garamond-300">
+            <div className={`${isLight ? 'bg-transparent' : 'bg-white/10'} backdrop-blur-sm p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
+              <div className={`text-2xl md:text-4xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-white'} tracking-wide garamond-300`}>
                 {formatNumber(timeLeft.hours)}
               </div>
-              <div className="text-xs md:text-sm text-white/70 mt-1 uppercase tracking-wider garamond-300">
+              <div className={`text-xs md:text-sm ${isLight ? 'text-[#5e5e5a]/70' : 'text-white/70'} mt-1 uppercase tracking-wider garamond-300`}>
                 Horas
               </div>
             </div>
@@ -117,11 +120,11 @@ export default function CountdownTimer({ targetDate, className = "" }: Countdown
 
           {/* Minutos */}
           <div className="flex flex-col items-center">
-            <div className="bg-white/10 backdrop-blur-sm  p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center">
-              <div className="text-2xl md:text-4xl font-light text-white tracking-wide garamond-300">
+            <div className={`${isLight ? 'bg-transparent' : 'bg-white/10'} backdrop-blur-sm p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
+              <div className={`text-2xl md:text-4xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-white'} tracking-wide garamond-300`}>
                 {formatNumber(timeLeft.minutes)}
               </div>
-              <div className="text-xs md:text-sm text-white/70 mt-1 uppercase tracking-wider garamond-300">
+              <div className={`text-xs md:text-sm ${isLight ? 'text-[#5e5e5a]/70' : 'text-white/70'} mt-1 uppercase tracking-wider garamond-300`}>
                 Minutos
               </div>
             </div>
@@ -129,11 +132,11 @@ export default function CountdownTimer({ targetDate, className = "" }: Countdown
 
           {/* Segundos */}
           <div className="flex flex-col items-center">
-            <div className="bg-white/10 backdrop-blur-sm  p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center">
-              <div className="text-2xl md:text-4xl font-light text-white tracking-wide garamond-300">
+            <div className={`${isLight ? 'bg-transparent' : 'bg-white/10'} backdrop-blur-sm p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
+              <div className={`text-2xl md:text-4xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-white'} tracking-wide garamond-300`}>
                 {formatNumber(timeLeft.seconds)}
               </div>
-              <div className="text-xs md:text-sm text-white/70 mt-1 uppercase tracking-wider garamond-300">
+              <div className={`text-xs md:text-sm ${isLight ? 'text-[#5e5e5a]/70' : 'text-white/70'} mt-1 uppercase tracking-wider garamond-300`}>
                 Segundos
               </div>
             </div>

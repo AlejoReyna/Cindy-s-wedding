@@ -70,8 +70,8 @@ export default function ParentsSection() {
       <div className="text-center z-10">
         <div className="mx-10 flex justify-center items-center mb-8">
           <Image
-            src="/assets/logos/IMG_0342.PNG"
-            alt="AA Logo"
+            src="/Diseño sin título.png"
+            alt="Monograma"
             width={80}
             height={80}
             className="object-contain opacity-40"
@@ -102,13 +102,15 @@ export default function ParentsSection() {
           
           <div className="text-center">
             <h3 className="text-2xl font-semibold tracking-widest uppercase text-[#5c5c5c] mb-4 garamond-300">Papás de la Novia</h3>
-            <p className="text-lg text-stone-600 garamond-300">Guillermo Alejandro Reyna Muñoz</p>
-            <p className="text-lg text-stone-600 garamond-300">Norma Irene Sánchez Ibarra</p>
+            {/* Nombres originales comentados para placeholder */}
+            <p className="text-lg text-stone-600 garamond-300">María Magdalena Sánchez Ibarra</p>
+            <p className="text-lg text-stone-600 garamond-300">Jorge Medina López</p>
           </div>
           <div className="text-center">
             <h3 className="text-2xl font-semibold tracking-widest uppercase text-[#5c5c5c] mb-4 garamond-300">Papás del Novio</h3>
-            <p className="text-lg text-stone-600 garamond-300">Aldo Rene Berlanga Soto</p>
-            <p className="text-lg text-stone-600 garamond-300">Silvia Mendoza Arizpe</p>
+            {/* Nombres originales comentados para placeholder */}
+            <p className="text-lg text-stone-600 garamond-300"> Patricia Perez Hernandez</p>
+            <p className="text-lg text-stone-600 garamond-300"> Jorge Alberto González Rodriguez</p>
           </div>
         </div>
       </div>

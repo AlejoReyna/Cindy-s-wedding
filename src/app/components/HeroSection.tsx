@@ -1,5 +1,5 @@
 "use client"
-import CountdownTimer from '../../components/CountdownTimer';
+import Image from 'next/image';
 import { useStatusBarSection } from '../../hooks/useStatusBarManager';
 import { useTheme } from '../context/ThemeContext';
 
@@ -8,8 +8,8 @@ const HeroSection = () => {
 
   const heroSectionRef = useStatusBarSection({
     sectionId: 'hero',
-    color: '#4c4c48',
-    defaultColor: isNightMode ? '#000000' : '#ffffff',
+    color: '#f9f5e9',
+    defaultColor: isNightMode ? '#000000' : '#f9f5e9',
     isNightMode
   });
 
@@ -17,105 +17,61 @@ const HeroSection = () => {
     <section 
       id="hero-section"
       ref={heroSectionRef}
-      className="relative flex flex-col min-h-screen overflow-hidden"
+      className="relative flex flex-col min-h-screen overflow-hidden items-center justify-between pt-24 pb-0"
       style={{
-        backgroundImage: `url('/hero.jpeg')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundColor: isNightMode ? '#0a0a0a' : '#f9f5e9',
+        transition: 'background-color 0.5s ease'
       }}
     >
-      {/* Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/40"></div>
-      <div className="absolute inset-x-0 top-0 h-[25vh] bg-gradient-to-b from-black/60 via-black/30 to-transparent"></div>
+      {/* Content */}
+      <div className="flex flex-col items-center z-10 w-full px-4 text-center mt-8 sm:mt-12 md:mt-16 fade-in-section">
+         {/* Monogram Logo */}
+         <div className="mb-6 relative w-24 h-24 sm:w-32 sm:h-32 opacity-80">
+           <Image
+            src="/Diseño sin título.png"
+             alt="Monograma"
+             fill
+             className={`object-contain ${isNightMode ? 'invert' : ''}`}
+             priority
+           />
+         </div>
 
-      {/* Contenido principal */}
-      <div className="flex-1 flex flex-col justify-start items-center relative z-10 px-4 sm:px-6 pt-16 sm:pt-20 md:pt-24">
-        {/* Fecha */}
-        <div className="text-center mb-4 animate-fade-in-center animate-delay-300 mt-6 md:mt-0">
-          <span className="text-white/70 text-base sm:text-lg md:text-xl lg:text-2xl garamond-300 tracking-[0.25em] sm:tracking-[0.35em] block">
-            SÁBADO 18 DE OCTUBRE
-          </span>
-        </div>
-
-        {/* Nombres */}
-        <div className="text-center animate-fade-in-center animate-delay-600">
-          <div className="flex flex-row items-center justify-center max-w-5xl mx-auto mb-4 px-2">
-            <div className="text-center">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl garamond-regular tracking-[0.03em] sm:tracking-[0.05em] text-white drop-shadow-2xl leading-none">
-                ANDREA
-              </h1>
-            </div>
-            <div className="text-center mx-4 md:mx-6 lg:mx-8">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl garamond-regular text-white/90 drop-shadow-2xl leading-none">
-                &
-              </h2>
-            </div>
-            <div className="text-center">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl garamond-regular tracking-[0.03em] sm:tracking-[0.05em] text-white drop-shadow-2xl leading-none">
-                ALDO
-              </h1>
-            </div>
-          </div>
-        </div>
-
-        {/* Texto descriptivo */}
-        <div className="text-center animate-fade-in-center animate-delay-900 mb-6 sm:mb-4">
-          <p className="text-xs mx-auto max-w-5xl px-2 md:text-lg font-light tracking-[0.2em] uppercase text-white/80 italic garamond-300">
-            ACOMPÁÑANOS A CELEBRAR 
-          </p>
-        </div>
-
-        {/* Botón confirmar asistencia (MISMO LUGAR, ÚLTIMO EN APARECER) */}
-        <div className="text-center animate-fade-in-center animate-delay-1800">
-          <button
-            onClick={() => {
-              window.open('https://wa.me/528132382398?text=Confirmo%20mi%20asistencia%20a%20la%20boda%20de%20Andrea%20%26%20Aldo%20el%2018%20de%20octubre%20del%202025.%20💍%0ALos%20nombres%20de%20las%20personas%20confirmadas%20en%20esta%20invitación%20son%3A%20____________', '_blank');
-            }}
-            className="group inline-flex items-center px-6 sm:px-8 py-2.5 sm:py-3 bg-black/50 backdrop-blur-sm border border-white/40 text-white/95 hover:bg-black/70 hover:border-white/60 transition-all duration-500 text-sm sm:text-base transform hover:scale-105 sm:hover:scale-110"
-          >
-            <span className="garamond-300 tracking-[0.15em] sm:tracking-[0.2em]">
-              CONFIRMAR ASISTENCIA
-            </span>
-          </button>
-        </div>
+         {/* Names */}
+         <h2 className={`text-lg sm:text-xl md:text-5xl tracking-[0.2em] uppercase ${isNightMode ? 'text-white/80' : 'text-[#5e5e5a]'} garamond-regular mb-8 sm:mb-12`}>
+           Cindy <span className="mx-3 font-light">&</span> JORGE
+         </h2>
+         
+         {/* Big Script Text */}
+         <h1 className={`text-6xl sm:text-7xl md:text-8xl lg:text-5xl mrs-saint-delafield-regular ${isNightMode ? 'text-white' : 'text-[#2c2c28]'} leading-[0.8] sm:leading-[0.8] md:leading-[0.7] mb-8`}>
+           Me and you.<br/>Just us two.
+         </h1>
+         
+         {/* Date */}
+         <p className={`text-base sm:text-lg md:text-xl tracking-[0.3em] ${isNightMode ? 'text-white/60' : 'text-[#5e5e5a]/90'} garamond-300 mt-6`}>
+           22 . 08 . 2026
+         </p>
       </div>
 
-      {/* Countdown (aparece ANTES que el botón, ya con fade-in en el contenedor) */}
-      <div className="absolute bottom-8 sm:bottom-10 md:bottom-12 left-1/2 transform -translate-x-1/2 z-20 w-full px-4">
-        <div className="max-w-4xl mx-auto text-center animate-fade-in-up animate-delay-1500">
-          <CountdownTimer targetDate="2025-10-18T00:00:00" />
-        </div>
+      {/* Image at bottom */}
+      <div className="w-full h-[45vh] sm:h-[55vh] relative mt-auto">
+         <div 
+           className="absolute inset-0 bg-cover bg-top"
+           style={{
+             backgroundImage: `url('/hero.jpeg')`,
+             maskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 100%)',
+             WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 100%)'
+           }}
+         />
       </div>
 
       <style jsx>{`
-        @keyframes fade-in-center {
-          0% { opacity: 0; transform: scale(0.95); }
-          100% { opacity: 1; transform: scale(1); }
-        }
-        @keyframes fade-in-up {
-          0% { opacity: 0; transform: translateY(40px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in-center {
-          animation: fade-in-center 1.2s ease-out forwards;
+        .fade-in-section {
+          animation: fadeIn 1.5s ease-out forwards;
           opacity: 0;
         }
-        .animate-fade-in-up {
-          animation: fade-in-up 1.2s ease-out forwards;
-          opacity: 0;
-        }
-        .animate-delay-300 { animation-delay: 0.3s; }
-        .animate-delay-600 { animation-delay: 0.6s; }
-        .animate-delay-900 { animation-delay: 0.9s; }
-        .animate-delay-1500 { animation-delay: 1.5s; }
-        .animate-delay-1800 { animation-delay: 1.8s; }
-
-        .garamond-300 { font-family: 'EB Garamond', serif; font-weight: 300; }
-        .garamond-regular { font-family: 'EB Garamond', serif; font-weight: 400; }
-
-        @media (max-width: 640px) {
-          h1 { line-height: 0.85; }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </section>

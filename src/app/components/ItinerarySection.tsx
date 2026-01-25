@@ -30,21 +30,24 @@ export default function ItinerarySection() {
       displayTime: "3:30",
       title: "Misa",
       description: "",
-      location: "Iglesia 'Sagrado corazón de Jesús'"
+      // Ubicación original comentada para placeholder
+      location: "Nombre de ubicación (placeholder)"
     },
     {
       time: "6:30 PM",
       displayTime: "06:30",
       title: "Ceremonia Civil",
       description: "",
-      location: "Museo histórico 'Valle del Pilón'"
+      // Ubicación original comentada para placeholder
+      location: "Nombre de ubicación (placeholder)"
     },
     {
       time: "7:00 PM ",
       displayTime: "07:00",
       title: "Recepción",
       description: "",
-      location: "Museo histórico 'Valle del Pilón'"
+      // Ubicación original comentada para placeholder
+      location: "Nombre de ubicación (placeholder)"
     }
   ], []);
 
@@ -131,25 +134,25 @@ export default function ItinerarySection() {
     
   }, [isClient, windowHeight]);
 
-  // Update night mode based on current card - activate when reaching "Recepción" card
-  useEffect(() => {
-    if (!hasInitialized) {
-      return;
-    }
-    
-    if (!isSectionVisible) {
-      setIsNightMode(false);
-      return;
-    }
-    
-    // Check if we're currently viewing the "Recepción" card (index 2)
-    const currentCard = itineraryItems[currentCardIndex];
-    const isReceptionCard = currentCard?.title === 'Recepción';
-    
-    if (isReceptionCard !== isNightMode) {
-      setIsNightMode(isReceptionCard);
-    }
-  }, [currentCardIndex, setIsNightMode, isSectionVisible, hasInitialized, isNightMode, itineraryItems, scrollProgress]);
+  // Update night mode based on current card - DISABLED: no longer changes to night mode for Recepción
+  // useEffect(() => {
+  //   if (!hasInitialized) {
+  //     return;
+  //   }
+  //   
+  //   if (!isSectionVisible) {
+  //     setIsNightMode(false);
+  //     return;
+  //   }
+  //   
+  //   // Check if we're currently viewing the "Recepción" card (index 2)
+  //   const currentCard = itineraryItems[currentCardIndex];
+  //   const isReceptionCard = currentCard?.title === 'Recepción';
+  //   
+  //   if (isReceptionCard !== isNightMode) {
+  //     setIsNightMode(isReceptionCard);
+  //   }
+  // }, [currentCardIndex, setIsNightMode, isSectionVisible, hasInitialized, isNightMode, itineraryItems, scrollProgress]);
 
   // Listen to normal page scroll
   useEffect(() => {

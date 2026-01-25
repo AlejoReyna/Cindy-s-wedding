@@ -1,9 +1,10 @@
 "use client"
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import CountdownTimer from '../../components/CountdownTimer';
 
 export default function Gallery() {
-  const [selectedImage, setSelectedImage] = useState<{ src: string, alt: string, index: number, shape?: string } | null>(null);
+  const [selectedImage, setSelectedImage] = useState<{ label: string; index: number } | null>(null);
   // Fix hydration error by removing window check in initial state
   const [centerIndex, setCenterIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
@@ -88,13 +89,13 @@ export default function Gallery() {
 
 
   const photos = [
-    { src: '/carousel/c-1.jpeg', alt: 'Andrea & Aldo - Recuerdo 1' },
-    { src: '/carousel/c-2.jpeg', alt: 'Andrea & Aldo - Recuerdo 2' },
-    { src: '/carousel/c-3.jpeg', alt: 'Andrea & Aldo - Recuerdo 3' },
-    { src: '/carousel/c-4.jpeg', alt: 'Andrea & Aldo - Recuerdo 4' },
-    { src: '/carousel/c-5.jpeg', alt: 'Andrea & Aldo - Recuerdo 5' },
-    { src: '/carousel/c-6.jpeg', alt: 'Andrea & Aldo - Recuerdo 6' },
-    { src: '/carousel/c-7.jpeg', alt: 'Andrea & Aldo - Recuerdo 7' },
+    { label: 'FOTO PLACEHOLDER 1' },
+    { label: 'FOTO PLACEHOLDER 2' },
+    { label: 'FOTO PLACEHOLDER 3' },
+    { label: 'FOTO PLACEHOLDER 4' },
+    { label: 'FOTO PLACEHOLDER 5' },
+    { label: 'FOTO PLACEHOLDER 6' },
+    { label: 'FOTO PLACEHOLDER 7' },
   ];
 
   useEffect(() => {
@@ -281,7 +282,7 @@ export default function Gallery() {
     };
   }, []);
 
-  const openModal = (photo: { src: string, alt: string, shape: string }, index: number) => {
+  const openModal = (photo: { label: string }, index: number) => {
     setSelectedImage({ ...photo, index });
     document.body.style.overflow = 'hidden';
   };
@@ -394,24 +395,21 @@ export default function Gallery() {
             </h2>
           </div>
 
+          {/* Countdown below title */}
+          <div className={`flex justify-center mt-4 transition-all duration-500 ease-out ${
+            animationStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+          }`}>
+            <CountdownTimer
+              targetDate="2026-08-22T00:00:00"
+              variant="light"
+            />
+          </div>
+
           {/* Decorative line with extension animation - appears first */}
-          <div className="flex justify-center mb-3">
-            <div 
-              className={`h-px bg-[#C4985B] opacity-60 transition-all duration-700 ease-out origin-left ${
-                animationStep >= 1 ? 'w-60 scale-x-100' : 'w-60 scale-x-0'
-              }`}
-            ></div>
-          </div>
           
-          {/* Description - emerges downward from divider */}
-          <div className="relative overflow-hidden">
-            <p className={`text-lg md:text-xl font-light tracking-[0.1em] uppercase mb-4 text-[#8B7355] italic garamond-300 max-w-2xl mx-auto transition-all duration-500 ease-out ${
-              animationStep >= 2 ? 'opacity-100 -translate-y-0' : 'opacity-0 -translate-y-6'
-            }`}>
-             Hoy, mañana y siempre, <br/> elegimos amarnos.
-            </p>
-          </div>
-        </div>
+          
+          
+        </div>  
 
 
       </div>
@@ -481,7 +479,7 @@ export default function Gallery() {
                   transformStyle: 'preserve-3d',
                 }}
                 onClick={() => {
-                  openModal({ ...photo, shape: 'rectangle' }, index);
+                  openModal(photo, index);
                 }}
                 onTouchStart={() => {
                   // Card touch start handler
@@ -514,18 +512,11 @@ export default function Gallery() {
                       <div className="absolute -inset-2 bg-gradient-to-br from-stone-800/5 via-transparent to-stone-800/10 shadow-elegant pointer-events-none"></div>
                     )}
                     
-                    <div className="relative w-full h-full bg-white overflow-hidden shadow-elegant">
-                      <Image
-                        src={photo.src}
-                        alt={photo.alt}
-                        fill
-                        className="object-cover transition-all duration-700 pointer-events-none" // DEBUG: Added pointer-events-none to image
-                        sizes="(max-width: 768px) 18rem, 24rem"
-                        priority={index < 3}
-                        style={{
-                          filter: isCenterCard ? 'brightness(1.05) contrast(1.1) saturate(1.1)' : 'brightness(0.95) contrast(0.98) saturate(0.95)'
-                        }}
-                      />
+                    <div className="relative w-full h-full bg-white overflow-hidden shadow-elegant flex items-center justify-center">
+                      {/* Foto original comentada para placeholder */}
+                      <div className="text-xs md:text-sm uppercase tracking-[0.2em] text-[#8B7355] text-center px-4">
+                        {photo.label}
+                      </div>
                       
                       <div className={`absolute inset-0 transition-all duration-700 pointer-events-none ${
                         isCenterCard 
@@ -611,12 +602,13 @@ export default function Gallery() {
             quoteVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <div className="relative py-16 px-8">
+          <div className="relative py-2 px-8">
             {/* Background image with realhands */}
             <div 
               className="absolute inset-0"
               style={{
-                backgroundImage: `url('/assets/legal_assets/realhands_s2.png')`,
+                // backgroundImage: `url('/assets/legal_assets/realhands_s2.png')`, // Foto original comentada
+                backgroundImage: 'none',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center center',
                 backgroundSize: 'contain',
@@ -626,11 +618,11 @@ export default function Gallery() {
             />
             {/* Text content */}
             <div className="relative z-10">
-              <p className="text-lg text-stone-700 italic max-w-lg mx-auto garamond-300 leading-relaxed font-medium">
-                &ldquo; A love like ours could never die, as long as I have you near me &rdquo;
+              <p className="text-3xl text-stone-700 italic max-w-lg mx-auto garamond-300 leading-relaxed font-medium">
+                &ldquo; Frase pendiente &rdquo;
                 <br />
                 <small>
-                  - The Beatles, 1964
+                  - Autor pendiente
                 </small>
               </p>
             </div>
@@ -659,15 +651,11 @@ export default function Gallery() {
           </button>
           
           <div className="relative w-full h-full flex items-center justify-center p-4 md:p-8">
-            <div className="relative w-full h-full max-w-6xl max-h-full rounded-2xl overflow-hidden shadow-elegant">
-              <Image 
-                src={selectedImage.src} 
-                alt={selectedImage.alt} 
-                fill
-                className="object-contain"
-                priority
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
-              />
+            <div className="relative w-full h-full max-w-6xl max-h-full rounded-2xl overflow-hidden shadow-elegant flex items-center justify-center bg-black/40">
+              {/* Imagen original comentada para placeholder */}
+              <div className="text-white text-sm md:text-base uppercase tracking-[0.2em] text-center px-6">
+                {selectedImage.label}
+              </div>
             </div>
           </div>
         </div>

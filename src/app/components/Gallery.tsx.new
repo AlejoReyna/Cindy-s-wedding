@@ -10,12 +10,13 @@ export default function Gallery() {
   const galleryRef = useRef<HTMLDivElement>(null);
 
   const photos = [
-    { src: '/p1.JPG', alt: 'Andrea & Aldo - Momento especial 1', shape: 'circle' },
-    { src: '/p2.JPG', alt: 'Andrea & Aldo - Momento especial 2', shape: 'diamond' },
-    { src: '/p3.JPG', alt: 'Andrea & Aldo - Momento especial 3', shape: 'heart' },
-    { src: '/p4.JPG', alt: 'Andrea & Aldo - Momento especial 4', shape: 'hexagon' },
-    { src: '/p5.JPG', alt: 'Andrea & Aldo - Momento especial 5', shape: 'star' },
-    { src: '/p6.JPG', alt: 'Andrea & Aldo - Momento especial 6', shape: 'circle' },
+    // Fotos originales comentadas para placeholder
+    { src: '', alt: 'FOTO PLACEHOLDER 1', shape: 'circle' },
+    { src: '', alt: 'FOTO PLACEHOLDER 2', shape: 'diamond' },
+    { src: '', alt: 'FOTO PLACEHOLDER 3', shape: 'heart' },
+    { src: '', alt: 'FOTO PLACEHOLDER 4', shape: 'hexagon' },
+    { src: '', alt: 'FOTO PLACEHOLDER 5', shape: 'star' },
+    { src: '', alt: 'FOTO PLACEHOLDER 6', shape: 'circle' },
   ];
 
   // ... (rest of the component code will be added in the next steps)

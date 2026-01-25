@@ -76,13 +76,14 @@ export default function RSVPSection() {
       'BEGIN:VEVENT',
       `DTSTART:${startDate}`,
       `DTEND:${endDate}`,
-      'SUMMARY:Boda de Andrea y Aldo',
-      'DESCRIPTION:Celebración de la boda de Andrea y Aldo',
-      'LOCATION:Montemorelos, N.L.',
+      // Datos originales comentados para placeholder
+      'SUMMARY:Boda de [NOMBRE_1] y [NOMBRE_2]',
+      'DESCRIPTION:Celebración de la boda de [NOMBRE_1] y [NOMBRE_2]',
+      'LOCATION:Ciudad/Estado (placeholder)',
       'STATUS:CONFIRMED',
       'BEGIN:VALARM',
       'TRIGGER:-PT24H',
-      'DESCRIPTION:Recordatorio: Boda de Andrea y Aldo mañana',
+      'DESCRIPTION:Recordatorio: Boda de [NOMBRE_1] y [NOMBRE_2] mañana',
       'ACTION:DISPLAY',
       'END:VALARM',
       'END:VEVENT',
@@ -92,7 +93,7 @@ export default function RSVPSection() {
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.download = 'boda-andrea-aldo.ics';
+    link.download = 'boda-placeholder.ics';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -109,7 +110,8 @@ export default function RSVPSection() {
       }}
       className="min-h-screen w-full relative overflow-hidden flex items-center justify-center py-12"
       style={{
-        backgroundImage: `url('/carousel/c-1.jpeg')`,
+        // backgroundImage: `url('/carousel/c-1.jpeg')`, // Foto original comentada
+        backgroundImage: 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -183,7 +185,8 @@ export default function RSVPSection() {
                 <button 
                   className="group inline-flex items-center gap-3 px-8 py-3 bg-white/15 backdrop-blur-md border border-white/30 text-white font-light tracking-[0.1em] hover:bg-white/25 hover:border-white/50 transition-all duration-400 relative overflow-hidden garamond-300 uppercase text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full justify-center"
                   onClick={() => {
-                    window.open('https://wa.me/528132382398?text=Confirmo%20mi%20asistencia%20a%20la%20boda%20de%20Andrea%20%26%20Aldo%20el%2018%20de%20octubre%20del%202025.%20💍%0ALos%20nombres%20de%20las%20personas%20confirmadas%20en%20esta%20invitación%20son%3A%20____________', '_blank');
+                    // Nombre y teléfono originales comentados para placeholder
+                    window.open('https://wa.me/0000000000?text=Confirmo%20mi%20asistencia%20a%20la%20boda%20de%20[NOMBRE_1]%20%26%20[NOMBRE_2]%20el%20[FECHA].%0ALos%20nombres%20confirmados%20en%20esta%20invitación%20son%3A%20____________', '_blank');
                   }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/5 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>

@@ -1,6 +1,6 @@
 # Color Palette Implementation Complete ✨
 
-## Andrea & Aldo Wedding Invitation - October 18, 2025
+## [NOMBRE_1] & [NOMBRE_2] Wedding Invitation - [FECHA]
 
 ### 🎨 Color Palette Successfully Implemented
 
@@ -141,4 +141,4 @@ Your wedding invitation now features a cohesive, elegant color palette that perf
 
 *Last updated: Implementation complete*
 *Color palette source: Wedding bouquet inspiration*
-*Andrea & Aldo - October 18, 2025* 💕
+*[NOMBRE_1] & [NOMBRE_2] - [FECHA]* 💕
