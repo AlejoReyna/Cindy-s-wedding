@@ -96,7 +96,7 @@ export default function CountdownTimer({ targetDate, className = "", variant = '
           
           {/* Días */}
           <div className="flex flex-col items-center">
-            <div className={`${isLight ? 'bg-transparent' : 'bg-white/10'} backdrop-blur-sm p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
+            <div className={`${isLight ? '' : 'bg-white/10 backdrop-blur-sm'} p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
               <div className={`text-2xl md:text-4xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-white'} tracking-wide garamond-300`}>
                 {formatNumber(timeLeft.days)}
               </div>
@@ -108,7 +108,7 @@ export default function CountdownTimer({ targetDate, className = "", variant = '
 
           {/* Horas */}
           <div className="flex flex-col items-center">
-            <div className={`${isLight ? 'bg-transparent' : 'bg-white/10'} backdrop-blur-sm p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
+            <div className={`${isLight ? '' : 'bg-white/10 backdrop-blur-sm'} p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
               <div className={`text-2xl md:text-4xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-white'} tracking-wide garamond-300`}>
                 {formatNumber(timeLeft.hours)}
               </div>
@@ -120,7 +120,7 @@ export default function CountdownTimer({ targetDate, className = "", variant = '
 
           {/* Minutos */}
           <div className="flex flex-col items-center">
-            <div className={`${isLight ? 'bg-transparent' : 'bg-white/10'} backdrop-blur-sm p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
+            <div className={`${isLight ? '' : 'bg-white/10 backdrop-blur-sm'} p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
               <div className={`text-2xl md:text-4xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-white'} tracking-wide garamond-300`}>
                 {formatNumber(timeLeft.minutes)}
               </div>
@@ -132,7 +132,7 @@ export default function CountdownTimer({ targetDate, className = "", variant = '
 
           {/* Segundos */}
           <div className="flex flex-col items-center">
-            <div className={`${isLight ? 'bg-transparent' : 'bg-white/10'} backdrop-blur-sm p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
+            <div className={`${isLight ? '' : 'bg-white/10 backdrop-blur-sm'} p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
               <div className={`text-2xl md:text-4xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-white'} tracking-wide garamond-300`}>
                 {formatNumber(timeLeft.seconds)}
               </div>

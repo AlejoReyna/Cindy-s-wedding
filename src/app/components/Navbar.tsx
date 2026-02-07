@@ -396,23 +396,28 @@ const Navbar = () => {
             SLIDE-OUT MOBILE MENU  (< md)
         ═══════════════════════════════════════════ */}
         <div
-          className={`md:hidden fixed top-0 right-0 w-1/2 h-screen z-50 border-l transition-transform duration-500 ease-out ${
+          className={`md:hidden fixed top-0 right-0 w-3/5 h-screen z-50 border-l transition-transform duration-500 ease-out ${
             isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
           style={{
-            backgroundColor: '#ffffff',
-            borderColor: 'rgba(84,60,36,0.08)',
+            backgroundColor: '#f9f5e9',
+            borderColor: 'rgba(196,152,91,0.15)',
           }}
         >
-          <div className="p-6 h-full flex flex-col">
+          <div className="px-7 py-8 h-full flex flex-col">
+
             {/* Menu header */}
-            <div className="flex items-center justify-between mb-8 pb-5 border-b border-[#543c24]/8">
-              <span className="text-[10px] garamond-300 tracking-[0.3em] text-[#543c24]/50">
-                MENÚ
-              </span>
+            <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center gap-2">
+                <span className="block w-6 h-[0.5px] bg-[#C4985B]/35" />
+                <span className="text-[10px] garamond-300 tracking-[0.3em] text-[#8B7355]/50 uppercase">
+                  Menú
+                </span>
+                <span className="block w-6 h-[0.5px] bg-[#C4985B]/35" />
+              </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-1 text-[#543c24]/50 hover:text-[#543c24] transition-colors"
+                className="p-1.5 text-[#8B7355]/40 hover:text-[#543c24] transition-colors duration-300"
                 aria-label="Cerrar menú"
               >
                 <svg
@@ -420,7 +425,7 @@ const Navbar = () => {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
-                  strokeWidth={1.5}
+                  strokeWidth={1.2}
                 >
                   <path
                     strokeLinecap="round"
@@ -432,7 +437,7 @@ const Navbar = () => {
             </div>
 
             {/* Navigation links with staggered entrance */}
-            <ul className="space-y-0.5 flex-1">
+            <ul className="flex-1 space-y-1">
               {navigationItems.map((item, i) => (
                 <li key={item.id}>
                   <a
@@ -441,27 +446,48 @@ const Navbar = () => {
                       e.preventDefault();
                       handleNavClick(item.id);
                     }}
-                    className="block text-sm garamond-300 tracking-[0.18em] py-3 border-b border-[#543c24]/5 text-[#543c24]/45 hover:text-[#543c24] hover:pl-2 transition-all duration-300"
+                    className={`group flex items-center gap-3 py-3.5 garamond-300 text-[11px] tracking-[0.22em] uppercase transition-all duration-400 ${
+                      activeSection === item.id
+                        ? 'text-[#543c24]'
+                        : 'text-[#8B7355]/50 hover:text-[#543c24]'
+                    }`}
                     style={{
                       opacity: isMobileMenuOpen ? 1 : 0,
                       transform: isMobileMenuOpen
                         ? 'translateX(0)'
-                        : 'translateX(14px)',
-                      transition: `all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
-                      transitionDelay: isMobileMenuOpen ? `${i * 60}ms` : '0ms',
+                        : 'translateX(16px)',
+                      transition: `all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
+                      transitionDelay: isMobileMenuOpen ? `${150 + i * 70}ms` : '0ms',
                     }}
                   >
-                    {item.label.toUpperCase()}
+                    {/* Active indicator dot */}
+                    <span
+                      className={`block w-1 h-1 rounded-full transition-all duration-300 ${
+                        activeSection === item.id
+                          ? 'bg-[#C4985B] scale-100'
+                          : 'bg-transparent scale-0'
+                      }`}
+                    />
+                    <span>{item.label.toUpperCase()}</span>
                   </a>
+                  {/* Separator line */}
+                  {i < navigationItems.length - 1 && (
+                    <div className="h-[0.5px] bg-[#C4985B]/10 ml-4" />
+                  )}
                 </li>
               ))}
             </ul>
 
-            {/* Decorative footer */}
-            <div className="pt-5 border-t border-[#543c24]/8 flex items-center justify-center gap-2">
-              <div className="w-1 h-1 rounded-full bg-[#C4985B]/35" />
-              <div className="w-6 h-[1px] bg-[#C4985B]/25" />
-              <div className="w-1 h-1 rounded-full bg-[#C4985B]/35" />
+            {/* Decorative footer — matching the ornamental line pattern */}
+            <div className="pt-6 flex flex-col items-center gap-4">
+              <div className="flex items-center gap-3">
+                <span className="block w-10 h-[0.5px] bg-[#C4985B]/25" />
+                <span className="block w-1.5 h-1.5 rounded-full bg-[#C4985B]/25" />
+                <span className="block w-10 h-[0.5px] bg-[#C4985B]/25" />
+              </div>
+              <p className="mrs-saint-delafield-regular text-lg text-[#8B7355]/30">
+                C &amp; J
+              </p>
             </div>
           </div>
         </div>
@@ -469,7 +495,7 @@ const Navbar = () => {
         {/* Overlay backdrop for mobile menu */}
         {isMobileMenuOpen && (
           <div
-            className="md:hidden fixed inset-0 bg-black/35 backdrop-blur-sm z-40 transition-opacity duration-500"
+            className="md:hidden fixed inset-0 bg-black/25 backdrop-blur-[2px] z-40 transition-opacity duration-500"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
