@@ -1,6 +1,5 @@
 "use client"
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
 
 export default function DressCodeSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -33,196 +32,160 @@ export default function DressCodeSection() {
     };
   }, []);
 
-  // Decorative floral elements matching the project style
-  const FloralDecoration = ({ className = "" }) => (
-    <svg className={`w-full h-full ${className}`} viewBox="0 0 80 80" fill="none">
-      <path 
-        d="M10,40 Q25,20 40,40 Q55,60 70,40 Q55,20 40,40 Q25,60 10,40" 
-        stroke="#8B7355" 
-        strokeWidth="1.2"
-        fill="none"
-        opacity="0.6"
+  // Elegant leaf sprig — a single delicate branch
+  const LeafSprig = ({ className = "", flip = false }: { className?: string; flip?: boolean }) => (
+    <svg
+      className={className}
+      viewBox="0 0 120 24"
+      fill="none"
+      style={{ transform: flip ? 'scaleX(-1)' : undefined }}
+    >
+      <path
+        d="M10,12 Q30,12 60,12 Q90,12 110,12"
+        stroke="#C4985B"
+        strokeWidth="0.6"
+        opacity="0.5"
       />
-      <path d="M25,35 Q30,25 35,35 Q30,45 25,35" fill="#9B8366" opacity="0.5"/>
-      <path d="M45,45 Q50,35 55,45 Q50,55 45,45" fill="#C4985B" opacity="0.4"/>
-      <circle cx="40" cy="40" r="2.5" fill="#D4A971" opacity="0.6"/>
-      <circle cx="32" cy="38" r="1" fill="#8B7355" opacity="0.4"/>
-      <circle cx="48" cy="42" r="1" fill="#8B7355" opacity="0.4"/>
+      <path d="M25,12 Q30,4 35,8 Q32,12 25,12Z" fill="#8B7355" opacity="0.25" />
+      <path d="M42,12 Q47,5 52,9 Q49,12 42,12Z" fill="#9B8366" opacity="0.2" />
+      <path d="M58,12 Q63,4 68,8 Q65,12 58,12Z" fill="#8B7355" opacity="0.22" />
+      <path d="M75,12 Q80,5 85,9 Q82,12 75,12Z" fill="#9B8366" opacity="0.18" />
+      <path d="M30,12 Q35,19 40,16 Q37,12 30,12Z" fill="#9B8366" opacity="0.18" />
+      <path d="M50,12 Q55,20 60,16 Q57,12 50,12Z" fill="#8B7355" opacity="0.2" />
+      <path d="M70,12 Q75,19 80,16 Q77,12 70,12Z" fill="#9B8366" opacity="0.22" />
+      <circle cx="92" cy="11" r="1.2" fill="#C4985B" opacity="0.3" />
+      <circle cx="97" cy="12.5" r="0.8" fill="#D4A971" opacity="0.25" />
     </svg>
   );
 
-  // Dress code icon using the provided image
-  const DressCodeIcon = () => (
-    <Image 
-      src="/dresscode_icon.png" 
-      alt="Dress Code Icon" 
-      width={128}
-      height={176}
-      className="w-32 h-44 object-contain"
-    />
-  );
-
-
-
   return (
-    <section 
+    <section
       ref={sectionRef}
-      className="min-h-screen w-full py-24 px-4 md:px-8 relative overflow-hidden"
-      style={{ 
-        background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)'
+      className="min-h-screen w-full py-28 px-6 md:px-8 relative overflow-hidden flex items-center justify-center"
+      style={{
+        background: 'linear-gradient(180deg, #fbf9f6 0%, #f8f6f3 50%, #fbf9f6 100%)'
       }}
     >
-      {/* Subtle organic texture overlay */}
-      <div className="absolute inset-0 opacity-[0.02]">
-        <div 
-          className="absolute inset-0" 
-          style={{
-            backgroundImage: `radial-gradient(circle at 30% 20%, rgba(196, 152, 91, 0.15) 0%, transparent 60%),
-                              radial-gradient(circle at 70% 60%, rgba(139, 115, 85, 0.12) 0%, transparent 60%),
-                              radial-gradient(circle at 50% 90%, rgba(180, 147, 113, 0.1) 0%, transparent 60%)`
-          }}
-        />
-      </div>
+      {/* Very subtle radial glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 40%, rgba(196,152,91,0.04) 0%, transparent 70%)'
+        }}
+      />
 
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 opacity-20">
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <pattern id="dressCodePattern" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
-              <path 
-                d="M20,20 Q40,30 60,20 Q80,10 100,25" 
-                stroke="#8B7355" 
-                strokeWidth="0.5" 
-                fill="none" 
-                opacity="0.3"
+      <div className="max-w-lg mx-auto relative z-10 text-center">
+
+        {/* ── Top ornamental line ── */}
+        <div className={`flex items-center justify-center gap-3 mb-14 transition-all duration-[1800ms] ease-out ${
+          isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+        }`} style={{ transitionDelay: '100ms' }}>
+          <span className="block w-16 h-[0.5px] bg-[#C4985B]/40" />
+          <span className="block w-1.5 h-1.5 rounded-full bg-[#C4985B]/35" />
+          <span className="block w-16 h-[0.5px] bg-[#C4985B]/40" />
+        </div>
+
+        {/* ── Script accent word ── */}
+        <p className={`mrs-saint-delafield-regular text-3xl md:text-4xl text-[#8B7355]/60 mb-2 transition-all duration-[1600ms] ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+        }`} style={{ transitionDelay: '300ms' }}>
+          Nota especial
+        </p>
+
+        {/* ── Section title ── */}
+        <h2 className={`garamond-300 text-xs md:text-sm tracking-[0.35em] uppercase text-[#5c5c5c] mb-16 transition-all duration-[1600ms] ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+        }`} style={{ transitionDelay: '500ms' }}>
+          para nuestros invitados
+        </h2>
+
+        {/* ── Dress Code Block ── */}
+        <div className={`mb-16 transition-all duration-[1800ms] ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`} style={{ transitionDelay: '700ms' }}>
+
+          {/* Thin gold ring icon */}
+          <div className="flex justify-center mb-6">
+            <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+              <circle cx="22" cy="22" r="18" stroke="#C4985B" strokeWidth="0.7" opacity="0.45" />
+              <circle cx="22" cy="22" r="12" stroke="#C4985B" strokeWidth="0.5" opacity="0.3" />
+              {/* Small bowtie / formal hint */}
+              <path d="M17,22 L22,19 L27,22 L22,25 Z" fill="#8B7355" opacity="0.2" />
+            </svg>
+          </div>
+
+          <p className="garamond-300 tracking-[0.3em] text-[11px] md:text-xs uppercase text-[#8B7355] mb-5">
+            Etiqueta
+          </p>
+          <p className="garamond-regular text-xl md:text-2xl text-[#543c24] leading-relaxed">
+            Formal
+          </p>
+          <p className="garamond-300 text-sm md:text-base text-[#8B7355]/70 mt-4 leading-relaxed max-w-sm mx-auto">
+            El blanco está reservado para la novia.
+            <br />
+            Les agradecemos elegir otros colores.
+          </p>
+        </div>
+
+        {/* ── Leaf divider ── */}
+        <div className={`flex items-center justify-center mb-16 transition-all duration-[1800ms] ease-out ${
+          isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-50'
+        }`} style={{ transitionDelay: '1000ms' }}>
+          <LeafSprig className="w-28 h-6" />
+          <div className="mx-2 w-1 h-1 rounded-full bg-[#C4985B]/30" />
+          <LeafSprig className="w-28 h-6" flip />
+        </div>
+
+        {/* ── Adults Only Block ── */}
+        <div className={`transition-all duration-[2000ms] ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`} style={{ transitionDelay: '1200ms' }}>
+
+          {/* Delicate heart icon */}
+          <div className="flex justify-center mb-6">
+            <svg width="28" height="26" viewBox="0 0 28 26" fill="none">
+              <path
+                d="M14,24 C14,24 2,16 2,8 C2,4 5,1 9,1 C11.5,1 13.5,2.5 14,4 C14.5,2.5 16.5,1 19,1 C23,1 26,4 26,8 C26,16 14,24 14,24Z"
+                stroke="#C4985B"
+                strokeWidth="0.8"
+                fill="none"
+                opacity="0.4"
               />
-              <circle cx="30" cy="25" r="1" fill="#C4985B" opacity="0.2"/>
-              <circle cx="70" cy="22" r="0.8" fill="#9B8366" opacity="0.3"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#dressCodePattern)"/>
-        </svg>
-      </div>
+            </svg>
+          </div>
 
-      <div className="max-w-6xl mx-auto relative z-10">
-        {/* Header with elegant styling */}
-        <div className={`text-center mb-16 transition-all duration-2000 ease-out ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-        }`} style={{ transitionDelay: '200ms' }}>
-          
-      
+          <p className="garamond-300 tracking-[0.3em] text-[11px] md:text-xs uppercase text-[#8B7355] mb-6">
+            Celebración
+          </p>
 
-        </div>
+          <p className="garamond-regular text-base md:text-lg text-[#543c24] leading-relaxed max-w-sm mx-auto mb-8">
+            Con mucho cariño hemos planeado una velada íntima entre adultos.
+          </p>
 
-        {/* Side decorative elements */}
-        <div className="absolute left-8 top-1/3 w-12 h-12 opacity-20 hidden lg:block">
-          <FloralDecoration />
-        </div>
-        
-        <div className="absolute right-8 top-2/3 w-12 h-12 opacity-20 hidden lg:block">
-          <FloralDecoration className="transform rotate-180" />
-        </div>
+          <p className="garamond-regular text-base md:text-lg text-[#543c24]/80 leading-relaxed max-w-sm mx-auto mb-10">
+            Les pedimos amablemente que este día tan especial sea solo para los grandes.
+          </p>
 
-        {/* Main content */}
-        <div className={`text-center transition-all duration-2000 ease-out ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} style={{ transitionDelay: '600ms' }}>
-          
-          {/* Clothing icons container */}
-          <div className="overflow-hidden border border-stone-200/50 transition-all duration-700 transform hover:-translate-y-2 hover:scale-[1.01] max-w-2xl mx-auto min-h-[600px] flex items-center group" style={{
-            // Fondo base blanco con textura de cartón
-            backgroundColor: '#ffffff',
-            // Textura de cartón sutil sobre blanco
-            backgroundImage: `
-              linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(139,115,85,0.03) 100%),
-              linear-gradient(45deg, rgba(180,147,113,0.02) 0%, rgba(139,115,85,0.01) 100%)
-            `,
-            // Box shadow para profundidad de cartón de huevo sobre blanco
-            boxShadow: `
-              inset 2px 2px 4px rgba(139,115,85,0.08),
-              inset -1px -1px 3px rgba(255,255,255,0.6),
-              0 4px 8px rgba(139,115,85,0.1),
-              0 1px 2px rgba(139,115,85,0.06)
-            `
-          }}>
-            
-            {/* Content Section */}
-            <div className="p-10 md:p-12 text-center relative w-full z-10">
-              
-              {/* Overlay sutil para textura de cartón sobre blanco */}
-              <div className="absolute inset-0 bg-white/10 transition-all duration-500" style={{
-                // Textura adicional de fibra de cartón sobre blanco
-                backgroundImage: `
-                  linear-gradient(45deg, transparent 49%, rgba(139,115,85,0.015) 50%, rgba(139,115,85,0.015) 51%, transparent 52%),
-                  linear-gradient(-45deg, transparent 49%, rgba(196,152,91,0.008) 50%, rgba(196,152,91,0.008) 51%, transparent 52%)
-                `,
-                backgroundSize: '6px 6px, 8px 8px'
-              }}></div>
-              
-              {/* Dress Code Icon */}
-              <div className="flex justify-center items-center mb-8 mt-14 relative z-20">
-                <div className="transform group-hover:scale-110 transition-transform duration-300">
-                  <DressCodeIcon />
-                </div>
-              </div>
-              
-              {/* Subtitle */}
-              <p className="text-lg md:text-2xl font-light tracking-wide text-[#5c5c5c] mb-8 relative z-20" style={{
-                fontFamily: 'Georgia, serif',
-                textShadow: '0 1px 2px rgba(255,255,255,0.5)'
-              }}>
-                ETIQUETA FORMAL
-              </p>
-              
-              {/* Message */}
-              <div className="space-y-6 text-center relative z-20">
-                <p className="text-stone-700 text-base md:text-lg leading-relaxed max-w-2xl mx-auto" style={{
-                  fontFamily: 'Georgia, serif',
-                  textShadow: '0 1px 2px rgba(255,255,255,0.3)'
-                }}>
-                  Querida familia y amigos, el blanco está reservado para la novia. Les agradecemos elegir otros colores para que ella brille con todo su esplendor.
-                </p>
-                
-                <p className="text-stone-700 text-base md:text-lg leading-relaxed max-w-2xl mx-auto" style={{
-                  fontFamily: 'Georgia, serif',
-                  textShadow: '0 1px 2px rgba(255,255,255,0.3)'
-                }}>
-                  Con mucho amor hemos planeado una celebración íntima. Les pedimos amablemente que este evento sea solo para adultos.
-                </p>
-                
-                <div className="mt-8 inline-block px-6 py-3 rounded" style={{
-                  backgroundColor: '#efad98'
-                }}>
-                  <p className="text-stone-800 text-2xl md:text-4xl font-bold tracking-wide" style={{
-                    fontFamily: 'Georgia, serif',
-                    textShadow: '0 1px 2px rgba(255,255,255,0.4)'
-                  }}>
-                    NO NIÑOS
-                  </p>
-                </div>
-              </div>
-              
-              
-            </div>
+          {/* Understated accent badge */}
+          <div className="inline-flex items-center gap-3">
+            <span className="block w-8 h-[0.5px] bg-[#C4985B]/30" />
+            <span className="garamond-300 tracking-[0.25em] text-[11px] md:text-xs uppercase text-[#C4985B]/70">
+              NO NIÑOS
+            </span>
+            <span className="block w-8 h-[0.5px] bg-[#C4985B]/30" />
           </div>
         </div>
-      </div>
 
-      <style jsx>{`
-        .shadow-elegant {
-          box-shadow: 
-            0 4px 6px -1px rgba(0, 0, 0, 0.1),
-            0 20px 25px -5px rgba(0, 0, 0, 0.1),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
-        }
-        
-        .shadow-elegant-hover {
-          box-shadow: 
-            0 10px 15px -3px rgba(0, 0, 0, 0.1),
-            0 25px 50px -12px rgba(0, 0, 0, 0.15),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
-        }
-      `}</style>
+        {/* ── Bottom ornamental line ── */}
+        <div className={`flex items-center justify-center gap-3 mt-16 transition-all duration-[1800ms] ease-out ${
+          isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+        }`} style={{ transitionDelay: '1500ms' }}>
+          <span className="block w-16 h-[0.5px] bg-[#C4985B]/40" />
+          <span className="block w-1.5 h-1.5 rounded-full bg-[#C4985B]/35" />
+          <span className="block w-16 h-[0.5px] bg-[#C4985B]/40" />
+        </div>
+
+      </div>
     </section>
   );
 }

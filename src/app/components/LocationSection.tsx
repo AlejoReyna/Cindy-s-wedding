@@ -16,23 +16,25 @@ interface LocationData {
 
 const locations: LocationData[] = [
   {
-    label: 'Ceremonia Religiosa',
-    venue: 'Parroquia Maria Auxiliadora',
-    address: 'Calle 3 8-72',
-    city: 'Cartago, Valle del Cauca',
-    mapsUrl: 'https://maps.app.goo.gl/3q4Q1',
+    label: 'Ceremonia religiosa',
+    venue: 'Iglesia Sagrado Corazón de Jesús',
+    address: 'Calle Ignacio Zaragoza 700, Centro de Montemorelos',
+    city: '67500 Montemorelos, N.L.',
+    mapsUrl:
+      'https://www.google.com/maps/search/?api=1&query=Iglesia+Sagrado+Corazón+de+Jesús+Calle+Ignacio+Zaragoza+700+Montemorelos+N.L.',
     image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Templo_Parroquial_Sagrado_Coraz%C3%B3n_de_Jes%C3%BAs.jpg/330px-Templo_Parroquial_Sagrado_Coraz%C3%B3n_de_Jes%C3%BAs.jpg',
-    imageAlt: 'Ceremonia religiosa - Iglesia Sagrado Corazón',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Templo_Parroquial_Sagrado_Coraz%C3%B3n_de_Jes%C3%B3s.jpg/330px-Templo_Parroquial_Sagrado_Coraz%C3%B3n_de_Jes%C3%B3s.jpg',
+    imageAlt: 'Ceremonia religiosa - Iglesia Sagrado Corazón de Jesús',
   },
   {
     label: 'Recepción',
-    venue: 'Casa Museo del Virrey',
-    address: 'Cra. 4 #13-130',
-    city: 'Cartago, Valle del Cauca',
-    mapsUrl: 'https://maps.app.goo.gl/w1R1',
+    venue: "Museo histórico 'Valle del Pilón'",
+    address: 'Prolongación Frontera, s/n, Barrio Parar',
+    city: '67500 Montemorelos, N.L.',
+    mapsUrl:
+      'https://www.google.com/maps/search/?api=1&query=Museo+Valle+del+Pilón+Prolongación+Frontera+Montemorelos+N.L.',
     image: receptionImg,
-    imageAlt: 'Recepción - Casa Museo del Virrey',
+    imageAlt: "Recepción - Museo histórico Valle del Pilón",
   },
 ];
 

@@ -1,144 +1,10 @@
 "use client"
-import { useEffect, useRef, useState } from 'react';
-import { FaCreditCard, FaEnvelope } from 'react-icons/fa';
-import Image from 'next/image';
-
-// Componente GiftCard premium
-interface GiftCardProps {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  subtitle: string;
-  content: string;
-  details?: Array<{ label: string; value: string }>;
-  className?: string;
-}
-
-function GiftCard({ icon: Icon, title, subtitle, content, details, className = "" }: GiftCardProps) {
-  return (
-    <div
-      className={`overflow-hidden rounded-lg transition-all duration-700 transform hover:-translate-y-2 hover:scale-[1.01] group relative border border-[#d4c4b0]/40 h-full ${className}`}
-      style={{
-        backgroundColor: '#f0ebe5',
-        backgroundImage: `
-          linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(139,115,85,0.05) 100%),
-          linear-gradient(45deg, rgba(180,147,113,0.03) 0%, rgba(139,115,85,0.02) 100%)
-        `,
-        boxShadow: `
-          inset 2px 2px 4px rgba(139,115,85,0.15),
-          inset -1px -1px 3px rgba(255,255,255,0.4),
-          0 4px 8px rgba(139,115,85,0.12),
-          0 1px 2px rgba(139,115,85,0.08)
-        `
-      }}
-    >
-      {/* Overlay sutil para mejorar legibilidad del texto sobre cartón */}
-      <div
-        className="absolute inset-0 rounded-lg bg-white/30"
-        style={{
-          backgroundImage: `
-            linear-gradient(45deg, transparent 49%, rgba(139,115,85,0.02) 50%, rgba(139,115,85,0.02) 51%, transparent 52%),
-            linear-gradient(-45deg, transparent 49%, rgba(196,152,91,0.01) 50%, rgba(196,152,91,0.01) 51%, transparent 52%)
-          `,
-          backgroundSize: '6px 6px, 8px 8px'
-        }}
-      ></div>
-
-      {/* Content Section */}
-      <div className="p-8 md:p-10 text-center relative h-full flex flex-col justify-between z-10">
-        <div className="flex-grow">
-          {/* Icon */}
-          <div
-            className="w-16 h-16 mx-auto mb-6 rounded-md shadow-lg inline-flex items-center justify-center"
-            style={{
-              backgroundColor: '#e8ddd1',
-              backgroundImage: `
-                linear-gradient(45deg, rgba(180,147,113,0.15) 0%, rgba(139,115,85,0.10) 100%)
-              `,
-              boxShadow: `
-                inset 1px 1px 3px rgba(139,115,85,0.2),
-                inset -1px -1px 2px rgba(255,255,255,0.5),
-                0 2px 4px rgba(139,115,85,0.15)
-              `
-            }}
-          >
-            <Icon className="text-[#5a4a3a] text-xl" />
-          </div>
-
-          {/* Title */}
-          <h3
-            className="text-2xl md:text-3xl font-light text-[#2c2826] mb-3 tracking-[0.15em] uppercase"
-            style={{
-              fontFamily: 'Playfair Display, serif',
-              textShadow: '0 1px 3px rgba(255,255,255,0.8)'
-            }}
-          >
-            {title}
-          </h3>
-
-          {/* Subtitle */}
-          <p
-            className="text-[#5a4a3a]/80 text-sm font-light tracking-[0.15em] uppercase mb-6"
-            style={{ textShadow: '0 1px 2px rgba(255,255,255,0.8)' }}
-          >
-            {subtitle}
-          </p>
-
-          {/* Content */}
-          <p
-            className="text-[#5a4f45] text-base leading-relaxed mb-6"
-            style={{
-              fontFamily: 'Inter, sans-serif',
-              textShadow: '0 1px 2px rgba(255,255,255,0.6)'
-            }}
-          >
-            {content}
-          </p>
-        </div>
-
-        {/* Bottom section with details */}
-        {details && (
-          <div
-            className="rounded-lg p-6 shadow-inner"
-            style={{
-              backgroundColor: '#f5f0e8',
-              backgroundImage: `
-                linear-gradient(135deg, rgba(180,147,113,0.05) 0%, rgba(139,115,85,0.03) 100%)
-              `,
-              boxShadow: `
-                inset 1px 1px 3px rgba(139,115,85,0.2),
-                inset -1px -1px 2px rgba(255,255,255,0.6)
-              `,
-              border: '1px solid rgba(212, 196, 176, 0.3)'
-            }}
-          >
-            <div className="space-y-3">
-              {details.map((detail: { label: string; value: string }, index: number) => (
-                <div key={index} className="flex justify-between items-center">
-                  <span
-                    className="text-[#5a4a3a]/80 font-medium tracking-[0.1em] uppercase text-xs"
-                    style={{ textShadow: '0 1px 1px rgba(255,255,255,0.7)' }}
-                  >
-                    {detail.label}:
-                  </span>
-                  <span
-                    className="font-semibold font-mono text-[#2c2826] text-sm"
-                    style={{ textShadow: '0 1px 2px rgba(255,255,255,0.8)' }}
-                  >
-                    {detail.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 export default function GiftSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -147,7 +13,7 @@ export default function GiftSection() {
           if (entry.isIntersecting) setIsVisible(true);
         });
       },
-      { threshold: 0.15, rootMargin: '-20px' }
+      { threshold: 0.12, rootMargin: '-20px' }
     );
 
     const currentRef = sectionRef.current;
@@ -157,224 +23,206 @@ export default function GiftSection() {
     };
   }, []);
 
-  // Decorative floral elements matching the project style
-  const FloralDecoration = ({ className = "" }) => (
-    <svg className={`w-full h-full ${className}`} viewBox="0 0 80 80" fill="none">
-      <path d="M10,40 Q25,20 40,40 Q55,60 70,40 Q55,20 40,40 Q25,60 10,40" stroke="#8B7355" strokeWidth="1.2" fill="none" opacity="0.6" />
-      <path d="M25,35 Q30,25 35,35 Q30,45 25,35" fill="#9B8366" opacity="0.5" />
-      <path d="M45,45 Q50,35 55,45 Q50,55 45,45" fill="#C4985B" opacity="0.4" />
-      <circle cx="40" cy="40" r="2.5" fill="#D4A971" opacity="0.6" />
-      <circle cx="32" cy="38" r="1" fill="#8B7355" opacity="0.4" />
-      <circle cx="48" cy="42" r="1" fill="#8B7355" opacity="0.4" />
+  const copyToClipboard = useCallback((text: string, label: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(label);
+      setTimeout(() => setCopied(null), 2000);
+    });
+  }, []);
+
+  // Small copy icon
+  const CopyIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="inline-block ml-2 opacity-0 group-hover/copy:opacity-60 transition-opacity duration-300">
+      <rect x="4" y="4" width="8" height="8" rx="1.5" stroke="#8B7355" strokeWidth="1" />
+      <path d="M10,4 V2.5 A1.5,1.5 0 0,0 8.5,1 H2.5 A1.5,1.5 0 0,0 1,2.5 V8.5 A1.5,1.5 0 0,0 2.5,10 H4" stroke="#8B7355" strokeWidth="1" />
     </svg>
   );
 
-  const bankDetails = [
-    { label: "Banco", value: "BBVA" },
-    { label: "CLABE", value: "012580015127660240" },
-    { label: "Tarjeta", value: "4152 3141 2145 2463" },
-    { label: "Titular", value: "CINDY JANETH MEDINA SANCHEZ" }
-  ];
+  // Copiable detail row
+  const DetailRow = ({ label, value, copyValue }: { label: string; value: string; copyValue?: string }) => (
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-b border-[#C4985B]/10 last:border-b-0">
+      <span className="garamond-300 tracking-[0.2em] text-[10px] md:text-[11px] uppercase text-[#8B7355]/70 mb-1 sm:mb-0">
+        {label}
+      </span>
+      {copyValue ? (
+        <button
+          onClick={() => copyToClipboard(copyValue, label)}
+          className="group/copy inline-flex items-center cursor-pointer hover:text-[#8B7355] transition-colors duration-300"
+          title="Copiar"
+        >
+          <span className="font-mono text-sm text-[#543c24] tracking-wide">
+            {value}
+          </span>
+          <CopyIcon />
+          {copied === label && (
+            <span className="ml-2 text-[10px] tracking-[0.15em] uppercase text-[#C4985B] animate-fade-in-up">
+              copiado
+            </span>
+          )}
+        </button>
+      ) : (
+        <span className="garamond-regular text-sm text-[#543c24]">
+          {value}
+        </span>
+      )}
+    </div>
+  );
 
   return (
     <section
       ref={sectionRef}
-      className="min-h-screen w-full py-24 px-4 md:px-8 relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)' }}
+      className="min-h-screen w-full py-28 px-6 md:px-8 relative overflow-hidden flex items-center justify-center"
+      style={{
+        background: 'linear-gradient(180deg, #fbf9f6 0%, #f8f6f3 50%, #fbf9f6 100%)'
+      }}
     >
-      {/* Subtle organic texture overlay */}
-      <div className="absolute inset-0 opacity-[0.02]">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(circle at 30% 20%, rgba(196, 152, 91, 0.15) 0%, transparent 60%),
-                              radial-gradient(circle at 70% 60%, rgba(139, 115, 85, 0.12) 0%, transparent 60%),
-                              radial-gradient(circle at 50% 90%, rgba(180, 147, 113, 0.1) 0%, transparent 60%)`
-          }}
-        />
-      </div>
+      {/* Very subtle radial glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 45%, rgba(196,152,91,0.035) 0%, transparent 65%)'
+        }}
+      />
 
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 opacity-20">
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <pattern id="giftPattern" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
-              <path d="M20,20 Q40,30 60,20 Q80,10 100,25" stroke="#8B7355" strokeWidth="0.5" fill="none" opacity="0.3" />
-              <circle cx="30" cy="25" r="1" fill="#C4985B" opacity="0.2" />
-              <circle cx="70" cy="22" r="0.8" fill="#9B8366" opacity="0.3" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#giftPattern)" />
-        </svg>
-      </div>
+      <div className="max-w-4xl mx-auto relative z-10 w-full">
 
-      <div className="max-w-6xl mx-auto relative z-10">
-        {/* Header */}
-        <div
-          className={`text-center mb-20 transition-all duration-2000 ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-          }`}
-          style={{ transitionDelay: '200ms' }}
-        >
-          <div className="flex justify-center mb-2">
-            <div className="w-32 h-32 md:w-80 md:h-40 ">
-              <Image
-                src="/assets/gift_asset.png"
-                alt="Gift icon"
-                width={160}
-                height={160}
-                className="object-contain w-full h-full"
-                style={{ filter: 'sepia(40%) saturate(80%) hue-rotate(5deg) brightness(1.1)' }}
-              />
-            </div>
+        {/* ── Header (centered) ── */}
+        <div className="text-center mb-16">
+
+          {/* Top ornamental line */}
+          <div className={`flex items-center justify-center gap-3 mb-14 transition-all duration-[1800ms] ease-out ${
+            isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+          }`} style={{ transitionDelay: '100ms' }}>
+            <span className="block w-16 h-[0.5px] bg-[#C4985B]/40" />
+            <span className="block w-1.5 h-1.5 rounded-full bg-[#C4985B]/35" />
+            <span className="block w-16 h-[0.5px] bg-[#C4985B]/40" />
           </div>
 
-          <p className="text-xs md:text-sm font-light tracking-[0.4em] uppercase mb-6 text-[#8B7355] italic garamond-300">
-            SI DESEAS OBSEQUIARNOS
+          {/* Script accent */}
+          <p className={`mrs-saint-delafield-regular text-3xl md:text-4xl text-[#8B7355]/60 mb-2 transition-all duration-[1600ms] ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+          }`} style={{ transitionDelay: '300ms' }}>
+            Si deseas obsequiarnos
           </p>
-          <div className="w-24 h-px mx-auto mb-6 bg-[#C4985B] opacity-60"></div>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.3em] uppercase text-[#5c5c5c] mb-8 garamond-300 relative">
-            Regalos
+
+          {/* Section title */}
+          <h2 className={`garamond-300 text-xs md:text-sm tracking-[0.35em] uppercase text-[#5c5c5c] mb-10 transition-all duration-[1600ms] ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+          }`} style={{ transitionDelay: '500ms' }}>
+            mesa de regalos
           </h2>
-          <p className="text-center text-stone-600 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto font-light mb-8">
+
+          {/* Intro message */}
+          <p className={`garamond-regular text-base md:text-lg text-[#543c24] leading-relaxed max-w-md mx-auto transition-all duration-[1800ms] ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`} style={{ transitionDelay: '650ms' }}>
             Tu presencia es nuestro regalo más preciado. Si deseas honrarnos con un obsequio, te ofrecemos estas opciones con profunda gratitud.
           </p>
         </div>
 
-        {/* Side decorative elements */}
-        <div className="absolute left-8 top-1/3 w-12 h-12 opacity-20 hidden lg:block">
-          <FloralDecoration />
-        </div>
-        <div className="absolute right-8 top-2/3 w-12 h-12 opacity-20 hidden lg:block">
-          <FloralDecoration className="transform rotate-180" />
-        </div>
+        {/* ══════════════════════════════════════════════
+            Horizontal layout — two options side by side
+            ══════════════════════════════════════════════ */}
+        <div className="flex flex-col md:flex-row md:items-start md:justify-center gap-10 md:gap-0">
 
-        {/* Gift Cards Container */}
-        <div className="grid md:grid-cols-2 gap-8 md:gap-20 max-w-[1200px] mx-auto items-stretch">
-          {/* Envelope Card */}
-          <div
-            className={`group transition-all duration-2500 ease-out ${
-              isVisible ? 'opacity-100 translate-y-0 md:translate-x-4' : 'opacity-0 translate-y-8 translate-x-0'
-            }`}
-            style={{ transitionDelay: '600ms' }}
-          >
-            <GiftCard
-              icon={FaEnvelope}
-              title="Sobre"
-              subtitle="Tradicional"
-              content="Un sobre con tu contribución será recibido con profundo agradecimiento el día de nuestra celebración. Es la forma más tradicional y querida de acompañarnos."
-            />
+          {/* ── Left: Sobre ── */}
+          <div className={`flex-1 text-center md:px-10 transition-all duration-[1800ms] ease-out ${
+            isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 md:-translate-x-10'
+          }`} style={{ transitionDelay: '850ms' }}>
+
+            {/* Envelope icon */}
+            <div className="flex justify-center mb-5">
+              <svg width="36" height="28" viewBox="0 0 36 28" fill="none">
+                <rect x="1" y="1" width="34" height="26" rx="3" stroke="#C4985B" strokeWidth="0.7" opacity="0.4" />
+                <path d="M1,1 L18,15 L35,1" stroke="#C4985B" strokeWidth="0.7" opacity="0.35" fill="none" />
+                <path d="M1,27 L13,15" stroke="#C4985B" strokeWidth="0.5" opacity="0.2" fill="none" />
+                <path d="M35,27 L23,15" stroke="#C4985B" strokeWidth="0.5" opacity="0.2" fill="none" />
+              </svg>
+            </div>
+
+            <p className="garamond-300 tracking-[0.3em] text-[11px] md:text-xs uppercase text-[#8B7355] mb-4">
+              Sobre
+            </p>
+            <p className="garamond-regular text-base md:text-lg text-[#543c24]/80 leading-relaxed max-w-xs mx-auto">
+              Un sobre con tu contribución será recibido con profundo agradecimiento el día de nuestra celebración.
+            </p>
           </div>
 
-          {/* Bank Transfer Card */}
-          <div
-            className={`group transition-all duration-2500 ease-out ${
-              isVisible ? 'opacity-100 translate-y-0 md:-translate-x-4' : 'opacity-0 translate-y-8 translate-x-0'
-            }`}
-            style={{ transitionDelay: '800ms' }}
-          >
-            <GiftCard
-              icon={FaCreditCard}
-              title="Transferencia"
-              subtitle="Bancaria"
-              content="Puedes realizar una transferencia bancaria directa a nuestra cuenta."
-              details={bankDetails}
-            />
+          {/* ── Center divider ── */}
+          {/* Vertical on desktop, horizontal on mobile */}
+          <div className={`flex items-center justify-center transition-all duration-[1800ms] ease-out ${
+            isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+          }`} style={{ transitionDelay: '1000ms' }}>
+            {/* Mobile: horizontal */}
+            <div className="flex md:hidden items-center gap-4">
+              <span className="block w-12 h-[0.5px] bg-[#C4985B]/25" />
+              <span className="garamond-300 text-[11px] tracking-[0.2em] text-[#C4985B]/40 uppercase">o</span>
+              <span className="block w-12 h-[0.5px] bg-[#C4985B]/25" />
+            </div>
+            {/* Desktop: vertical */}
+            <div className="hidden md:flex flex-col items-center gap-4 self-stretch py-4">
+              <span className="block w-[0.5px] flex-1 bg-[#C4985B]/25" />
+              <span className="garamond-300 text-[11px] tracking-[0.2em] text-[#C4985B]/40 uppercase">o</span>
+              <span className="block w-[0.5px] flex-1 bg-[#C4985B]/25" />
+            </div>
           </div>
 
-          {/* Horizontal Amazon Registry Card (full width on md+) */}
-          <div
-            className={`md:col-span-2 transition-all duration-2500 ease-out ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-            style={{ transitionDelay: '1000ms' }}
-          >
-           
+          {/* ── Right: Transferencia ── */}
+          <div className={`flex-1 text-center md:px-10 transition-all duration-[2000ms] ease-out ${
+            isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 md:translate-x-10'
+          }`} style={{ transitionDelay: '1100ms' }}>
+
+            {/* Card icon */}
+            <div className="flex justify-center mb-5">
+              <svg width="38" height="26" viewBox="0 0 38 26" fill="none">
+                <rect x="1" y="1" width="36" height="24" rx="3" stroke="#C4985B" strokeWidth="0.7" opacity="0.4" />
+                <rect x="1" y="7" width="36" height="4" fill="#8B7355" opacity="0.1" />
+                <rect x="5" y="17" width="10" height="2" rx="1" fill="#C4985B" opacity="0.2" />
+                <rect x="18" y="17" width="6" height="2" rx="1" fill="#C4985B" opacity="0.15" />
+              </svg>
+            </div>
+
+            <p className="garamond-300 tracking-[0.3em] text-[11px] md:text-xs uppercase text-[#8B7355] mb-4">
+              Transferencia bancaria
+            </p>
+            <p className="garamond-regular text-base md:text-lg text-[#543c24]/80 leading-relaxed max-w-xs mx-auto mb-8">
+              Puedes realizar una transferencia directa a nuestra cuenta.
+            </p>
+
+            {/* Bank details */}
+            <div className={`max-w-sm mx-auto text-left transition-all duration-[2000ms] ease-out ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`} style={{ transitionDelay: '1400ms' }}>
+
+              <div className="border border-[#C4985B]/15 rounded-sm px-5 py-4"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(248,246,243,0.8) 100%)'
+                }}
+              >
+                <DetailRow label="Banco" value="BBVA" />
+                <DetailRow label="CLABE" value="0125 8001 5127 6602 40" copyValue="012580015127660240" />
+                <DetailRow label="Tarjeta" value="4152 3141 2145 2463" copyValue="4152314121452463" />
+                <DetailRow label="Titular" value="Cindy Janeth Medina Sanchez" />
+              </div>
+
+              <p className="garamond-300 text-[10px] tracking-[0.15em] text-[#8B7355]/40 text-center mt-3 uppercase">
+                Toca un número para copiarlo
+              </p>
+            </div>
           </div>
-          {/* END Horizontal Card */}
+
         </div>
+
+        {/* ── Bottom ornamental line ── */}
+        <div className={`flex items-center justify-center gap-3 mt-16 transition-all duration-[1800ms] ease-out ${
+          isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+        }`} style={{ transitionDelay: '1700ms' }}>
+          <span className="block w-16 h-[0.5px] bg-[#C4985B]/40" />
+          <span className="block w-1.5 h-1.5 rounded-full bg-[#C4985B]/35" />
+          <span className="block w-16 h-[0.5px] bg-[#C4985B]/40" />
+        </div>
+
       </div>
-
-      <style jsx>{`
-        .shadow-elegant {
-          box-shadow:
-            0 4px 6px -1px rgba(0, 0, 0, 0.1),
-            0 20px 25px -5px rgba(0, 0, 0, 0.1),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
-        }
-        .shadow-elegant-hover {
-          box-shadow:
-            0 10px 15px -3px rgba(0, 0, 0, 0.1),
-            0 25px 50px -12px rgba(0, 0, 0, 0.15),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
-        }
-
-        /* --- Gift Tag Button Styles --- */
-        .gift-tag-btn {
-          position: relative;
-          padding: 0.7rem 0.95rem;
-          border-radius: 9999px;
-          border: 1px dashed rgba(212, 196, 176, 0.6);
-          background:
-            linear-gradient(135deg, rgba(255,255,255,0.65) 0%, rgba(240,235,229,0.5) 100%),
-            linear-gradient(135deg, #fffaf5 0%, #f3ece5 100%);
-          box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.6),
-            0 6px 12px rgba(139,115,85,0.10);
-          color: #5a4a3a;
-          backdrop-filter: blur(2px);
-          transform: translateZ(0);
-        }
-        .gift-tag-btn:hover {
-          transform: translateY(-1px);
-          box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.7),
-            0 10px 18px rgba(139,115,85,0.14);
-        }
-
-        /* Agujero del tag (detalle sutil) */
-        .gift-tag-btn .tag-hole {
-          position: absolute;
-          left: 10px;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 8px;
-          height: 8px;
-          border-radius: 9999px;
-          background:
-            radial-gradient(circle at 35% 35%, #ffffff 0%, #e8ddd1 60%, #c9b59e 100%);
-          box-shadow: inset 0 0 0 1px rgba(90,74,58,0.35);
-          opacity: 0.9;
-        }
-
-        /* Brillo en barrido */
-        @keyframes sweep {
-          0% { left: -120%; }
-          100% { left: 120%; }
-        }
-        .gift-tag-btn .shine {
-          position: absolute;
-          top: 0; bottom: 0;
-          left: -120%;
-          width: 40%;
-          pointer-events: none;
-          background: linear-gradient(120deg,
-            rgba(255,255,255,0) 0%,
-            rgba(255,255,255,0.28) 35%,
-            rgba(255,255,255,0.6) 50%,
-            rgba(255,255,255,0.0) 70%);
-          transform: skewX(-20deg);
-          filter: blur(0.2px);
-        }
-        .gift-tag-btn:hover .shine {
-          animation: sweep 1.2s ease-in-out;
-        }
-
-        .gift-tag-btn .btn-text {
-          text-shadow: 0 1px 2px rgba(255,255,255,0.65);
-          letter-spacing: 0.12em;
-        }
-      `}</style>
     </section>
   );
 }
