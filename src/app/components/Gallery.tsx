@@ -1,92 +1,17 @@
 "use client"
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import CountdownTimer from '../../components/CountdownTimer';
 
 export default function Gallery() {
-  const [selectedImage, setSelectedImage] = useState<{ label: string; index: number } | null>(null);
-  // Fix hydration error by removing window check in initial state
-  const [centerIndex, setCenterIndex] = useState(0);
+  const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [animationStep, setAnimationStep] = useState(0);
   const [quoteVisible, setQuoteVisible] = useState(false);
-  const galleryRef = useRef<HTMLDivElement>(null);
+  const [visiblePhotos, setVisiblePhotos] = useState<Set<number>>(new Set());
   const sectionRef = useRef<HTMLDivElement>(null);
   const quoteRef = useRef<HTMLDivElement>(null);
-
-  // Add useEffect to set initial centerIndex after component mounts
-  useEffect(() => {
-    // Set initial index based on screen size after component mounts
-    if (window.innerWidth >= 768) {
-      setCenterIndex(2);
-    }
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !isVisible) {
-            setIsVisible(true);
-            // Secuencia de animación
-            // Paso 1: Extensión de la barra (inmediato)
-            setAnimationStep(1);
-            
-            // Paso 2: Aparición del título y descripción desde la línea (después de 700ms)
-            setTimeout(() => setAnimationStep(2), 700);
-            
-            // Paso 3: Resto de elementos (después de 1200ms)
-            setTimeout(() => setAnimationStep(3), 1200);
-          }
-        });
-      },
-      {
-        threshold: 0.15,
-        rootMargin: '-20px'
-      }
-    );
-
-    const currentRef = sectionRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, [isVisible]);
-
-  // Observer para la cita de The Beatles
-  useEffect(() => {
-    const quoteObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !quoteVisible) {
-            setQuoteVisible(true);
-          }
-        });
-      },
-      {
-        threshold: 0.3,
-        rootMargin: '-50px'
-      }
-    );
-
-    const currentQuoteRef = quoteRef.current;
-    if (currentQuoteRef) {
-      quoteObserver.observe(currentQuoteRef);
-    }
-
-    return () => {
-      if (currentQuoteRef) {
-        quoteObserver.unobserve(currentQuoteRef);
-      }
-    };
-  }, [quoteVisible]);
-
-
+  const photoRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const photos = [
     { label: 'FOTO PLACEHOLDER 1' },
@@ -98,280 +23,136 @@ export default function Gallery() {
     { label: 'FOTO PLACEHOLDER 7' },
   ];
 
+  // Grid area names — each photo maps to a named CSS grid area
+  const gridAreaNames = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+
+  // ── Section observer for header entrance animations ──
   useEffect(() => {
-    const handleScroll = () => {
-      if (galleryRef.current) {
-        const container = galleryRef.current;
-        const scrollLeft = container.scrollLeft;
-        const containerWidth = container.clientWidth;
-        
-      
-        
-        const centerX = scrollLeft + (containerWidth / 2);
-        
-        let closestIndex = 0;
-        let closestDistance = Infinity;
-        
-        for (let i = 0; i < photos.length; i++) {
-          const cardElement = container.children[i] as HTMLElement;
-          if (cardElement) {
-            const cardLeft = cardElement.offsetLeft;
-            const cardWidth = cardElement.offsetWidth;
-            const cardCenter = cardLeft + (cardWidth / 2);
-            
-            const distance = Math.abs(centerX - cardCenter);
-            if (distance < closestDistance) {
-              closestDistance = distance;
-              closestIndex = i;
-            }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isVisible) {
+            setIsVisible(true);
+            setAnimationStep(1);
+            setTimeout(() => setAnimationStep(2), 700);
+            setTimeout(() => setAnimationStep(3), 1200);
           }
-        }
-        
-        setCenterIndex(closestIndex);
-      }
-    };
+        });
+      },
+      { threshold: 0.15, rootMargin: '-20px' }
+    );
 
-    const galleryElement = galleryRef.current;
-    if (galleryElement) {
-      galleryElement.addEventListener('scroll', handleScroll);
-      
-      const initialCheck = () => {
-        setTimeout(handleScroll, 100);
-        setTimeout(handleScroll, 500);
-        setTimeout(handleScroll, 1000);
-      };
-      
-      initialCheck();
-      
-      return () => {
-        galleryElement.removeEventListener('scroll', handleScroll);
-      };
-    }
-  }, [photos.length]);
+    const currentRef = sectionRef.current;
+    if (currentRef) observer.observe(currentRef);
+    return () => { if (currentRef) observer.unobserve(currentRef); };
+  }, [isVisible]);
 
-  // Touch event listeners for debugging (removed console logs)
+  // ── Quote observer ──
   useEffect(() => {
-    const galleryElement = galleryRef.current;
-    if (!galleryElement) return;
+    const quoteObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !quoteVisible) setQuoteVisible(true);
+        });
+      },
+      { threshold: 0.3, rootMargin: '-50px' }
+    );
 
-    const handleTouchStart = () => {
-      // Touch start handler
-    };
+    const currentQuoteRef = quoteRef.current;
+    if (currentQuoteRef) quoteObserver.observe(currentQuoteRef);
+    return () => { if (currentQuoteRef) quoteObserver.unobserve(currentQuoteRef); };
+  }, [quoteVisible]);
 
-    const handleTouchMove = () => {
-      // Touch move handler
-    };
-
-    const handleTouchEnd = () => {
-      // Touch end handler
-    };
-
-    const handlePointerDown = () => {
-      // Pointer down handler
-    };
-
-    const handlePointerMove = () => {
-      // Pointer move handler
-    };
-
-    // Add all event listeners
-    galleryElement.addEventListener('touchstart', handleTouchStart, { passive: false });
-    galleryElement.addEventListener('touchmove', handleTouchMove, { passive: false });
-    galleryElement.addEventListener('touchend', handleTouchEnd, { passive: false });
-    galleryElement.addEventListener('pointerdown', handlePointerDown);
-    galleryElement.addEventListener('pointermove', handlePointerMove);
-
-    // Also check for mouse events
-    const handleMouseDown = () => {
-      // Mouse down handler
-    };
-
-    galleryElement.addEventListener('mousedown', handleMouseDown);
-
-    return () => {
-      galleryElement.removeEventListener('touchstart', handleTouchStart);
-      galleryElement.removeEventListener('touchmove', handleTouchMove);
-      galleryElement.removeEventListener('touchend', handleTouchEnd);
-      galleryElement.removeEventListener('pointerdown', handlePointerDown);
-      galleryElement.removeEventListener('pointermove', handlePointerMove);
-      galleryElement.removeEventListener('mousedown', handleMouseDown);
-    };
-  }, []);
-
-  // Check CSS properties (removed console logs)
+  // ── Staggered photo reveal on scroll ──
   useEffect(() => {
-    const galleryElement = galleryRef.current;
-    if (!galleryElement) return;
+    if (animationStep < 3) return;
 
-    // Check for overlapping elements
-    const rect = galleryElement.getBoundingClientRect();
+    const photoObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number(entry.target.getAttribute('data-index'));
+            setTimeout(() => {
+              setVisiblePhotos((prev) => new Set([...prev, index]));
+            }, index * 120);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '-20px' }
+    );
 
-    // Check for elements with higher z-index that might be blocking
-    const allElements = document.querySelectorAll('*');
-    const overlappingElements: Element[] = [];
-
-    allElements.forEach(el => {
-      const elStyles = window.getComputedStyle(el);
-      const elZIndex = parseInt(elStyles.zIndex) || 0;
-      
-      if (elZIndex > 10 && el !== galleryElement && !galleryElement.contains(el)) {
-        const elRect = el.getBoundingClientRect();
-        // Check if it overlaps with gallery
-        if (!(elRect.right < rect.left || 
-              elRect.left > rect.right || 
-              elRect.bottom < rect.top || 
-              elRect.top > rect.bottom)) {
-          overlappingElements.push(el);
-        }
-      }
+    photoRefs.current.forEach((ref) => {
+      if (ref) photoObserver.observe(ref);
     });
 
+    return () => {
+      photoRefs.current.forEach((ref) => {
+        if (ref) photoObserver.unobserve(ref);
+      });
+    };
   }, [animationStep]);
 
-  useEffect(() => {
-            const centerImageWithPeek = () => {
-          if (galleryRef.current) {
-            const container = galleryRef.current;
-            
-            // Check if screen is medium or larger
-            const isMediumOrLarger = window.innerWidth >= 768;
-            const targetIndex = isMediumOrLarger ? 2 : 0; // Third photo (index 2) for md+, first photo for mobile
-            
-            // Update center index immediately
-            setCenterIndex(targetIndex);
-            
-            setTimeout(() => {
-              // Calculate responsive card dimensions
-              const isLarge = window.innerWidth >= 1024; // lg breakpoint
-              const cardWidth = isMediumOrLarger ? 384 : 256; // md:w-96 = 384px, w-64 = 256px
-              const gap = isLarge ? 48 : (isMediumOrLarger ? 32 : 16); // lg:gap-12 = 48px, md:gap-8 = 32px, gap-4 = 16px
-              const containerWidth = container.clientWidth;
-              
-              // Calculate scroll position to center the target image
-              const scrollPosition = (targetIndex * (cardWidth + gap)) - (containerWidth / 2) + (cardWidth / 2);
-              
-              // Set scroll position
-              container.scrollLeft = Math.max(0, scrollPosition);
-              
-              // Force a scroll event to ensure everything is in sync
-              setTimeout(() => {
-                const event = new Event('scroll');
-                container.dispatchEvent(event);
-              }, 50);
-            }, 100);
-          }
-        };
-
-    // Multiple attempts to ensure proper initialization
-    const timer1 = setTimeout(centerImageWithPeek, 100);
-    const timer2 = setTimeout(centerImageWithPeek, 500);
-    const timer3 = setTimeout(centerImageWithPeek, 1000);
-    
-    // Handle window resize
-    const handleResize = () => {
-      centerImageWithPeek();
-    };
-    
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
-      window.removeEventListener('resize', handleResize);
-    };
+  // ── Keyboard navigation for lightbox ──
+  const closeModal = useCallback(() => {
+    setSelectedImage(null);
+    document.body.style.overflow = 'auto';
   }, []);
 
-  const openModal = (photo: { label: string }, index: number) => {
-    setSelectedImage({ ...photo, index });
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (selectedImage === null) return;
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowLeft' && selectedImage > 0) setSelectedImage(selectedImage - 1);
+      if (e.key === 'ArrowRight' && selectedImage < photos.length - 1) setSelectedImage(selectedImage + 1);
+    },
+    [selectedImage, photos.length, closeModal]
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
+  const openModal = (index: number) => {
+    setSelectedImage(index);
     document.body.style.overflow = 'hidden';
   };
 
-  const closeModal = () => {
-    setSelectedImage(null);
-    document.body.style.overflow = 'auto';
-  };
-
-  const getCardStyle = (index: number, isCenterCard: boolean) => {
-    const distance = Math.abs(index - centerIndex);
-    
-    if (isCenterCard) {
-      return {
-        transform: 'perspective(1000px) translateZ(80px) scale(1.1)',
-        zIndex: 50,
-        opacity: 1,
-        filter: 'brightness(1.1) contrast(1.1) saturate(1.1)',
-      };
-    }
-    
-    if (distance === 1) {
-      return {
-        transform: 'perspective(1000px) translateZ(20px) scale(0.9)',
-        zIndex: 40,
-        opacity: 0.85,
-        filter: 'brightness(0.95) contrast(1)',
-      };
-    }
-    
-    if (distance === 2) {
-      return {
-        transform: 'perspective(1000px) translateZ(-20px) scale(0.8)',
-        zIndex: 30,
-        opacity: 0.7,
-        filter: 'brightness(0.9) contrast(0.95)',
-      };
-    }
-    
-    return {
-      transform: 'perspective(1000px) translateZ(-60px) scale(0.7)',
-      zIndex: 20,
-      opacity: 0.5,
-      filter: 'brightness(0.8) contrast(0.9)',
-    };
-  };
-
-
-
+  // ─────────────────────────────────────────────
+  // RENDER
+  // ─────────────────────────────────────────────
   return (
-    <section 
+    <section
       id="galeria"
       ref={sectionRef}
       className="min-h-screen w-full py-24 relative overflow-hidden"
-      style={{ 
-        background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)'
+      style={{
+        background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)',
       }}
     >
-
-
-      {/* Enhanced organic texture overlay */}
-      <div className="absolute inset-0 opacity-[0.03] z-[2] pointer-events-none"> {/* DEBUG: Added pointer-events-none */}
-        <div 
-          className="absolute inset-0" 
+      {/* Organic texture overlay */}
+      <div className="absolute inset-0 opacity-[0.03] z-[2] pointer-events-none">
+        <div
+          className="absolute inset-0"
           style={{
             backgroundImage: `radial-gradient(circle at 30% 20%, rgba(196, 152, 91, 0.15) 0%, transparent 60%),
                               radial-gradient(circle at 70% 60%, rgba(139, 115, 85, 0.12) 0%, transparent 60%),
                               radial-gradient(circle at 50% 90%, rgba(180, 147, 113, 0.1) 0%, transparent 60%),
                               radial-gradient(circle at 20% 70%, rgba(155, 131, 102, 0.08) 0%, transparent 50%),
-                              radial-gradient(circle at 80% 30%, rgba(212, 169, 113, 0.1) 0%, transparent 55%)`
+                              radial-gradient(circle at 80% 30%, rgba(212, 169, 113, 0.1) 0%, transparent 55%)`,
           }}
         />
       </div>
 
-
-      
-
-
-      {/* Header and decorative elements with max-width */}
-      <div className="max-w-6xl mx-auto relative z-10 px-4 md:px-8 pointer-events-none"> {/* DEBUG: Added pointer-events-none to header */}
-        {/* Header with elegant styling */}
+      {/* ═══ Header ═══ */}
+      <div className="max-w-6xl mx-auto relative z-10 px-4 md:px-8 pointer-events-none">
         <div className="text-center mb-16">
-          
-
-
-          {/* Flowers decoration above title */}
-          <div className={`flex justify-center mb-6 transition-all duration-1000 ease-out ${
-            animationStep >= 1 ? 'opacity-100 -translate-y-0' : 'opacity-0 -translate-y-4'
-          }`}>
+          {/* Flowers decoration */}
+          <div
+            className={`flex justify-center mb-6 transition-all duration-1000 ease-out ${
+              animationStep >= 1 ? 'opacity-100 -translate-y-0' : 'opacity-0 -translate-y-4'
+            }`}
+          >
             <div className="w-68 h-24 relative">
               <Image
                 src="/assets/legal_assets/flowers_s2.png"
@@ -380,234 +161,113 @@ export default function Gallery() {
                 className="object-contain"
                 style={{
                   filter: 'sepia(20%) saturate(90%) hue-rotate(10deg) brightness(1.05)',
-                  opacity: 0.8
+                  opacity: 0.8,
                 }}
               />
             </div>
           </div>
 
-          {/* Main title - emerges upward from divider */}
+          {/* Title */}
           <div className="relative overflow-hidden">
-            <h2 className={`text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.3em] uppercase text-[#5c5c5c] mb-2 garamond-300 relative transition-all duration-500 ease-out ${
-              animationStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}>
+            <h2
+              className={`text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.3em] uppercase text-[#5c5c5c] mb-2 garamond-300 relative transition-all duration-500 ease-out ${
+                animationStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+            >
               ¡Nos Casamos!
             </h2>
           </div>
 
-          {/* Countdown below title */}
-          <div className={`flex justify-center mt-4 transition-all duration-500 ease-out ${
-            animationStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-          }`}>
-            <CountdownTimer
-              targetDate="2026-08-22T00:00:00"
-              variant="light"
-            />
+          {/* Countdown */}
+          <div
+            className={`flex justify-center mt-4 transition-all duration-500 ease-out ${
+              animationStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`}
+          >
+            <CountdownTimer targetDate="2026-08-22T00:00:00" variant="light" />
           </div>
-
-          {/* Decorative line with extension animation - appears first */}
-          
-          
-          
-        </div>  
-
-
+        </div>
       </div>
 
-      {/* FULL WIDTH CAROUSEL - Outside of max-width container */}
-      <div className={`relative w-screen transition-all duration-1200 ease-out ${
-        animationStep >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-      }`} style={{ 
-        perspective: '1500px',
-        marginLeft: 'calc(-50vw + 50%)',
-        marginRight: 'calc(-50vw + 50%)'
-      }}>
-        
-        {/* Left Navigation Arrow */}
-        {centerIndex > 0 && (
-          <button 
-            onClick={() => {
-              if (galleryRef.current) {
-                galleryRef.current.scrollBy({
-                  left: -300,
-                  behavior: 'smooth'
-                });
-              }
-            }}
-            className="hidden md:flex items-center justify-center absolute left-4 top-1/2 -translate-y-1/2 z-50 bg-white/90 hover:bg-white text-[#8B7355] hover:text-[#C4985B] transition-all duration-300 p-3 rounded-full shadow-elegant hover:shadow-elegant-hover hover:scale-110"
-            aria-label="Previous photo"
-            style={{ backdropFilter: 'blur(12px)' }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-        )}
+      {/* ═══ MOSAIC GRID ═══ */}
+      <div
+        className={`max-w-6xl mx-auto px-4 md:px-8 relative z-10 transition-all duration-1000 ease-out ${
+          animationStep >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+      >
+        <div className="gallery-mosaic">
+          {photos.map((photo, index) => (
+            <div
+              key={index}
+              ref={(el) => {
+                photoRefs.current[index] = el;
+              }}
+              data-index={index}
+              className="mosaic-cell group cursor-pointer relative overflow-hidden"
+              style={{
+                gridArea: gridAreaNames[index],
+                opacity: visiblePhotos.has(index) ? 1 : 0,
+                transform: visiblePhotos.has(index)
+                  ? 'translateY(0) scale(1)'
+                  : 'translateY(24px) scale(0.97)',
+                transition: 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              }}
+              onClick={() => openModal(index)}
+            >
+              {/* Photo container */}
+              <div className="relative w-full h-full bg-[#ede9e2] overflow-hidden">
+                {/* Placeholder label */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-[10px] md:text-xs uppercase tracking-[0.25em] text-[#8B7355]/50 text-center px-4 garamond-300 select-none">
+                    {photo.label}
+                  </span>
+                </div>
 
-        {/* Full Width Carousel */}
-        <div 
-          ref={galleryRef}
-          className="flex gap-4 md:gap-8 lg:gap-12 overflow-x-auto scrollbar-hide py-12"
-          style={{
-            scrollSnapType: 'x mandatory',
-            scrollPadding: '0 1rem',
-            transformStyle: 'preserve-3d',
-            paddingLeft: 'calc(50vw - 12rem)',
-            paddingRight: 'calc(50vw - 12rem)',
-            // DEBUG: Add explicit touch-action
-            touchAction: 'pan-x',
-            WebkitOverflowScrolling: 'touch'
-          }}
-          onTouchStart={() => {
-            // Carousel touch start handler
-          }}
-          onTouchMove={() => {
-            // Carousel touch move handler
-          }}
-        >
-          {photos.map((photo, index) => {
-            const isCenterCard = index === centerIndex;
-            const cardStyle = getCardStyle(index, isCenterCard);
-            
-            return (
-              <div 
-                key={index}
-                className="flex-shrink-0 w-64 h-80 md:w-96 md:h-[28rem] overflow-hidden transition-all duration-700 ease-out cursor-pointer relative"
-                style={{
-                  scrollSnapAlign: 'center',
-                  ...cardStyle,
-                  transformStyle: 'preserve-3d',
-                }}
-                onClick={() => {
-                  openModal(photo, index);
-                }}
-                onTouchStart={() => {
-                  // Card touch start handler
-                }}
-              >
-                <div className="relative h-full w-full transition-all duration-700 hover:scale-105">
-                  {/* Enhanced depth effect for center card */}
-                  {isCenterCard && (
-                    <>
-                      <div className="absolute -inset-8 bg-gradient-to-br from-[#C4985B]/20 via-[#D4C9B8]/15 to-[#8B7355]/20 blur-3xl pointer-events-none"></div>
-                      <div className="absolute -inset-6 bg-gradient-to-br from-[#C4985B]/15 via-[#F8F6F3]/10 to-[#8B7355]/15 blur-2xl pointer-events-none"></div>
-                      <div className="absolute -inset-4 bg-gradient-to-br from-[#C4985B]/15 to-[#8B7355]/15 blur-xl pointer-events-none"></div>
-                      <div className="absolute -inset-1 bg-gradient-to-br from-[#C4985B]/30 via-transparent to-[#8B7355]/30 pointer-events-none"></div>
-                    </>
-                  )}
-                  
-                  {/* Shadow effects for non-center cards */}
-                  {!isCenterCard && (
-                    <div 
-                      className="absolute inset-0 bg-black/5 pointer-events-none"
-                      style={{
-                        boxShadow: '0 8px 32px rgba(139, 115, 85, 0.1), 0 4px 16px rgba(139, 115, 85, 0.05)'
-                      }}
-                    ></div>
-                  )}
-                  
-                  {/* Image container */}
-                  <div className="relative overflow-hidden h-full">
-                    {isCenterCard && (
-                      <div className="absolute -inset-2 bg-gradient-to-br from-stone-800/5 via-transparent to-stone-800/10 shadow-elegant pointer-events-none"></div>
-                    )}
-                    
-                    <div className="relative w-full h-full bg-white overflow-hidden shadow-elegant flex items-center justify-center">
-                      {/* Foto original comentada para placeholder */}
-                      <div className="text-xs md:text-sm uppercase tracking-[0.2em] text-[#8B7355] text-center px-4">
-                        {photo.label}
-                      </div>
-                      
-                      <div className={`absolute inset-0 transition-all duration-700 pointer-events-none ${
-                        isCenterCard 
-                          ? 'bg-gradient-to-br from-transparent via-transparent to-[#8B7355]/5'
-                          : 'bg-gradient-to-br from-stone-800/5 via-transparent to-stone-800/10'
-                      }`}></div>
-                      
-                      {/* Tap indicator for center card */}
-                      {isCenterCard && (
-                        <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-elegant pointer-events-none">
-                          <svg className="w-4 h-4 text-[#8B7355]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-                          </svg>
-                        </div>
-                      )}
-                      
-                      {isCenterCard && (
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-60 pointer-events-none"></div>
-                      )}
-                    </div>
+                {/* Soft inner image zoom on hover */}
+                <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+
+                {/* Hover tint */}
+                <div className="absolute inset-0 bg-[#8B7355]/0 group-hover:bg-[#8B7355]/[0.06] transition-colors duration-500" />
+
+                {/* Bottom accent line */}
+                <div className="absolute bottom-0 left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-[#C4985B]/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-600" />
+
+                {/* View indicator */}
+                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 group-hover:translate-y-0">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-full p-1.5">
+                    <svg
+                      className="w-3 h-3 text-[#8B7355]"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+                      />
+                    </svg>
                   </div>
                 </div>
               </div>
-            );
-          })}
-        </div>
-
-        {/* Right Navigation Arrow */}
-        {centerIndex < photos.length - 1 && (
-          <button 
-            onClick={() => {
-              if (galleryRef.current) {
-                galleryRef.current.scrollBy({
-                  left: 300,
-                  behavior: 'smooth'
-                });
-              }
-            }}
-            className="hidden md:flex items-center justify-center absolute right-4 top-1/2 -translate-y-1/2 z-50 bg-white/90 hover:bg-white text-[#8B7355] hover:text-[#C4985B] transition-all duration-300 p-3 rounded-full shadow-elegant hover:shadow-elegant-hover hover:scale-110"
-            aria-label="Next photo"
-            style={{ backdropFilter: 'blur(12px)' }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        )}
-      </div>
-
-      {/* Scroll indicator and bottom content with max-width */}
-      <div className="max-w-6xl mx-auto relative z-10 px-4 md:px-8">
-        {/* Enhanced scroll indicator */}
-        <div className={`flex justify-center mt-8 space-x-3 transition-all duration-1000 ease-out ${
-          animationStep >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} style={{ transitionDelay: '300ms' }}>
-          {photos.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                if (galleryRef.current) {
-                  const card = galleryRef.current.children[index] as HTMLElement;
-                  card.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'nearest',
-                    inline: 'center'
-                  });
-                }
-              }}
-              className={`transition-all duration-300 rounded-full ${
-                index === centerIndex 
-                  ? 'w-8 h-3 bg-gradient-to-r from-[#C4985B] to-[#8B7355] shadow-lg' 
-                  : 'w-3 h-3 bg-stone-300 hover:bg-[#C4985B]/60'
-              }`}
-              aria-label={`Go to photo ${index + 1}`}
-            />
+            </div>
           ))}
         </div>
+      </div>
 
-        {/* Bottom quote */}
-        <div 
+      {/* ═══ Quote ═══ */}
+      <div className="max-w-6xl mx-auto relative z-10 px-4 md:px-8">
+        <div
           ref={quoteRef}
-          className={`text-center mt-16 transition-all duration-1000 ease-out pointer-events-none ${
+          className={`text-center mt-20 transition-all duration-1000 ease-out pointer-events-none ${
             quoteVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
           <div className="relative py-2 px-8">
-            {/* Background image with realhands */}
-            <div 
+            <div
               className="absolute inset-0"
               style={{
-                // backgroundImage: `url('/assets/legal_assets/realhands_s2.png')`, // Foto original comentada
                 backgroundImage: 'none',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center center',
@@ -616,73 +276,125 @@ export default function Gallery() {
                 opacity: 0.15,
               }}
             />
-            {/* Text content */}
             <div className="relative z-10">
               <p className="text-3xl text-stone-700 italic max-w-lg mx-auto garamond-300 leading-relaxed font-medium">
                 &ldquo; Frase pendiente &rdquo;
                 <br />
-                <small>
-                  - Autor pendiente
-                </small>
+                <small>- Autor pendiente</small>
               </p>
             </div>
           </div>
-          
-
         </div>
       </div>
 
-      {/* Enhanced Image Modal */}
-      {selectedImage && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
+      {/* ═══ Lightbox Modal ═══ */}
+      {selectedImage !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md"
           onClick={closeModal}
         >
-          <button 
-            className="absolute top-6 right-6 z-10 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-4 text-white transition-all duration-300 hover:scale-110 shadow-elegant"
+          {/* Close button */}
+          <button
+            className="absolute top-6 right-6 z-10 text-white/50 hover:text-white transition-colors duration-300"
             onClick={(e) => {
               e.stopPropagation();
               closeModal();
             }}
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-          
-          <div className="relative w-full h-full flex items-center justify-center p-4 md:p-8">
-            <div className="relative w-full h-full max-w-6xl max-h-full rounded-2xl overflow-hidden shadow-elegant flex items-center justify-center bg-black/40">
-              {/* Imagen original comentada para placeholder */}
-              <div className="text-white text-sm md:text-base uppercase tracking-[0.2em] text-center px-6">
-                {selectedImage.label}
-              </div>
+
+          {/* Counter */}
+          <div className="absolute top-7 left-1/2 -translate-x-1/2 text-white/30 text-sm tracking-[0.3em] uppercase garamond-300">
+            {selectedImage + 1}&thinsp;/&thinsp;{photos.length}
+          </div>
+
+          {/* Previous arrow */}
+          {selectedImage > 0 && (
+            <button
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-10 text-white/30 hover:text-white/80 transition-colors duration-300 p-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImage(selectedImage - 1);
+              }}
+            >
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
+
+          {/* Next arrow */}
+          {selectedImage < photos.length - 1 && (
+            <button
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-10 text-white/30 hover:text-white/80 transition-colors duration-300 p-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImage(selectedImage + 1);
+              }}
+            >
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          )}
+
+          {/* Image display area */}
+          <div
+            className="relative w-full h-full max-w-5xl max-h-[80vh] mx-4 md:mx-16 flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative w-full h-full bg-[#1a1a1a] flex items-center justify-center rounded-sm">
+              <span className="text-white/25 text-sm uppercase tracking-[0.25em] garamond-300">
+                {photos[selectedImage].label}
+              </span>
             </div>
           </div>
         </div>
       )}
 
+      {/* ═══ Grid Styles ═══ */}
       <style jsx>{`
-        .shadow-elegant {
-          box-shadow: 
-            0 4px 6px -1px rgba(0, 0, 0, 0.1),
-            0 20px 25px -5px rgba(0, 0, 0, 0.1),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
-        }
-        
-        .shadow-elegant-hover {
-          box-shadow: 
-            0 10px 15px -3px rgba(0, 0, 0, 0.1),
-            0 25px 50px -12px rgba(0, 0, 0, 0.15),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
+        /* ── Mobile-first: 2-column mosaic ── */
+        .gallery-mosaic {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          grid-template-rows: repeat(6, clamp(120px, 22vw, 180px));
+          gap: 6px;
+          grid-template-areas:
+            'a a'
+            'a a'
+            'b c'
+            'd d'
+            'e f'
+            'g g';
         }
 
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+        /* ── Tablet+: 4-column editorial mosaic ── */
+        @media (min-width: 768px) {
+          .gallery-mosaic {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 220px);
+            gap: 10px;
+            grid-template-areas:
+              'a a b c'
+              'a a d d'
+              'e f f g';
+          }
         }
-        
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
+
+        /* ── Desktop: taller cells, more breathing room ── */
+        @media (min-width: 1024px) {
+          .gallery-mosaic {
+            grid-template-rows: repeat(3, 260px);
+            gap: 12px;
+          }
+        }
+
+        .mosaic-cell {
+          border-radius: 2px;
         }
       `}</style>
     </section>

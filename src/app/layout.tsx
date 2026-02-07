@@ -13,16 +13,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nuestra boda",
-  description: "Celebra con nosotros nuestra boda el 18 de Octubre",
+  title: "Cindy & Jorge ",
+  description: "Celebra con nosotros nuestra boda el 22 de Agosto",
   appleWebApp: {
     capable: true,
     // Remover statusBarStyle para permitir control dinámico
   },
   icons: {
-    icon: "/assets/logos/IMG_0340.PNG",
-    apple: "/assets/logos/IMG_0340.PNG",
-    shortcut: "/assets/logos/IMG_0340.PNG",
+    icon: "/Diseño sin título.png",
+    apple: "/Diseño sin título.png",
+    shortcut: "/Diseño sin título.png",
+  },
+  openGraph: {
+    images: ["/Diseño sin título.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/Diseño sin título.png"],
   },
 };
 

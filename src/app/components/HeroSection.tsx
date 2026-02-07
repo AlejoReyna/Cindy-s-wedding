@@ -1,5 +1,4 @@
 "use client"
-import Image from 'next/image';
 import { useStatusBarSection } from '../../hooks/useStatusBarManager';
 import { useTheme } from '../context/ThemeContext';
 
@@ -24,50 +23,98 @@ const HeroSection = () => {
       }}
     >
       {/* Content */}
-      <div className="flex flex-col items-center z-10 w-full px-4 text-center mt-8 sm:mt-12 md:mt-16 fade-in-section">
-         {/* Monogram Logo */}
-         <div className="mb-6 relative w-24 h-24 sm:w-32 sm:h-32 opacity-80">
-           <Image
-            src="/Diseño sin título.png"
-             alt="Monograma"
-             fill
-             className={`object-contain ${isNightMode ? 'invert' : ''}`}
-             priority
-           />
-         </div>
+      <div className="z-10 w-full px-4 mt-8 sm:mt-12 md:mt-16 fade-in-section">
+        <div className="grid grid-cols-1 md:grid-cols-2 w-full items-start">
+          {/* Columna izquierda (vacía) */}
+          <div className="hidden md:block" />
 
-         {/* Names */}
-         <h2 className={`text-lg sm:text-xl md:text-5xl tracking-[0.2em] uppercase ${isNightMode ? 'text-white/80' : 'text-[#5e5e5a]'} garamond-regular mb-8 sm:mb-12`}>
-           Cindy <span className="mx-3 font-light">&</span> JORGE
-         </h2>
-         
-         {/* Big Script Text */}
-         <h1 className={`text-6xl sm:text-7xl md:text-8xl lg:text-5xl mrs-saint-delafield-regular ${isNightMode ? 'text-white' : 'text-[#2c2c28]'} leading-[0.8] sm:leading-[0.8] md:leading-[0.7] mb-8`}>
-           Me and you.<br/>Just us two.
-         </h1>
-         
-         {/* Date */}
-         <p className={`text-base sm:text-lg md:text-xl tracking-[0.3em] ${isNightMode ? 'text-white/60' : 'text-[#5e5e5a]/90'} garamond-300 mt-6`}>
-           22 . 08 . 2026
-         </p>
-      </div>
+          {/* Columna derecha (contenido alineado a la derecha) */}
+          <div className="flex flex-col items-end text-right">
+            {/* Curved Text */}
+            <div className="w-[260px] sm:w-[300px] md:w-[340px]">
+          <svg viewBox="0 0 300 120" className="w-full h-auto">
+            <path
+              id="hero-arc"
+              d="M 20 110 A 130 130 0 0 1 280 110"
+              fill="transparent"
+            />
+            <text
+              className={`hero-arc-text ${isNightMode ? 'fill-white/80' : 'fill-[#1f1f1f]'}`}
+            >
+              <textPath href="#hero-arc" startOffset="50%" textAnchor="middle">
+                TOGETHER WITH THEIR FAMILIES
+              </textPath>
+            </text>
+          </svg>
+            </div>
 
-      {/* Image at bottom */}
-      <div className="w-full h-[45vh] sm:h-[55vh] relative mt-auto">
-         <div 
-           className="absolute inset-0 bg-cover bg-top"
-           style={{
-             backgroundImage: `url('/hero.jpeg')`,
-             maskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 100%)',
-             WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 100%)'
-           }}
-         />
+            {/* Names */}
+            <div className="mt-2 sm:mt-4">
+              <div className={`hero-name ${isNightMode ? 'text-white/90' : 'text-black'}`}>
+                CINDY
+              </div>
+              <div className={`hero-and ${isNightMode ? 'text-white/80' : 'text-black'}`}>
+                and
+              </div>
+              <div className={`hero-name ${isNightMode ? 'text-white/90' : 'text-black'}`}>
+                JORGE
+              </div>
+            </div>
+
+            {/* Decorative Line */}
+            <div className={`mt-3 sm:mt-4 h-px w-10 ${isNightMode ? 'bg-white/60' : 'bg-black/70'}`} />
+          </div>
+        </div>
       </div>
 
       <style jsx>{`
         .fade-in-section {
           animation: fadeIn 1.5s ease-out forwards;
           opacity: 0;
+        }
+        .hero-arc-text {
+          font-family: 'EB Garamond', serif;
+          font-weight: 300;
+          letter-spacing: 0.35em;
+          font-size: 10px;
+        }
+        .hero-name {
+          font-family: 'EB Garamond', serif;
+          font-weight: 300;
+          letter-spacing: 0.25em;
+          text-transform: uppercase;
+          font-size: 40px;
+          line-height: 1.05;
+        }
+        .hero-and {
+          font-family: 'Mrs Saint Delafield', cursive;
+          font-weight: 400;
+          font-size: 28px;
+          line-height: 1;
+          margin-top: -6px;
+          margin-bottom: -6px;
+        }
+        @media (min-width: 640px) {
+          .hero-arc-text {
+            font-size: 11px;
+          }
+          .hero-name {
+            font-size: 48px;
+          }
+          .hero-and {
+            font-size: 32px;
+          }
+        }
+        @media (min-width: 768px) {
+          .hero-arc-text {
+            font-size: 12px;
+          }
+          .hero-name {
+            font-size: 56px;
+          }
+          .hero-and {
+            font-size: 36px;
+          }
         }
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }

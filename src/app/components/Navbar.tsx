@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useTheme } from '../context/ThemeContext';
 
@@ -16,6 +16,21 @@ const Navbar = () => {
   const [isInRSVPSection, setIsInRSVPSection] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isNightMode } = useTheme();
+
+  // DEBUG: set true para rastrear por qué no cambian flags
+  const DEBUG_NAVBAR = false;
+  const navRef = useRef<HTMLElement | null>(null);
+  const debugPrevRef = useRef({
+    isVisible: true,
+    isScrolled: false,
+    isInFooterSection: false,
+    isInRSVPSection: false,
+  });
+  const debugMissingSectionsLoggedRef = useRef({
+    hero: false,
+    footer: false,
+    rsvp: false,
+  });
   
   const navigationItems: NavigationItem[] = [
     { id: 'galeria', label: 'Galería' },
@@ -26,12 +41,17 @@ const Navbar = () => {
     { id: 'rsvp', label: 'Confirmar' }
   ];
 
+  // Para integrar el monograma como elemento real de la navbar (sin overlay)
+  const leftNavItems = navigationItems.slice(0, 3);
+  const rightNavItems = navigationItems.slice(3);
+
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
       // Lógica para ocultar/mostrar la navbar al hacer scroll
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      const nextIsVisible = !(currentScrollY > lastScrollY && currentScrollY > 100);
+      if (!nextIsVisible) {
         setIsVisible(false);
         setIsMobileMenuOpen(false);
       } else {
@@ -43,37 +63,103 @@ const Navbar = () => {
       const footerSection = document.getElementById('footer');
       const rsvpSection = document.getElementById('rsvp');
 
-      if (heroSection && footerSection) {
-        const heroRect = heroSection.getBoundingClientRect();
-        const footerRect = footerSection.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
+      // Log si faltan secciones (solo una vez)
+      if (DEBUG_NAVBAR) {
+        if (!heroSection && !debugMissingSectionsLoggedRef.current.hero) {
+          console.log('[NAVBAR DEBUG] No existe #hero-section en el DOM');
+          debugMissingSectionsLoggedRef.current.hero = true;
+        }
+        if (!footerSection && !debugMissingSectionsLoggedRef.current.footer) {
+          console.log('[NAVBAR DEBUG] No existe #footer en el DOM');
+          debugMissingSectionsLoggedRef.current.footer = true;
+        }
+        if (!rsvpSection && !debugMissingSectionsLoggedRef.current.rsvp) {
+          console.log('[NAVBAR DEBUG] No existe #rsvp en el DOM');
+          debugMissingSectionsLoggedRef.current.rsvp = true;
+        }
+      }
 
-        // Se considera que se ha hecho scroll cuando la parte inferior de la sección hero está por encima de la navbar (100px)
-        setIsScrolled(heroRect.bottom < 100);
+      const windowHeight = window.innerHeight;
+      const heroRect = heroSection?.getBoundingClientRect();
+      const footerRect = footerSection?.getBoundingClientRect();
+      const rsvpRect = rsvpSection?.getBoundingClientRect();
 
-        // Es transparente si el inicio del footer está a menos del 80% de la altura de la ventana
-        const isFooterVisible = footerRect.top < windowHeight * 0.8;
-        setIsInFooterSection(isFooterVisible);
+      const nextIsScrolled = heroRect ? heroRect.bottom < 100 : false;
+      const nextIsFooterVisible = footerRect ? footerRect.top < windowHeight * 0.8 : false;
 
-        // RSVP Section
-        if (rsvpSection) {
-          const rsvpRect = rsvpSection.getBoundingClientRect();
-          let isRSVPVisible = false;
-          if (rsvpRect.bottom > 0 && rsvpRect.top < windowHeight) {
-            const visibleTop = Math.max(0, rsvpRect.top);
-            const visibleBottom = Math.min(windowHeight, rsvpRect.bottom);
-            const actualVisibleHeight = visibleBottom - visibleTop;
-            const rsvpSixtyPercent = rsvpRect.height * 0.6;
-            const requiredHeight = Math.min(rsvpSixtyPercent, windowHeight);
-            isRSVPVisible = actualVisibleHeight >= requiredHeight;
-          }
-          setIsInRSVPSection(isRSVPVisible);
+      // RSVP visible: >=60% (o lo que quepa en viewport)
+      let nextIsRSVPVisible = false;
+      let rsvpDebug: null | {
+        top: number;
+        bottom: number;
+        height: number;
+        visibleTop: number;
+        visibleBottom: number;
+        actualVisibleHeight: number;
+        requiredHeight: number;
+      } = null;
+      if (rsvpRect) {
+        if (rsvpRect.bottom > 0 && rsvpRect.top < windowHeight) {
+          const visibleTop = Math.max(0, rsvpRect.top);
+          const visibleBottom = Math.min(windowHeight, rsvpRect.bottom);
+          const actualVisibleHeight = visibleBottom - visibleTop;
+          const requiredHeight = Math.min(rsvpRect.height * 0.6, windowHeight);
+          nextIsRSVPVisible = actualVisibleHeight >= requiredHeight;
+          rsvpDebug = {
+            top: rsvpRect.top,
+            bottom: rsvpRect.bottom,
+            height: rsvpRect.height,
+            visibleTop,
+            visibleBottom,
+            actualVisibleHeight,
+            requiredHeight,
+          };
         } else {
-          setIsInRSVPSection(false);
+          rsvpDebug = {
+            top: rsvpRect.top,
+            bottom: rsvpRect.bottom,
+            height: rsvpRect.height,
+            visibleTop: 0,
+            visibleBottom: 0,
+            actualVisibleHeight: 0,
+            requiredHeight: Math.min(rsvpRect.height * 0.6, windowHeight),
+          };
+        }
+      }
+
+      setIsScrolled(nextIsScrolled);
+      setIsInFooterSection(nextIsFooterVisible);
+      setIsInRSVPSection(nextIsRSVPVisible);
+
+      // Log detallado solo cuando cambian flags (para no spamear)
+      if (DEBUG_NAVBAR) {
+        const prev = debugPrevRef.current;
+        const changed =
+          prev.isVisible !== nextIsVisible ||
+          prev.isScrolled !== nextIsScrolled ||
+          prev.isInFooterSection !== nextIsFooterVisible ||
+          prev.isInRSVPSection !== nextIsRSVPVisible;
+
+        if (changed) {
+          console.log('=== NAVBAR SCROLL DEBUG (changed) ===');
+          console.log('scrollY:', currentScrollY, 'lastScrollY:', lastScrollY, 'nextIsVisible:', nextIsVisible);
+          console.log('heroRect:', heroRect ? { top: heroRect.top, bottom: heroRect.bottom, height: heroRect.height } : null, 'thresholdBottom<100');
+          console.log('footerRect:', footerRect ? { top: footerRect.top, bottom: footerRect.bottom, height: footerRect.height } : null, 'thresholdTop<0.8vh:', windowHeight * 0.8);
+          console.log('rsvpRect:', rsvpDebug);
+          console.log('next flags:', {
+            nextIsScrolled,
+            nextIsFooterVisible,
+            nextIsRSVPVisible,
+          });
+          console.log('===================================');
         }
 
-
-        
+        debugPrevRef.current = {
+          isVisible: nextIsVisible,
+          isScrolled: nextIsScrolled,
+          isInFooterSection: nextIsFooterVisible,
+          isInRSVPSection: nextIsRSVPVisible,
+        };
       }
 
       setLastScrollY(currentScrollY);
@@ -85,13 +171,32 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
+  // DEBUG: confirma estilos computados reales del <nav>
+  useEffect(() => {
+    if (!DEBUG_NAVBAR) return;
+    const el = navRef.current;
+    if (!el) return;
+    const cs = window.getComputedStyle(el);
+    console.log('=== NAVBAR DOM COMPUTED (changed) ===');
+    console.log('className:', el.className);
+    console.log('computed:', {
+      backgroundColor: cs.backgroundColor,
+      backdropFilter: cs.backdropFilter,
+      boxShadow: cs.boxShadow,
+      filter: cs.filter,
+      opacity: cs.opacity,
+    });
+    console.log('====================================');
+  }, [isNightMode, isScrolled, isInFooterSection, isInRSVPSection]);
+
   // Función para determinar el estilo basado en el estado de scroll y modo nocturno
       const getNavbarStyle = () => {
-      let style;
-      // Priorizar el estilo transparente en hero, RSVP y footer, independientemente del modo nocturno
-      if (isInRSVPSection || isInFooterSection || !isScrolled) {
-        // En secciones especiales, siempre transparente
-        style = 'bg-white/10 hover:bg-white/15';
+      let style; 
+      // Hero y Gallery deben verse igual: NO tratamos el Hero como "sección especial".
+      // Solo RSVP/Footer mantienen estilo especial.
+      if (isInRSVPSection || isInFooterSection) {
+        // En secciones especiales, realmente transparente (sin velo blanco)
+        style = 'bg-transparent';
       } else if (isNightMode) {
         // Aplicar modo nocturno solo cuando no estamos en las secciones especiales
         style = 'bg-black/95 shadow-lg hover:bg-black';
@@ -100,15 +205,24 @@ const Navbar = () => {
       style = 'bg-white/95 shadow-lg hover:bg-white';
     }
     
-    // DEBUGGING LOGS PARA EL NAVBAR
-    console.log('=== NAVBAR STYLE DEBUG ===');
-    console.log('isNightMode:', isNightMode);
-    console.log('isInRSVPSection:', isInRSVPSection);
-    console.log('isInFooterSection:', isInFooterSection);
-    console.log('isScrolled:', isScrolled);
-    console.log('isMobileMenuOpen:', isMobileMenuOpen);
-    console.log('getNavbarStyle result:', style);
-    console.log('=========================');
+    // DEBUG: log solo cuando cambia el estilo para evitar spam
+    if (DEBUG_NAVBAR) {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      // (Nota: NO usamos hooks aquí; esto solo es un comentario para linters de reglas agresivas)
+      // Guardamos el último estilo en una propiedad de la ref de debugPrevRef para reutilizar refs existentes
+      const prevStyle = (debugPrevRef.current as any).navbarStyle as string | undefined;
+      if (prevStyle !== style) {
+        console.log('=== NAVBAR STYLE DEBUG (changed) ===');
+        console.log('isNightMode:', isNightMode);
+        console.log('isInRSVPSection:', isInRSVPSection);
+        console.log('isInFooterSection:', isInFooterSection);
+        console.log('isScrolled:', isScrolled);
+        console.log('isMobileMenuOpen:', isMobileMenuOpen);
+        console.log('getNavbarStyle result:', style);
+        console.log('===================================');
+        (debugPrevRef.current as any).navbarStyle = style;
+      }
+    }
     
     return style;
   };
@@ -118,8 +232,8 @@ const Navbar = () => {
       return 'text-white/70 hover:text-white';
     }
     
-    // En la sección RSVP, Footer o Hero, usar texto blanco
-    if (isInRSVPSection || isInFooterSection || !isScrolled) {
+    // En la sección RSVP o Footer, usar texto blanco
+    if (isInRSVPSection || isInFooterSection) {
       return 'text-white/60 hover:text-white';
     }
     
@@ -132,8 +246,8 @@ const Navbar = () => {
       return 'bg-white';
     }
     
-    // En la sección RSVP, Footer o Hero, usar línea blanca
-    if (isInRSVPSection || isInFooterSection || !isScrolled) {
+    // En la sección RSVP o Footer, usar línea blanca
+    if (isInRSVPSection || isInFooterSection) {
       return 'bg-white';
     }
     
@@ -146,29 +260,13 @@ const Navbar = () => {
       return 'bg-white/30';
     }
     
-    // En la sección RSVP, Footer o Hero, usar línea decorativa blanca
-    if (isInRSVPSection || isInFooterSection || !isScrolled) {
+    // En la sección RSVP o Footer, usar línea decorativa blanca
+    if (isInRSVPSection || isInFooterSection) {
       return 'bg-white/30';
     }
     
     // En todas las demás secciones, usar línea decorativa oscura
     return 'bg-[#543c24]/30';
-  };
-
-  // Función para determinar qué logo usar según la sección y modo nocturno
-  const getLogoSrc = () => {
-    // En modo nocturno, siempre usar IMG_0340.PNG
-    if (isNightMode) {
-      return '/assets/logos/IMG_0340.PNG';
-    }
-    
-    // En modo normal: Logo IMG_0340.PNG para hero (cuando no ha scrolled), RSVP y Footer
-    if (!isScrolled || isInRSVPSection || isInFooterSection) {
-      return '/assets/logos/IMG_0340.PNG';
-    }
-    
-    // Logo IMG_0342.PNG para todas las demás secciones en modo normal
-    return '/assets/logos/IMG_0342.PNG';
   };
 
   const handleNavClick = (id: string) => {
@@ -180,28 +278,20 @@ const Navbar = () => {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-12 py-3 sm:py-4 backdrop-blur-sm transition-all duration-500 ${getNavbarStyle()} ${
+    <nav
+      ref={navRef}
+      className={`fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-12 py-3 sm:py-4 transition-all duration-500 ${
+      (isInRSVPSection || isInFooterSection) ? 'backdrop-blur-0' : 'backdrop-blur-sm'
+    } ${getNavbarStyle()} ${
       isVisible ? 'transform translate-y-0' : 'transform -translate-y-full'
-    }`}>
-      <div className="max-w-7xl mx-auto">
-        {/* Desktop Navigation - Pantallas grandes */}
-        <div className="hidden lg:flex items-center justify-between">
-          {/* Logo a la izquierda */}
-          <div className="flex items-center">
-            <div className="w-8 h-8 relative">
-              <Image
-                src={getLogoSrc()}
-                alt="Logo"
-                fill
-                className="object-contain transition-all duration-500"
-                sizes="32px"
-              />
-            </div>
-          </div>
-          
-          {/* Navegación centrada */}
-          <ul className="flex items-center justify-center space-x-8 xl:space-x-12 flex-1">
-            {navigationItems.map((item, index) => (
+    }`}
+    >
+      <div className="max-w-7xl mx-auto relative">
+        {/* Desktop Navigation - Pantallas grandes (logo integrado, sin overlay) */}
+        <div className="hidden lg:grid grid-cols-[1fr_auto_1fr] items-center">
+          {/* Links izquierda */}
+          <ul className="flex items-center justify-end space-x-8 xl:space-x-12">
+            {leftNavItems.map((item, index) => (
               <li key={item.id} className="flex items-center">
                 <a
                   href={`#${item.id}`}
@@ -210,39 +300,54 @@ const Navbar = () => {
                   {item.label.toUpperCase()}
                   <span className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-[1px] group-hover:w-3/4 transition-all duration-500 ${getLineStyle()}`}></span>
                 </a>
-                {/* Separador decorativo entre elementos (excepto el último) */}
-                {index < navigationItems.length - 1 && (
+                {index < leftNavItems.length - 1 && (
                   <div className={`ml-6 xl:ml-8 w-1 h-1 rounded-full transition-colors duration-500 ${getDecorativeLineStyle()}`}></div>
                 )}
               </li>
             ))}
           </ul>
-          
-          {/* Espacio para balancear */}
-          <div className="w-8 h-8"></div>
+
+          {/* Monograma al centro como elemento real */}
+          <div className="px-8 xl:px-12 flex items-center justify-center">
+            <Image
+              src="/Diseño sin título.png"
+              alt="Monograma"
+              width={144}
+              height={144}
+              className={`w-[120px] h-[120px] sm:w-[144px] sm:h-[144px] object-contain transition-all duration-500 ${
+                isNightMode || isInRSVPSection || isInFooterSection ? 'invert' : ''
+              }`}
+              priority
+            />
+          </div>
+
+          {/* Links derecha */}
+          <ul className="flex items-center justify-start space-x-8 xl:space-x-12">
+            {rightNavItems.map((item, index) => (
+              <li key={item.id} className="flex items-center">
+                <a
+                  href={`#${item.id}`}
+                  className={`text-xs garamond-300 tracking-[0.25em] transition-all duration-500 relative group px-2 py-1 ${getTextStyle()}`}
+                >
+                  {item.label.toUpperCase()}
+                  <span className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-[1px] group-hover:w-3/4 transition-all duration-500 ${getLineStyle()}`}></span>
+                </a>
+                {index < rightNavItems.length - 1 && (
+                  <div className={`ml-6 xl:ml-8 w-1 h-1 rounded-full transition-colors duration-500 ${getDecorativeLineStyle()}`}></div>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
 
         {/* Mobile Navigation - MD and above */}
-        <div className="hidden md:flex lg:hidden items-center justify-between">
-          {/* Logo a la izquierda */}
-          <div className="flex items-center">
-            <div className="w-8 h-8 relative">
-              <Image
-                src={getLogoSrc()}
-                alt="Logo"
-                fill
-                className="object-contain transition-all duration-500"
-                sizes="32px"
-              />
-            </div>
-          </div>
-          
-          {/* Solo elementos principales en móvil md+ */}
-          <ul className="flex items-center space-x-3 sm:space-x-4 text-xs flex-1 justify-center">
-            {navigationItems.slice(0, 4).map((item, index) => (
+        <div className="hidden md:grid lg:hidden grid-cols-[1fr_auto_1fr_auto] items-center gap-4">
+          {/* Links izquierda (2) */}
+          <ul className="flex items-center justify-end space-x-3 sm:space-x-4 text-xs">
+            {navigationItems.slice(0, 2).map((item, index) => (
               <li key={item.id} className="flex items-center">
-                <a 
-                  href={`#${item.id}`} 
+                <a
+                  href={`#${item.id}`}
                   onClick={(e) => {
                     e.preventDefault();
                     handleNavClick(item.id);
@@ -251,20 +356,55 @@ const Navbar = () => {
                 >
                   {item.label.toUpperCase()}
                 </a>
-                {index < 3 && (
+                {index < 1 && (
                   <span className={`ml-2 sm:ml-3 transition-colors duration-500 ${
-                    isNightMode ? 'text-white/30' : 
-                    (!isScrolled || isInFooterSection || isInRSVPSection ? 'text-white/30' : 'text-[#543c24]/30')
+                    isNightMode ? 'text-white/30' : 'text-[#543c24]/30'
                   }`}>·</span>
                 )}
               </li>
             ))}
           </ul>
-          
+
+          {/* Monograma centro */}
+          <div className="flex items-center justify-center">
+            <Image
+              src="/Diseño sin título.png"
+              alt="Monograma"
+              width={132}
+              height={132}
+              className={`w-[120px] h-[120px] object-contain transition-all duration-500 ${
+                isNightMode || isInRSVPSection || isInFooterSection ? 'invert' : ''
+              }`}
+            />
+          </div>
+
+          {/* Links derecha (2) */}
+          <ul className="flex items-center justify-start space-x-3 sm:space-x-4 text-xs">
+            {navigationItems.slice(2, 4).map((item, index) => (
+              <li key={item.id} className="flex items-center">
+                <a
+                  href={`#${item.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(item.id);
+                  }}
+                  className={`garamond-300 tracking-[0.1em] sm:tracking-[0.15em] transition-colors duration-500 px-1 ${getTextStyle()}`}
+                >
+                  {item.label.toUpperCase()}
+                </a>
+                {index < 1 && (
+                  <span className={`ml-2 sm:ml-3 transition-colors duration-500 ${
+                    isNightMode ? 'text-white/30' : 'text-[#543c24]/30'
+                  }`}>·</span>
+                )}
+              </li>
+            ))}
+          </ul>
+
           {/* Botón de menú hamburguesa para elementos secundarios */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`ml-4 p-2 transition-colors duration-500 ${getTextStyle()}`}
+            className={`p-2 transition-colors duration-500 ${getTextStyle()}`}
             aria-label="Menú adicional"
           >
             <div className="flex flex-col space-y-1">
@@ -276,38 +416,42 @@ const Navbar = () => {
         </div>
 
         {/* Small Mobile Navigation - Solo logo y hamburguesa */}
-        <div className="md:hidden flex items-center justify-between w-full">
-          {/* Logo */}
-          <div className="flex items-center">
-            <div className="w-8 h-8 relative">
-              <Image
-                src={getLogoSrc()}
-                alt="Logo"
-                fill
-                className="object-contain transition-all duration-500"
-                sizes="32px"
-              />
-            </div>
+        <div className="md:hidden grid grid-cols-[1fr_auto_1fr] items-center w-full">
+          <div />
+
+          {/* Monograma centro */}
+          <div className="flex items-center justify-center">
+            <Image
+              src="/Diseño sin título.png"
+              alt="Monograma"
+              width={120}
+              height={120}
+              className={`w-[120px] h-[120px] object-contain transition-all duration-500 ${
+                isNightMode || isInRSVPSection || isInFooterSection ? 'invert' : ''
+              }`}
+            />
           </div>
-          
+
           {/* Botón de menú hamburguesa */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`p-2 transition-colors duration-500 ${getTextStyle()}`}
-            aria-label="Menú de navegación"
-          >
-            <div className="flex flex-col space-y-1.5">
-              <div className={`w-6 h-0.5 transition-all duration-300 ${getLineStyle()} ${
-                isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''
-              }`}></div>
-              <div className={`w-6 h-0.5 transition-all duration-300 ${getLineStyle()} ${
-                isMobileMenuOpen ? 'opacity-0' : ''
-              }`}></div>
-              <div className={`w-6 h-0.5 transition-all duration-300 ${getLineStyle()} ${
-                isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''
-              }`}></div>
-            </div>
-          </button>
+          <div className="flex items-center justify-end">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className={`p-2 transition-colors duration-500 ${getTextStyle()}`}
+              aria-label="Menú de navegación"
+            >
+              <div className="flex flex-col space-y-1.5">
+                <div className={`w-6 h-0.5 transition-all duration-300 ${getLineStyle()} ${
+                  isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''
+                }`}></div>
+                <div className={`w-6 h-0.5 transition-all duration-300 ${getLineStyle()} ${
+                  isMobileMenuOpen ? 'opacity-0' : ''
+                }`}></div>
+                <div className={`w-6 h-0.5 transition-all duration-300 ${getLineStyle()} ${
+                  isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''
+                }`}></div>
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* TEMPORALMENTE COMENTADO PARA DEBUG - Menú móvil desplegable para MD+ */}
