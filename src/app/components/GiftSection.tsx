@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useRef, useState } from 'react';
-import { FaCreditCard, FaEnvelope, FaGift } from 'react-icons/fa';
+import { FaCreditCard, FaEnvelope } from 'react-icons/fa';
 import Image from 'next/image';
 
 // Componente GiftCard premium

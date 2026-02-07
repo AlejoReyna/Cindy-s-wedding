@@ -1,8 +1,8 @@
 "use client"
 import { useState } from 'react';
-import { FaHeart } from 'react-icons/fa';
 
-// Web3Forms configuration
+// Web3Forms configuration (used when form section is uncommented)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in commented form JSX
 const WEB3FORMS_ACCESS_KEY = '9e04209b-b0b4-4883-82ab-a4f939af7198';
 
 // Componente MessageSection con funcionalidad Web3Forms y estética RSVP
@@ -11,6 +11,7 @@ export default function MessageSection({ className }: { className?: string }) {
   
   console.log('🎯 MessageSection rendered. Current formStatus:', formStatus);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in commented form JSX
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('🔥 FORM SUBMITTED - Starting submission process');

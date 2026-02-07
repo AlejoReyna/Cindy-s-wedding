@@ -1,6 +1,5 @@
 "use client"
 import { useEffect, useRef, useState } from 'react';
-import { FaWhatsapp, FaCalendarPlus } from 'react-icons/fa';
 import MessageSection from './MessageSection';
 import { useStatusBarSection } from '../../hooks/useStatusBarManager';
 import { useTheme } from '../context/ThemeContext';
@@ -64,41 +63,6 @@ export default function RSVPSection() {
       <circle cx="48" cy="42" r="1" fill="rgba(255,255,255,0.4)" opacity="0.4"/>
     </svg>
   );
-
-  const addToCalendar = () => {
-    const startDate = '20241018T170000';
-    const endDate = '20241019T020000';
-    
-    const icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Wedding Invitation//Event//EN',
-      'BEGIN:VEVENT',
-      `DTSTART:${startDate}`,
-      `DTEND:${endDate}`,
-      // Datos originales comentados para placeholder
-      'SUMMARY:Boda de [NOMBRE_1] y [NOMBRE_2]',
-      'DESCRIPTION:Celebración de la boda de [NOMBRE_1] y [NOMBRE_2]',
-      'LOCATION:Ciudad/Estado (placeholder)',
-      'STATUS:CONFIRMED',
-      'BEGIN:VALARM',
-      'TRIGGER:-PT24H',
-      'DESCRIPTION:Recordatorio: Boda de [NOMBRE_1] y [NOMBRE_2] mañana',
-      'ACTION:DISPLAY',
-      'END:VALARM',
-      'END:VEVENT',
-      'END:VCALENDAR'
-    ].join('\r\n');
-
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = 'boda-placeholder.ics';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(link.href);
-  };
 
   return (
     <section 

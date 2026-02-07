@@ -81,12 +81,13 @@ export default function Gallery() {
       { threshold: 0.1, rootMargin: '-20px' }
     );
 
-    photoRefs.current.forEach((ref) => {
+    const refs = photoRefs.current;
+    refs.forEach((ref) => {
       if (ref) photoObserver.observe(ref);
     });
 
     return () => {
-      photoRefs.current.forEach((ref) => {
+      refs.forEach((ref) => {
         if (ref) photoObserver.unobserve(ref);
       });
     };
