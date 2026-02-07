@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { useTheme } from '../context/ThemeContext';
 
@@ -8,523 +8,166 @@ interface NavigationItem {
   label: string;
 }
 
+const SCROLL_RANGE = 180; // px over which the transition interpolates
+
+const navigationItems: NavigationItem[] = [
+  { id: 'galeria', label: 'Galería' },
+  { id: 'itinerario', label: 'Itinerario' },
+  { id: 'ubicacion', label: 'Ubicación' },
+  { id: 'dresscode', label: 'Dress Code' },
+  { id: 'regalos', label: 'Mesa de regalos' },
+  { id: 'rsvp', label: 'Confirmar' },
+];
+
+const leftNavItems = navigationItems.slice(0, 3);
+const rightNavItems = navigationItems.slice(3);
+
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [isInFooterSection, setIsInFooterSection] = useState(false);
   const [isInRSVPSection, setIsInRSVPSection] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>('');
   const { isNightMode } = useTheme();
 
-  // DEBUG: set true para rastrear por qué no cambian flags
-  const DEBUG_NAVBAR = false;
   const navRef = useRef<HTMLElement | null>(null);
-  const debugPrevRef = useRef({
-    isVisible: true,
-    isScrolled: false,
-    isInFooterSection: false,
-    isInRSVPSection: false,
-  });
-  const debugMissingSectionsLoggedRef = useRef({
-    hero: false,
-    footer: false,
-    rsvp: false,
-  });
-  
-  const navigationItems: NavigationItem[] = [
-    { id: 'galeria', label: 'Galería' },
-    { id: 'itinerario', label: 'Itinerario' },
-    { id: 'ubicacion', label: 'Ubicación' },
-    { id: 'dresscode', label: 'Dress Code' },
-    { id: 'regalos', label: 'Mesa de regalos' },
-    { id: 'rsvp', label: 'Confirmar' }
-  ];
+  const lastScrollYRef = useRef(0);
+  const ticking = useRef(false);
 
-  // Para integrar el monograma como elemento real de la navbar (sin overlay)
-  const leftNavItems = navigationItems.slice(0, 3);
-  const rightNavItems = navigationItems.slice(3);
+  // ── Scroll handler (uses refs to avoid re-creating listener) ──
+  const onScroll = useCallback(() => {
+    if (ticking.current) return;
+    ticking.current = true;
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+    requestAnimationFrame(() => {
+      const currentY = window.scrollY;
+      const prevY = lastScrollYRef.current;
 
-      // Lógica para ocultar/mostrar la navbar al hacer scroll
-      const nextIsVisible = !(currentScrollY > lastScrollY && currentScrollY > 100);
-      if (!nextIsVisible) {
+      // Hide on scroll-down, show on scroll-up
+      if (currentY > prevY && currentY > 80) {
         setIsVisible(false);
         setIsMobileMenuOpen(false);
       } else {
         setIsVisible(true);
       }
 
-      // Lógica para el fondo de la navbar
-      const heroSection = document.getElementById('hero-section');
-      const footerSection = document.getElementById('footer');
-      const rsvpSection = document.getElementById('rsvp');
+      // Continuous progress 0→1
+      setScrollProgress(Math.min(currentY / SCROLL_RANGE, 1));
 
-      // Log si faltan secciones (solo una vez)
-      if (DEBUG_NAVBAR) {
-        if (!heroSection && !debugMissingSectionsLoggedRef.current.hero) {
-          console.log('[NAVBAR DEBUG] No existe #hero-section en el DOM');
-          debugMissingSectionsLoggedRef.current.hero = true;
-        }
-        if (!footerSection && !debugMissingSectionsLoggedRef.current.footer) {
-          console.log('[NAVBAR DEBUG] No existe #footer en el DOM');
-          debugMissingSectionsLoggedRef.current.footer = true;
-        }
-        if (!rsvpSection && !debugMissingSectionsLoggedRef.current.rsvp) {
-          console.log('[NAVBAR DEBUG] No existe #rsvp en el DOM');
-          debugMissingSectionsLoggedRef.current.rsvp = true;
-        }
-      }
+      // Footer / RSVP section detection
+      const wh = window.innerHeight;
+      const footerRect = document.getElementById('footer')?.getBoundingClientRect();
+      const rsvpRect = document.getElementById('rsvp')?.getBoundingClientRect();
 
-      const windowHeight = window.innerHeight;
-      const heroRect = heroSection?.getBoundingClientRect();
-      const footerRect = footerSection?.getBoundingClientRect();
-      const rsvpRect = rsvpSection?.getBoundingClientRect();
+      setIsInFooterSection(footerRect ? footerRect.top < wh * 0.8 : false);
 
-      const nextIsScrolled = heroRect ? heroRect.bottom < 100 : false;
-      const nextIsFooterVisible = footerRect ? footerRect.top < windowHeight * 0.8 : false;
-
-      // RSVP visible: >=60% (o lo que quepa en viewport)
-      let nextIsRSVPVisible = false;
-      let rsvpDebug: null | {
-        top: number;
-        bottom: number;
-        height: number;
-        visibleTop: number;
-        visibleBottom: number;
-        actualVisibleHeight: number;
-        requiredHeight: number;
-      } = null;
-      if (rsvpRect) {
-        if (rsvpRect.bottom > 0 && rsvpRect.top < windowHeight) {
-          const visibleTop = Math.max(0, rsvpRect.top);
-          const visibleBottom = Math.min(windowHeight, rsvpRect.bottom);
-          const actualVisibleHeight = visibleBottom - visibleTop;
-          const requiredHeight = Math.min(rsvpRect.height * 0.6, windowHeight);
-          nextIsRSVPVisible = actualVisibleHeight >= requiredHeight;
-          rsvpDebug = {
-            top: rsvpRect.top,
-            bottom: rsvpRect.bottom,
-            height: rsvpRect.height,
-            visibleTop,
-            visibleBottom,
-            actualVisibleHeight,
-            requiredHeight,
-          };
-        } else {
-          rsvpDebug = {
-            top: rsvpRect.top,
-            bottom: rsvpRect.bottom,
-            height: rsvpRect.height,
-            visibleTop: 0,
-            visibleBottom: 0,
-            actualVisibleHeight: 0,
-            requiredHeight: Math.min(rsvpRect.height * 0.6, windowHeight),
-          };
-        }
-      }
-
-      setIsScrolled(nextIsScrolled);
-      setIsInFooterSection(nextIsFooterVisible);
-      setIsInRSVPSection(nextIsRSVPVisible);
-
-      // Log detallado solo cuando cambian flags (para no spamear)
-      if (DEBUG_NAVBAR) {
-        const prev = debugPrevRef.current;
-        const changed =
-          prev.isVisible !== nextIsVisible ||
-          prev.isScrolled !== nextIsScrolled ||
-          prev.isInFooterSection !== nextIsFooterVisible ||
-          prev.isInRSVPSection !== nextIsRSVPVisible;
-
-        if (changed) {
-          console.log('=== NAVBAR SCROLL DEBUG (changed) ===');
-          console.log('scrollY:', currentScrollY, 'lastScrollY:', lastScrollY, 'nextIsVisible:', nextIsVisible);
-          console.log('heroRect:', heroRect ? { top: heroRect.top, bottom: heroRect.bottom, height: heroRect.height } : null, 'thresholdBottom<100');
-          console.log('footerRect:', footerRect ? { top: footerRect.top, bottom: footerRect.bottom, height: footerRect.height } : null, 'thresholdTop<0.8vh:', windowHeight * 0.8);
-          console.log('rsvpRect:', rsvpDebug);
-          console.log('next flags:', {
-            nextIsScrolled,
-            nextIsFooterVisible,
-            nextIsRSVPVisible,
-          });
-          console.log('===================================');
-        }
-
-        debugPrevRef.current = {
-          isVisible: nextIsVisible,
-          isScrolled: nextIsScrolled,
-          isInFooterSection: nextIsFooterVisible,
-          isInRSVPSection: nextIsRSVPVisible,
-        };
-      }
-
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Llamar una vez al inicio para establecer el estado inicial
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
-
-  // DEBUG: confirma estilos computados reales del <nav>
-  useEffect(() => {
-    if (!DEBUG_NAVBAR) return;
-    const el = navRef.current;
-    if (!el) return;
-    const cs = window.getComputedStyle(el);
-    console.log('=== NAVBAR DOM COMPUTED (changed) ===');
-    console.log('className:', el.className);
-    console.log('computed:', {
-      backgroundColor: cs.backgroundColor,
-      backdropFilter: cs.backdropFilter,
-      boxShadow: cs.boxShadow,
-      filter: cs.filter,
-      opacity: cs.opacity,
-    });
-    console.log('====================================');
-  }, [isNightMode, isScrolled, isInFooterSection, isInRSVPSection]);
-
-  // Función para determinar el estilo basado en el estado de scroll y modo nocturno
-      const getNavbarStyle = () => {
-      let style; 
-      // Hero y Gallery deben verse igual: NO tratamos el Hero como "sección especial".
-      // Solo RSVP/Footer mantienen estilo especial.
-      if (isInRSVPSection || isInFooterSection) {
-        // En secciones especiales, realmente transparente (sin velo blanco)
-        style = 'bg-transparent';
-      } else if (isNightMode) {
-        // Aplicar modo nocturno solo cuando no estamos en las secciones especiales
-        style = 'bg-black/95 shadow-lg hover:bg-black';
+      if (rsvpRect && rsvpRect.bottom > 0 && rsvpRect.top < wh) {
+        const visTop = Math.max(0, rsvpRect.top);
+        const visBot = Math.min(wh, rsvpRect.bottom);
+        const actual = visBot - visTop;
+        const required = Math.min(rsvpRect.height * 0.6, wh);
+        setIsInRSVPSection(actual >= required);
       } else {
-        // En todas las demás secciones, es blanco
-      style = 'bg-white/95 shadow-lg hover:bg-white';
-    }
-    
-    // DEBUG: log solo cuando cambia el estilo para evitar spam
-    if (DEBUG_NAVBAR) {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      // (Nota: NO usamos hooks aquí; esto solo es un comentario para linters de reglas agresivas)
-      // Guardamos el último estilo en una propiedad de la ref de debugPrevRef para reutilizar refs existentes
-      const prevStyle = (debugPrevRef.current as any).navbarStyle as string | undefined;
-      if (prevStyle !== style) {
-        console.log('=== NAVBAR STYLE DEBUG (changed) ===');
-        console.log('isNightMode:', isNightMode);
-        console.log('isInRSVPSection:', isInRSVPSection);
-        console.log('isInFooterSection:', isInFooterSection);
-        console.log('isScrolled:', isScrolled);
-        console.log('isMobileMenuOpen:', isMobileMenuOpen);
-        console.log('getNavbarStyle result:', style);
-        console.log('===================================');
-        (debugPrevRef.current as any).navbarStyle = style;
+        setIsInRSVPSection(false);
       }
-    }
-    
-    return style;
-  };
 
-  const getTextStyle = () => {
-    if (isNightMode) {
-      return 'text-white/70 hover:text-white';
-    }
-    
-    // En la sección RSVP o Footer, usar texto blanco
-    if (isInRSVPSection || isInFooterSection) {
-      return 'text-white/60 hover:text-white';
-    }
-    
-    // En todas las demás secciones, usar texto oscuro
-    return 'text-[#543c24]/70 hover:text-[#543c24]';
-  };
+      // Active section highlight
+      let current = '';
+      for (const item of navigationItems) {
+        const el = document.getElementById(item.id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 140 && rect.bottom > 140) {
+            current = item.id;
+            break;
+          }
+        }
+      }
+      setActiveSection(current);
 
-  const getLineStyle = () => {
-    if (isNightMode) {
-      return 'bg-white';
-    }
-    
-    // En la sección RSVP o Footer, usar línea blanca
-    if (isInRSVPSection || isInFooterSection) {
-      return 'bg-white';
-    }
-    
-    // En todas las demás secciones, usar línea oscura
-    return 'bg-[#543c24]';
-  };
+      lastScrollYRef.current = currentY;
+      ticking.current = false;
+    });
+  }, []);
 
-  const getDecorativeLineStyle = () => {
-    if (isNightMode) {
-      return 'bg-white/30';
-    }
-    
-    // En la sección RSVP o Footer, usar línea decorativa blanca
-    if (isInRSVPSection || isInFooterSection) {
-      return 'bg-white/30';
-    }
-    
-    // En todas las demás secciones, usar línea decorativa oscura
-    return 'bg-[#543c24]/30';
-  };
+  useEffect(() => {
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [onScroll]);
+
+  // ── Derived visual values ──
+  const t = scrollProgress;
+  const isDark = isNightMode || isInRSVPSection || isInFooterSection;
+  const isSpecialSection = isInRSVPSection || isInFooterSection;
+
+  const logoDesktop = lerp(100, 48, t);
+  const logoMobile = lerp(88, 42, t);
+  const padY = lerp(14, 4, t);
+  const bgAlpha = isSpecialSection ? 0 : lerp(0, 0.97, t);
+  const blur = isSpecialSection ? 0 : lerp(0, 16, t);
+  const lineAlpha = isSpecialSection ? 0 : t;
+  const shadowAlpha = isSpecialSection ? 0 : lerp(0, 0.06, t);
+
+  const textCls = isDark
+    ? 'text-white/60 hover:text-white'
+    : 'text-[#543c24]/55 hover:text-[#543c24]';
+
+  const lineColor = isDark ? '#ffffff' : '#543c24';
+  const dotColor = isDark ? '#ffffff' : '#C4985B';
 
   const handleNavClick = (id: string) => {
     setIsMobileMenuOpen(false);
-    // Pequeño delay para permitir que la animación del menú termine
     setTimeout(() => {
       document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     }, 300);
   };
 
+  // ── Render ──
   return (
     <nav
       ref={navRef}
-      className={`fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-12 py-3 sm:py-4 transition-all duration-500 ${
-      (isInRSVPSection || isInFooterSection) ? 'backdrop-blur-0' : 'backdrop-blur-sm'
-    } ${getNavbarStyle()} ${
-      isVisible ? 'transform translate-y-0' : 'transform -translate-y-full'
-    }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-500 ease-out ${
+        isVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}
+      style={{
+        paddingTop: `${padY}px`,
+        paddingBottom: `${padY}px`,
+        paddingLeft: 'clamp(16px, 3vw, 48px)',
+        paddingRight: 'clamp(16px, 3vw, 48px)',
+        backgroundColor: isNightMode
+          ? `rgba(0,0,0,${bgAlpha})`
+          : `rgba(255,255,255,${bgAlpha})`,
+        backdropFilter: `blur(${blur}px)`,
+        WebkitBackdropFilter: `blur(${blur}px)`,
+        boxShadow:
+          shadowAlpha > 0.005
+            ? `0 1px 24px rgba(${isDark ? '255,255,255' : '84,60,36'},${shadowAlpha})`
+            : 'none',
+      }}
     >
-      <div className="max-w-7xl mx-auto relative">
-        {/* Desktop Navigation - Pantallas grandes (logo integrado, sin overlay) */}
-        <div className="hidden lg:grid grid-cols-[1fr_auto_1fr] items-center">
-          {/* Links izquierda */}
-          <ul className="flex items-center justify-end space-x-8 xl:space-x-12">
-            {leftNavItems.map((item, index) => (
-              <li key={item.id} className="flex items-center">
-                <a
-                  href={`#${item.id}`}
-                  className={`text-xs garamond-300 tracking-[0.25em] transition-all duration-500 relative group px-2 py-1 ${getTextStyle()}`}
-                >
-                  {item.label.toUpperCase()}
-                  <span className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-[1px] group-hover:w-3/4 transition-all duration-500 ${getLineStyle()}`}></span>
-                </a>
-                {index < leftNavItems.length - 1 && (
-                  <div className={`ml-6 xl:ml-8 w-1 h-1 rounded-full transition-colors duration-500 ${getDecorativeLineStyle()}`}></div>
-                )}
-              </li>
-            ))}
-          </ul>
-
-          {/* Monograma al centro como elemento real */}
-          <div className="px-8 xl:px-12 flex items-center justify-center">
-            <Image
-              src="/Diseño sin título.png"
-              alt="Monograma"
-              width={144}
-              height={144}
-              className={`w-[120px] h-[120px] sm:w-[144px] sm:h-[144px] object-contain transition-all duration-500 ${
-                isNightMode || isInRSVPSection || isInFooterSection ? 'invert' : ''
-              }`}
-              priority
-            />
-          </div>
-
-          {/* Links derecha */}
-          <ul className="flex items-center justify-start space-x-8 xl:space-x-12">
-            {rightNavItems.map((item, index) => (
-              <li key={item.id} className="flex items-center">
-                <a
-                  href={`#${item.id}`}
-                  className={`text-xs garamond-300 tracking-[0.25em] transition-all duration-500 relative group px-2 py-1 ${getTextStyle()}`}
-                >
-                  {item.label.toUpperCase()}
-                  <span className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-[1px] group-hover:w-3/4 transition-all duration-500 ${getLineStyle()}`}></span>
-                </a>
-                {index < rightNavItems.length - 1 && (
-                  <div className={`ml-6 xl:ml-8 w-1 h-1 rounded-full transition-colors duration-500 ${getDecorativeLineStyle()}`}></div>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Mobile Navigation - MD and above */}
-        <div className="hidden md:grid lg:hidden grid-cols-[1fr_auto_1fr_auto] items-center gap-4">
-          {/* Links izquierda (2) */}
-          <ul className="flex items-center justify-end space-x-3 sm:space-x-4 text-xs">
-            {navigationItems.slice(0, 2).map((item, index) => (
-              <li key={item.id} className="flex items-center">
-                <a
-                  href={`#${item.id}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNavClick(item.id);
-                  }}
-                  className={`garamond-300 tracking-[0.1em] sm:tracking-[0.15em] transition-colors duration-500 px-1 ${getTextStyle()}`}
-                >
-                  {item.label.toUpperCase()}
-                </a>
-                {index < 1 && (
-                  <span className={`ml-2 sm:ml-3 transition-colors duration-500 ${
-                    isNightMode ? 'text-white/30' : 'text-[#543c24]/30'
-                  }`}>·</span>
-                )}
-              </li>
-            ))}
-          </ul>
-
-          {/* Monograma centro */}
-          <div className="flex items-center justify-center">
-            <Image
-              src="/Diseño sin título.png"
-              alt="Monograma"
-              width={132}
-              height={132}
-              className={`w-[120px] h-[120px] object-contain transition-all duration-500 ${
-                isNightMode || isInRSVPSection || isInFooterSection ? 'invert' : ''
-              }`}
-            />
-          </div>
-
-          {/* Links derecha (2) */}
-          <ul className="flex items-center justify-start space-x-3 sm:space-x-4 text-xs">
-            {navigationItems.slice(2, 4).map((item, index) => (
-              <li key={item.id} className="flex items-center">
-                <a
-                  href={`#${item.id}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNavClick(item.id);
-                  }}
-                  className={`garamond-300 tracking-[0.1em] sm:tracking-[0.15em] transition-colors duration-500 px-1 ${getTextStyle()}`}
-                >
-                  {item.label.toUpperCase()}
-                </a>
-                {index < 1 && (
-                  <span className={`ml-2 sm:ml-3 transition-colors duration-500 ${
-                    isNightMode ? 'text-white/30' : 'text-[#543c24]/30'
-                  }`}>·</span>
-                )}
-              </li>
-            ))}
-          </ul>
-
-          {/* Botón de menú hamburguesa para elementos secundarios */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`p-2 transition-colors duration-500 ${getTextStyle()}`}
-            aria-label="Menú adicional"
-          >
-            <div className="flex flex-col space-y-1">
-              <div className={`w-4 h-0.5 transition-all duration-300 ${getLineStyle()} ${isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></div>
-              <div className={`w-4 h-0.5 transition-all duration-300 ${getLineStyle()} ${isMobileMenuOpen ? 'opacity-0' : ''}`}></div>
-              <div className={`w-4 h-0.5 transition-all duration-300 ${getLineStyle()} ${isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></div>
-            </div>
-          </button>
-        </div>
-
-        {/* Small Mobile Navigation - Solo logo y hamburguesa */}
-        <div className="md:hidden grid grid-cols-[1fr_auto_1fr] items-center w-full">
-          <div />
-
-          {/* Monograma centro */}
-          <div className="flex items-center justify-center">
-            <Image
-              src="/Diseño sin título.png"
-              alt="Monograma"
-              width={120}
-              height={120}
-              className={`w-[120px] h-[120px] object-contain transition-all duration-500 ${
-                isNightMode || isInRSVPSection || isInFooterSection ? 'invert' : ''
-              }`}
-            />
-          </div>
-
-          {/* Botón de menú hamburguesa */}
-          <div className="flex items-center justify-end">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`p-2 transition-colors duration-500 ${getTextStyle()}`}
-              aria-label="Menú de navegación"
-            >
-              <div className="flex flex-col space-y-1.5">
-                <div className={`w-6 h-0.5 transition-all duration-300 ${getLineStyle()} ${
-                  isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''
-                }`}></div>
-                <div className={`w-6 h-0.5 transition-all duration-300 ${getLineStyle()} ${
-                  isMobileMenuOpen ? 'opacity-0' : ''
-                }`}></div>
-                <div className={`w-6 h-0.5 transition-all duration-300 ${getLineStyle()} ${
-                  isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''
-                }`}></div>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* TEMPORALMENTE COMENTADO PARA DEBUG - Menú móvil desplegable para MD+ */}
-        {/* <div className={`hidden md:block lg:hidden absolute top-full left-0 right-0 transition-all duration-300 overflow-hidden ${
-          isMobileMenuOpen ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'
-        }`}>
-        </div> */}
-
-        {/* Menú móvil elegante para SM - 50% ancho - CONTENEDOR UNIFICADO */}
-        <div className={`md:hidden fixed top-0 right-0 w-1/2 transition-all duration-500 ease-out z-50 ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        } border-l border-[#543c24]/20 bg-white p-6`}
+      {/* Bottom accent line — fades in as you scroll */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-[1px] pointer-events-none"
         style={{
-          backgroundColor: 'white !important',
-          height: '100vh',
-          minHeight: '100vh'
+          background: `linear-gradient(90deg, transparent 8%, ${
+            isDark ? 'rgba(255,255,255,0.12)' : 'rgba(196,152,91,0.35)'
+          } 50%, transparent 92%)`,
+          opacity: lineAlpha,
         }}
-        ref={(el) => {
-          if (el && isMobileMenuOpen) {
-            console.log('=== MOBILE MENU DEBUG ===');
-            console.log('Menu element:', el);
-            console.log('Computed styles:', window.getComputedStyle(el));
-            console.log('Background color:', window.getComputedStyle(el).backgroundColor);
-            console.log('Height:', window.getComputedStyle(el).height);
-            console.log('Width:', window.getComputedStyle(el).width);
-            console.log('Display:', window.getComputedStyle(el).display);
-            console.log('Position:', window.getComputedStyle(el).position);
-            console.log('isMobileMenuOpen:', isMobileMenuOpen);
-            console.log('isScrolled:', isScrolled);
-            console.log('isNightMode:', isNightMode);
-            console.log('isInFooterSection:', isInFooterSection);
-            console.log('isInRSVPSection:', isInRSVPSection);
-            console.log('========================');
-          }
-        }}>
-          
-          {/* Header del menú */}
-          <div className="flex items-center justify-between mb-8 border-b border-[#543c24]/10 pb-6"
-            ref={(el) => {
-              if (el && isMobileMenuOpen) {
-                console.log('=== HEADER DEBUG ===');
-                console.log('Header computed styles:', window.getComputedStyle(el));
-                console.log('Header background:', window.getComputedStyle(el).backgroundColor);
-                console.log('====================');
-              }
-            }}>
-            <h2 className="text-sm garamond-300 tracking-[0.2em] text-[#543c24]/70">
-              MENÚ
-            </h2>
-            <button
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="p-2 text-[#543c24]/70 hover:text-[#543c24]"
-              aria-label="Cerrar menú"
-            >
-              <div className="relative w-5 h-5">
-                <div className="absolute top-1/2 left-0 w-full h-0.5 rotate-45 bg-[#543c24]"></div>
-                <div className="absolute top-1/2 left-0 w-full h-0.5 -rotate-45 bg-[#543c24]"></div>
-              </div>
-            </button>
-          </div>
-          
-          {/* Lista de navegación */}
-          <ul className="space-y-6 flex-1"
-            ref={(el) => {
-              if (el && isMobileMenuOpen) {
-                console.log('=== NAV LIST DEBUG ===');
-                console.log('Nav list computed styles:', window.getComputedStyle(el));
-                console.log('Nav list background:', window.getComputedStyle(el).backgroundColor);
-                console.log('Nav list parent background:', el.parentElement ? window.getComputedStyle(el.parentElement).backgroundColor : 'no parent');
-                console.log('=====================');
-              }
-            }}>
-            {navigationItems.map((item) => (
+      />
+
+      <div className="max-w-7xl mx-auto relative">
+        {/* ═══════════════════════════════════════════
+            DESKTOP  (lg+)
+        ═══════════════════════════════════════════ */}
+        <div className="hidden lg:grid grid-cols-[1fr_auto_1fr] items-center">
+          {/* Left links */}
+          <ul className="flex items-center justify-end gap-8 xl:gap-10">
+            {leftNavItems.map((item) => (
               <li key={item.id}>
                 <a
                   href={`#${item.id}`}
@@ -532,50 +175,305 @@ const Navbar = () => {
                     e.preventDefault();
                     handleNavClick(item.id);
                   }}
-                  className="block text-sm garamond-300 tracking-[0.2em] py-3 border-b border-[#543c24]/10 group text-[#543c24]/60 hover:text-[#543c24]"
+                  className={`text-[11px] garamond-300 tracking-[0.25em] transition-all duration-400 relative group py-1 ${textCls}`}
                 >
-                  <span className="relative">
-                    {item.label.toUpperCase()}
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-500 bg-[#543c24]"></span>
-                  </span>
+                  {item.label.toUpperCase()}
+                  {/* Hover underline */}
+                  <span
+                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-[1px] w-0 group-hover:w-full transition-all duration-500 ease-out"
+                    style={{ backgroundColor: lineColor }}
+                  />
+                  {/* Active section dot */}
+                  <span
+                    className={`absolute -bottom-3.5 left-1/2 -translate-x-1/2 w-[3px] h-[3px] rounded-full transition-all duration-500 ${
+                      activeSection === item.id
+                        ? 'opacity-100 scale-100'
+                        : 'opacity-0 scale-0'
+                    }`}
+                    style={{ backgroundColor: dotColor }}
+                  />
                 </a>
               </li>
             ))}
           </ul>
-          
-          {/* Elemento decorativo en el footer - posicionado al final */}
-          <div className="absolute bottom-6 left-6 right-6 pt-6 border-t border-[#543c24]/10"
-            ref={(el) => {
-              if (el && isMobileMenuOpen) {
-                console.log('=== FOOTER DEBUG ===');
-                console.log('Footer computed styles:', window.getComputedStyle(el));
-                console.log('Footer background:', window.getComputedStyle(el).backgroundColor);
-                console.log('====================');
-              }
-            }}>
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-1 h-1 rounded-full bg-[#543c24]/30"></div>
-              <div className="w-8 h-0.5 bg-[#543c24]/30"></div>
-              <div className="w-1 h-1 rounded-full bg-[#543c24]/30"></div>
+
+          {/* Center monogram */}
+          <div className="px-8 xl:px-10 flex items-center justify-center">
+            <Image
+              src="/Diseño sin título.png"
+              alt="Monograma"
+              width={144}
+              height={144}
+              className={`object-contain ${isDark ? 'invert' : ''}`}
+              style={{
+                width: `${logoDesktop}px`,
+                height: `${logoDesktop}px`,
+                transition: 'filter 0.5s ease',
+              }}
+              priority
+            />
+          </div>
+
+          {/* Right links */}
+          <ul className="flex items-center justify-start gap-8 xl:gap-10">
+            {rightNavItems.map((item) => (
+              <li key={item.id}>
+                <a
+                  href={`#${item.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(item.id);
+                  }}
+                  className={`text-[11px] garamond-300 tracking-[0.25em] transition-all duration-400 relative group py-1 ${textCls}`}
+                >
+                  {item.label.toUpperCase()}
+                  <span
+                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-[1px] w-0 group-hover:w-full transition-all duration-500 ease-out"
+                    style={{ backgroundColor: lineColor }}
+                  />
+                  <span
+                    className={`absolute -bottom-3.5 left-1/2 -translate-x-1/2 w-[3px] h-[3px] rounded-full transition-all duration-500 ${
+                      activeSection === item.id
+                        ? 'opacity-100 scale-100'
+                        : 'opacity-0 scale-0'
+                    }`}
+                    style={{ backgroundColor: dotColor }}
+                  />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* ═══════════════════════════════════════════
+            TABLET  (md → lg)
+        ═══════════════════════════════════════════ */}
+        <div className="hidden md:grid lg:hidden grid-cols-[1fr_auto_1fr_auto] items-center gap-3">
+          <ul className="flex items-center justify-end gap-3 text-[11px]">
+            {navigationItems.slice(0, 2).map((item) => (
+              <li key={item.id}>
+                <a
+                  href={`#${item.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(item.id);
+                  }}
+                  className={`garamond-300 tracking-[0.12em] transition-colors duration-400 px-1 ${textCls}`}
+                >
+                  {item.label.toUpperCase()}
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex items-center justify-center">
+            <Image
+              src="/Diseño sin título.png"
+              alt="Monograma"
+              width={132}
+              height={132}
+              className={`object-contain ${isDark ? 'invert' : ''}`}
+              style={{
+                width: `${logoMobile}px`,
+                height: `${logoMobile}px`,
+                transition: 'filter 0.5s ease',
+              }}
+            />
+          </div>
+
+          <ul className="flex items-center justify-start gap-3 text-[11px]">
+            {navigationItems.slice(2, 4).map((item) => (
+              <li key={item.id}>
+                <a
+                  href={`#${item.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(item.id);
+                  }}
+                  className={`garamond-300 tracking-[0.12em] transition-colors duration-400 px-1 ${textCls}`}
+                >
+                  {item.label.toUpperCase()}
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          {/* Hamburger */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className={`p-2 transition-colors duration-400 ${textCls}`}
+            aria-label="Menú adicional"
+          >
+            <div className="flex flex-col gap-[4px]">
+              <div
+                className="w-4 h-[1px] transition-all duration-300 origin-center"
+                style={{
+                  backgroundColor: lineColor,
+                  transform: isMobileMenuOpen
+                    ? 'rotate(45deg) translateY(2.5px)'
+                    : 'none',
+                }}
+              />
+              <div
+                className="w-4 h-[1px] transition-all duration-300"
+                style={{
+                  backgroundColor: lineColor,
+                  opacity: isMobileMenuOpen ? 0 : 1,
+                }}
+              />
+              <div
+                className="w-4 h-[1px] transition-all duration-300 origin-center"
+                style={{
+                  backgroundColor: lineColor,
+                  transform: isMobileMenuOpen
+                    ? 'rotate(-45deg) translateY(-2.5px)'
+                    : 'none',
+                }}
+              />
+            </div>
+          </button>
+        </div>
+
+        {/* ═══════════════════════════════════════════
+            MOBILE  (< md)
+        ═══════════════════════════════════════════ */}
+        <div className="md:hidden grid grid-cols-[1fr_auto_1fr] items-center w-full">
+          <div />
+
+          <div className="flex items-center justify-center">
+            <Image
+              src="/Diseño sin título.png"
+              alt="Monograma"
+              width={120}
+              height={120}
+              className={`object-contain ${isDark ? 'invert' : ''}`}
+              style={{
+                width: `${logoMobile}px`,
+                height: `${logoMobile}px`,
+                transition: 'filter 0.5s ease',
+              }}
+            />
+          </div>
+
+          <div className="flex items-center justify-end">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className={`p-2 transition-colors duration-400 ${textCls}`}
+              aria-label="Menú de navegación"
+            >
+              <div className="flex flex-col gap-[5px]">
+                <div
+                  className="w-5 h-[1px] transition-all duration-300 origin-center"
+                  style={{
+                    backgroundColor: lineColor,
+                    transform: isMobileMenuOpen
+                      ? 'rotate(45deg) translateY(3px)'
+                      : 'none',
+                  }}
+                />
+                <div
+                  className="w-5 h-[1px] transition-all duration-300"
+                  style={{
+                    backgroundColor: lineColor,
+                    opacity: isMobileMenuOpen ? 0 : 1,
+                  }}
+                />
+                <div
+                  className="w-5 h-[1px] transition-all duration-300 origin-center"
+                  style={{
+                    backgroundColor: lineColor,
+                    transform: isMobileMenuOpen
+                      ? 'rotate(-45deg) translateY(-3px)'
+                      : 'none',
+                  }}
+                />
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════
+            SLIDE-OUT MOBILE MENU  (< md)
+        ═══════════════════════════════════════════ */}
+        <div
+          className={`md:hidden fixed top-0 right-0 w-1/2 h-screen z-50 border-l transition-transform duration-500 ease-out ${
+            isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+          style={{
+            backgroundColor: '#ffffff',
+            borderColor: 'rgba(84,60,36,0.08)',
+          }}
+        >
+          <div className="p-6 h-full flex flex-col">
+            {/* Menu header */}
+            <div className="flex items-center justify-between mb-8 pb-5 border-b border-[#543c24]/8">
+              <span className="text-[10px] garamond-300 tracking-[0.3em] text-[#543c24]/50">
+                MENÚ
+              </span>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-1 text-[#543c24]/50 hover:text-[#543c24] transition-colors"
+                aria-label="Cerrar menú"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Navigation links with staggered entrance */}
+            <ul className="space-y-0.5 flex-1">
+              {navigationItems.map((item, i) => (
+                <li key={item.id}>
+                  <a
+                    href={`#${item.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleNavClick(item.id);
+                    }}
+                    className="block text-sm garamond-300 tracking-[0.18em] py-3 border-b border-[#543c24]/5 text-[#543c24]/45 hover:text-[#543c24] hover:pl-2 transition-all duration-300"
+                    style={{
+                      opacity: isMobileMenuOpen ? 1 : 0,
+                      transform: isMobileMenuOpen
+                        ? 'translateX(0)'
+                        : 'translateX(14px)',
+                      transition: `all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
+                      transitionDelay: isMobileMenuOpen ? `${i * 60}ms` : '0ms',
+                    }}
+                  >
+                    {item.label.toUpperCase()}
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            {/* Decorative footer */}
+            <div className="pt-5 border-t border-[#543c24]/8 flex items-center justify-center gap-2">
+              <div className="w-1 h-1 rounded-full bg-[#C4985B]/35" />
+              <div className="w-6 h-[1px] bg-[#C4985B]/25" />
+              <div className="w-1 h-1 rounded-full bg-[#C4985B]/35" />
             </div>
           </div>
         </div>
 
-        {/* Overlay para cerrar el menú en SM */}
+        {/* Overlay backdrop for mobile menu */}
         {isMobileMenuOpen && (
-          <div 
-            className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-500"
+          <div
+            className="md:hidden fixed inset-0 bg-black/35 backdrop-blur-sm z-40 transition-opacity duration-500"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
       </div>
-
-      <style jsx>{`
-        .garamond-300 {
-          font-family: 'EB Garamond', serif;
-          font-weight: 300;
-        }
-      `}</style>
     </nav>
   );
 };
