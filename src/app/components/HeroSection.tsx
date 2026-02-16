@@ -121,6 +121,28 @@ const HeroSection = () => {
           <CountdownTimer targetDate="2026-08-22T00:00:00" variant="light" />
         </div>
 
+        {/* ── Confirm reservation ── */}
+        <div
+          className={`mt-12 md:mt-16 transition-all duration-[2000ms] ease-out ${
+            loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+          }`}
+          style={{ transitionDelay: '1400ms' }}
+        >
+          <a
+            href="#rsvp"
+            className="hero-cta"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            <span className={`hero-cta-text ${isNightMode ? 'text-white/50' : 'text-[#8B7355]/70'}`}>
+              Confirmar Asistencia
+            </span>
+            <span className={`hero-cta-underline ${loaded ? 'hero-cta-underline--drawn' : ''} ${isNightMode ? 'hero-cta-underline--night' : ''}`} />
+          </a>
+        </div>
+
       </div>
 
       {/* ── Scroll indicator at bottom ── */}
@@ -196,6 +218,66 @@ const HeroSection = () => {
           .hero-ampersand {
             font-size: 48px;
           }
+        }
+
+        /* ── Confirm reservation ── */
+        .hero-cta {
+          display: inline-flex;
+          flex-direction: column;
+          align-items: center;
+          cursor: pointer;
+          text-decoration: none;
+        }
+        .hero-cta-text {
+          font-family: 'EB Garamond', 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 11px;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          transition: opacity 0.5s ease;
+        }
+        .hero-cta:hover .hero-cta-text {
+          opacity: 1 !important;
+        }
+
+        /* Underline — draws from center */
+        .hero-cta-underline {
+          display: block;
+          height: 0.5px;
+          margin-top: 6px;
+          background: #C4985B;
+          width: 0;
+          opacity: 0;
+          transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 2.2s,
+                      opacity 0.8s ease 2.2s;
+        }
+        .hero-cta-underline--drawn {
+          width: 60%;
+          opacity: 0.4;
+          animation: ctaBreath 3.5s ease-in-out 4s infinite;
+        }
+        .hero-cta-underline--night {
+          background: rgba(255, 255, 255, 0.5);
+        }
+        .hero-cta:hover .hero-cta-underline {
+          width: 100%;
+          opacity: 0.6;
+          animation: none;
+        }
+
+        @keyframes ctaBreath {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.65; }
+        }
+
+        @media (min-width: 640px) {
+          .hero-cta-text { font-size: 11.5px; letter-spacing: 0.35em; }
+        }
+        @media (min-width: 768px) {
+          .hero-cta-text { font-size: 12px; }
+        }
+        @media (min-width: 1024px) {
+          .hero-cta-text { font-size: 12.5px; }
         }
       `}</style>
     </section>
