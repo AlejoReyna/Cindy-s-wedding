@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 
 export default function WeddingInvitation() {
@@ -7,8 +7,35 @@ export default function WeddingInvitation() {
 
   const sectionRef = useRef<HTMLDivElement>(null);
 
+  /* ── Sequential scroll-reveal state ── */
+  const [isVisible, setIsVisible] = useState(false);
+  const [step, setStep] = useState(0);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.12, rootMargin: '-30px' }
+    );
 
+    const node = sectionRef.current;
+    if (node) observer.observe(node);
+    return () => { if (node) observer.unobserve(node); };
+  }, [isVisible]);
+
+  /* Cascade steps once visible */
+  useEffect(() => {
+    if (!isVisible) return;
+    const totalSteps = 6;
+    if (step >= totalSteps) return;
+
+    const delay = step === 0 ? 100 : 280;
+    const timer = setTimeout(() => setStep((s) => s + 1), delay);
+    return () => clearTimeout(timer);
+  }, [isVisible, step]);
 
 
   // Hand-drawn floral SVG pattern
@@ -113,31 +140,46 @@ export default function WeddingInvitation() {
 
   return (
     <>
-      <main className="relative flex min-h-screen flex-col items-center justify-center p-6 bg-[#F8F6F3] text-center overflow-hidden">
+      <main
+        ref={sectionRef}
+        className="relative flex min-h-screen flex-col items-center justify-center p-6 bg-[#F8F6F3] text-center overflow-hidden"
+      >
         {/* Floral background pattern */}
         <FloralPattern />
         
         <div className="relative z-10 max-w-sm mx-auto space-y-8">
           
-          {/* Date */}
+          {/* ── Step 1: Title ── */}
           <div className="space-y-2 mt-18">
-            <h2 className="text-4xl font-light text-gray-700 leading-tight garamond-regular">
+            <h2
+              className={`text-4xl font-light text-gray-700 leading-tight garamond-regular transition-all duration-[1600ms] ease-out ${
+                step >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+            >
               Título de la view
             </h2>
-            <p className="text-[#C4985B] text-xs font-light tracking-[0.2em] uppercase garamond-300">
+            <p
+              className={`text-[#C4985B] text-xs font-light tracking-[0.2em] uppercase garamond-300 transition-all duration-[1400ms] ease-out ${
+                step >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+              style={{ transitionDelay: '200ms' }}
+            >
             </p>
           </div>
 
-          {/* Photo arrangement with improved zoom effect */}
-          
-          
+          {/* ── Step 2: Photo area ── */}
           <div 
-            ref={sectionRef}
-            className="relative my-17" 
+            className={`relative my-17 transition-all duration-[1800ms] ease-out ${
+              step >= 2 ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-[0.97]'
+            }`}
             style={{ height: '450px', width: '100%' }}
           >
             {/* Enhanced decorative floral corner */}
-            <div className="absolute -top-8 -left-28 w-20 h-20 opacity-40">
+            <div
+              className={`absolute -top-8 -left-28 w-20 h-20 transition-all duration-[1400ms] ease-out ${
+                step >= 3 ? 'opacity-40 translate-x-0 translate-y-0' : 'opacity-0 translate-x-4 translate-y-4'
+              }`}
+            >
               <svg viewBox="0 0 80 80" className="w-full h-full" fill="none">
                 <path 
                   d="M10,40 Q25,20 40,40 Q55,60 70,40 Q55,20 40,40 Q25,60 10,40" 
@@ -154,7 +196,12 @@ export default function WeddingInvitation() {
 
             
             {/* Enhanced decorative floral corner bottom right */}
-            <div className="absolute -bottom-8 -right-36 w-20 h-20 opacity-40">
+            <div
+              className={`absolute -bottom-8 -right-36 w-20 h-20 transition-all duration-[1400ms] ease-out ${
+                step >= 3 ? 'opacity-40 -translate-x-0 -translate-y-0' : 'opacity-0 -translate-x-4 -translate-y-4'
+              }`}
+              style={{ transitionDelay: '200ms' }}
+            >
               <svg viewBox="0 0 80 80" className="w-full h-full" fill="none">
                 <path 
                   d="M70,40 Q55,20 40,40 Q25,60 10,40 Q25,20 40,40 Q55,60 70,40" 
@@ -172,15 +219,31 @@ export default function WeddingInvitation() {
             </div>
           </div>
 
-          {/* Romantic text below photos */}
+          {/* ── Step 4: Quote text ── */}
           <div className="pb-4">
-            <p className="text-lg font-light text-gray-600 italic garamond-regular leading-relaxed">
+            <p
+              className={`text-lg font-light text-gray-600 italic garamond-regular leading-relaxed transition-all duration-[1800ms] ease-out ${
+                step >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}
+            >
               &ldquo;Dos corazones, una historia,<br />
               un destino que nos une para siempre&rdquo;
             </p>
-            <div className="flex justify-center items-center mt-4">
+
+            {/* ── Step 5: Decorative heart divider ── */}
+            <div
+              className={`flex justify-center items-center mt-4 transition-all duration-[1600ms] ease-out ${
+                step >= 5 ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+              }`}
+            >
               <div className="w-12 h-px bg-[#C4985B] opacity-50"></div>
-              <div className="mx-3 text-[#C4985B] text-xl">♡</div>
+              <div
+                className={`mx-3 text-[#C4985B] text-xl transition-all duration-[1200ms] ease-out ${
+                  step >= 6 ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+                }`}
+              >
+                ♡
+              </div>
               <div className="w-12 h-px bg-[#C4985B] opacity-50"></div>
             </div>
           </div>
