@@ -20,6 +20,16 @@ const HeroSection = () => {
     return () => clearTimeout(t);
   }, []);
 
+  // ── Animation timing (ms after `loaded` fires) ──────────────────────────
+  // "Cindy":  5 letters × 110ms → last starts at 440ms, done ~790ms
+  // Pause →   "&" at 700ms (160ms gap), done ~1350ms
+  // Pause →   "Jorge" at 1050ms (350ms gap), last starts at 1490ms, done ~1840ms
+  // POST_NAMES: everything else fades in after names finish
+  const CINDY_START = 0;
+  const AMP_START   = 700;
+  const JORGE_START = 1050;
+  const POST_NAMES  = 1900;
+
   // Decorative flourish SVG — gold/brown tones for cream background
   const Ornament = () => (
     <svg width="90" height="55" viewBox="0 0 90 55" fill="none" className="mx-auto">
@@ -60,21 +70,22 @@ const HeroSection = () => {
       {/* ── Main content — centered ── */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 w-full">
 
-        {/* Ornament */}
+        {/* Ornament — fades in AFTER names finish */}
         <div
           className={`mb-8 transition-all duration-[1800ms] ease-out ${
             loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
           }`}
+          style={{ transitionDelay: `${POST_NAMES}ms` }}
         >
           <Ornament />
         </div>
 
-        {/* "THE WEDDING OF" with lines */}
+        {/* "NUESTRA BODA" with lines — after ornament */}
         <div
           className={`flex items-center justify-center gap-4 mb-8 transition-all duration-[1600ms] ease-out ${
             loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
-          style={{ transitionDelay: '300ms' }}
+          style={{ transitionDelay: `${POST_NAMES + 200}ms` }}
         >
           <span className={`block w-14 md:w-20 h-[0.5px] ${isNightMode ? 'bg-white/30' : 'bg-[#C4985B]/50'}`} />
           <span className={`hero-label-text ${isNightMode ? 'text-white/60' : 'text-[#8B7355]/70'}`}>
@@ -83,50 +94,73 @@ const HeroSection = () => {
           <span className={`block w-14 md:w-20 h-[0.5px] ${isNightMode ? 'bg-white/30' : 'bg-[#C4985B]/50'}`} />
         </div>
 
-        {/* Names — Cormorant Garamond (garamond-300) */}
-        <div
-          className={`transition-all duration-[2000ms] ease-out ${
-            loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-          style={{ transitionDelay: '600ms' }}
-        >
+        {/* ── Names — FIRST animation: letter-by-letter writing ─────────────
+             NOTE: spans are rendered directly here (not in a sub-component)
+             so that styled-jsx scoping applies correctly to .letter-span     */}
+        <div>
+
+          {/* "Cindy" — each letter writes in one at a time */}
           <h1 className={`hero-names-text ${isNightMode ? 'text-white/90' : 'text-[#543c24]'}`}>
-            Cindy
+            {'Cindy'.split('').map((char, i) => (
+              <span
+                key={`c-${i}`}
+                className={`letter-span${loaded ? ' letter-animated' : ''}`}
+                style={{ animationDelay: `${CINDY_START + i * 110}ms` }}
+              >
+                {char}
+              </span>
+            ))}
           </h1>
-          <p className={`hero-ampersand ${isNightMode ? 'text-white/60' : 'text-[#8B7355]/60'}`}>
+
+          {/* "&" — cursive swirl-in after a short pause */}
+          <p
+            className={`hero-ampersand ${isNightMode ? 'text-white/60' : 'text-[#8B7355]/60'}${loaded ? ' ampersand-animated' : ' ampersand-hidden'}`}
+            style={{ animationDelay: `${AMP_START}ms` }}
+          >
             &amp;
           </p>
+
+          {/* "Jorge" — letters write in after the "&" settles */}
           <h1 className={`hero-names-text ${isNightMode ? 'text-white/90' : 'text-[#543c24]'}`}>
-            Jorge
+            {'Jorge'.split('').map((char, i) => (
+              <span
+                key={`j-${i}`}
+                className={`letter-span${loaded ? ' letter-animated' : ''}`}
+                style={{ animationDelay: `${JORGE_START + i * 110}ms` }}
+              >
+                {char}
+              </span>
+            ))}
           </h1>
+
         </div>
 
-        {/* Thin decorative line */}
+        {/* Thin decorative line — after names */}
         <div
           className={`mt-8 mb-12 transition-all duration-[1600ms] ease-out ${
             loaded ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
           }`}
-          style={{ transitionDelay: '900ms' }}
+          style={{ transitionDelay: `${POST_NAMES + 400}ms` }}
         >
           <span className={`block w-10 h-[0.5px] mx-auto ${isNightMode ? 'bg-white/25' : 'bg-[#C4985B]/40'}`} />
         </div>
 
-        {/* Countdown timer — light variant (no square backgrounds) */}
+        {/* Countdown timer — after names */}
         <div
           className={`transition-all duration-[1800ms] ease-out ${
             loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
-          style={{ transitionDelay: '1100ms' }}
+          style={{ transitionDelay: `${POST_NAMES + 600}ms` }}
         >
           <CountdownTimer targetDate="2026-08-22T00:00:00" variant="light" />
         </div>
 
-        {/* ── Confirm reservation ── */}
+        {/* ── Confirm reservation — after names ── */}
         <div
           className={`mt-12 md:mt-16 transition-all duration-[2000ms] ease-out ${
             loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
           }`}
-          style={{ transitionDelay: '1400ms' }}
+          style={{ transitionDelay: `${POST_NAMES + 800}ms` }}
         >
           <a
             href="#rsvp"
@@ -145,12 +179,12 @@ const HeroSection = () => {
 
       </div>
 
-      {/* ── Scroll indicator at bottom ── */}
+      {/* ── Scroll indicator at bottom — after names ── */}
       <div
         className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-10 transition-all duration-[1800ms] ease-out ${
           loaded ? 'opacity-100' : 'opacity-0'
         }`}
-        style={{ transitionDelay: '1500ms' }}
+        style={{ transitionDelay: `${POST_NAMES + 900}ms` }}
       >
         <svg
           width="20"
@@ -166,6 +200,53 @@ const HeroSection = () => {
       </div>
 
       <style jsx>{`
+
+        /* ═══════════════════════════════════════════════════════════
+           Letter writing animation
+           — spans are rendered inline so styled-jsx scoping applies
+        ═══════════════════════════════════════════════════════════ */
+
+        /* Initial hidden state — always applied */
+        .letter-span {
+          display: inline-block;
+          opacity: 0;
+        }
+
+        /* Triggered when loaded=true — animationDelay is set via inline style
+           which overrides the implicit animation-delay:0s from the shorthand  */
+        .letter-animated {
+          animation: letterWrite 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes letterWrite {
+          0%   { opacity: 0; transform: translateY(10px) scaleX(0.4); filter: blur(2px); }
+          55%  { opacity: 1; filter: blur(0); }
+          100% { opacity: 1; transform: translateY(0)   scaleX(1);   filter: blur(0); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           Ampersand — cursive swirl-in with spring bounce
+        ═══════════════════════════════════════════════════════════ */
+
+        .ampersand-hidden {
+          opacity: 0;
+        }
+
+        /* animationDelay set via inline style */
+        .ampersand-animated {
+          animation: ampersandSwirl 0.65s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+          opacity: 0; /* starts transparent; keyframe takes over */
+        }
+
+        @keyframes ampersandSwirl {
+          0%   { opacity: 0; transform: scale(0.3) rotate(-20deg) translateY(15px); filter: blur(4px); }
+          60%  { opacity: 0.9; transform: scale(1.08) rotate(3deg) translateY(-3px); filter: blur(0); }
+          100% { opacity: 1; transform: scale(1)   rotate(0deg)  translateY(0);    filter: blur(0); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           Text styles
+        ═══════════════════════════════════════════════════════════ */
         .hero-label-text {
           font-family: 'EB Garamond', 'Cormorant Garamond', serif;
           font-weight: 300;
@@ -182,6 +263,7 @@ const HeroSection = () => {
           text-transform: uppercase;
         }
         .hero-ampersand {
+          display: block;
           font-family: 'Mrs Saint Delafield', cursive;
           font-weight: 400;
           font-size: 32px;
@@ -189,38 +271,23 @@ const HeroSection = () => {
           margin: -2px 0;
         }
         @media (min-width: 640px) {
-          .hero-label-text {
-            font-size: 11px;
-            letter-spacing: 0.4em;
-          }
-          .hero-names-text {
-            font-size: 60px;
-          }
-          .hero-ampersand {
-            font-size: 38px;
-          }
+          .hero-label-text { font-size: 11px; letter-spacing: 0.4em; }
+          .hero-names-text { font-size: 60px; }
+          .hero-ampersand  { font-size: 38px; }
         }
         @media (min-width: 768px) {
-          .hero-label-text {
-            font-size: 12px;
-          }
-          .hero-names-text {
-            font-size: 72px;
-          }
-          .hero-ampersand {
-            font-size: 44px;
-          }
+          .hero-label-text { font-size: 12px; }
+          .hero-names-text { font-size: 72px; }
+          .hero-ampersand  { font-size: 44px; }
         }
         @media (min-width: 1024px) {
-          .hero-names-text {
-            font-size: 84px;
-          }
-          .hero-ampersand {
-            font-size: 48px;
-          }
+          .hero-names-text { font-size: 84px; }
+          .hero-ampersand  { font-size: 48px; }
         }
 
-        /* ── Confirm reservation ── */
+        /* ═══════════════════════════════════════════════════════════
+           Confirm reservation CTA
+        ═══════════════════════════════════════════════════════════ */
         .hero-cta {
           display: inline-flex;
           flex-direction: column;
@@ -236,11 +303,9 @@ const HeroSection = () => {
           text-transform: uppercase;
           transition: opacity 0.5s ease;
         }
-        .hero-cta:hover .hero-cta-text {
-          opacity: 1 !important;
-        }
+        .hero-cta:hover .hero-cta-text { opacity: 1 !important; }
 
-        /* Underline — draws from center */
+        /* Underline — draws from left */
         .hero-cta-underline {
           display: block;
           height: 0.5px;
@@ -256,9 +321,7 @@ const HeroSection = () => {
           opacity: 0.4;
           animation: ctaBreath 3.5s ease-in-out 4s infinite;
         }
-        .hero-cta-underline--night {
-          background: rgba(255, 255, 255, 0.5);
-        }
+        .hero-cta-underline--night { background: rgba(255, 255, 255, 0.5); }
         .hero-cta:hover .hero-cta-underline {
           width: 100%;
           opacity: 0.6;
@@ -267,18 +330,12 @@ const HeroSection = () => {
 
         @keyframes ctaBreath {
           0%, 100% { opacity: 0.4; }
-          50% { opacity: 0.65; }
+          50%       { opacity: 0.65; }
         }
 
-        @media (min-width: 640px) {
-          .hero-cta-text { font-size: 11.5px; letter-spacing: 0.35em; }
-        }
-        @media (min-width: 768px) {
-          .hero-cta-text { font-size: 12px; }
-        }
-        @media (min-width: 1024px) {
-          .hero-cta-text { font-size: 12.5px; }
-        }
+        @media (min-width: 640px) { .hero-cta-text { font-size: 11.5px; letter-spacing: 0.35em; } }
+        @media (min-width: 768px)  { .hero-cta-text { font-size: 12px; } }
+        @media (min-width: 1024px) { .hero-cta-text { font-size: 12.5px; } }
       `}</style>
     </section>
   );
