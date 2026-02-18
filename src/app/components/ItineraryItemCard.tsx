@@ -93,19 +93,19 @@ export default function ItineraryItemCard({
     switch (item.title) {
       case 'Misa':
         return (
-          <Image src={church} alt="Misa" width={26} height={26} className={cls} />
+          <Image src={church} alt="Misa" width={32} height={32} className={cls} />
         );
       case 'Ceremonia':
         return (
-          <Image src={church} alt="Ceremonia" width={26} height={26} className={cls} />
+          <Image src={church} alt="Ceremonia" width={32} height={32} className={cls} />
         );
       case 'Ceremonia Civil':
         return (
           <Image
             src={legalDocument}
             alt="Ceremonia Civil"
-            width={26}
-            height={26}
+            width={32}
+            height={32}
             className={cls}
           />
         );
@@ -114,8 +114,8 @@ export default function ItineraryItemCard({
           <Image
             src={nightClub}
             alt="Recepción"
-            width={26}
-            height={26}
+            width={32}
+            height={32}
             className={`${cls} brightness-0`}
           />
         );
@@ -124,91 +124,142 @@ export default function ItineraryItemCard({
     }
   };
 
-  return (
-    <div ref={cardRef} className="group py-14 md:py-20 px-6 md:px-8 text-center">
-      {/* ── Time (hero element) ── */}
-      <div className="mb-5 overflow-hidden">
-        <div
-          className={`transition-all duration-700 ease-out ${
-            showTime
-              ? 'opacity-100 translate-y-0 scale-100'
-              : 'opacity-0 translate-y-5 scale-[0.92]'
-          }`}
-        >
-          <span
-            className="text-3xl md:text-4xl font-light tracking-[0.12em] garamond-300 transition-colors duration-500 group-hover:opacity-100"
-            style={{ color: accentColor, opacity: showTime ? 0.85 : 0 }}
-          >
-            {item.time}
-          </span>
-        </div>
-      </div>
+  // Unified color palette
+  const cardColor = '#7a6a5a';
+  const cardColorLight = '#7a6a5a99';
 
-      {/* ── Accent line (expands from center) ── */}
-      <div className="flex justify-center mb-7">
+  return (
+    <div ref={cardRef} className="group px-2 md:px-3 text-center">
+      {/* ── Elegant card container ── */}
+      <div
+        className={`relative py-16 md:py-24 px-8 md:px-10 rounded-none transition-all duration-1000 ease-out ${
+          animating ? 'opacity-100' : 'opacity-0'
+        }`}
+        style={{
+          background: 'rgba(255,255,255,0.45)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(196,152,91,0.12)',
+          boxShadow: '0 2px 20px rgba(139,115,85,0.04), 0 1px 4px rgba(139,115,85,0.02)',
+        }}
+      >
+        {/* Corner accents — delicate L-shapes */}
         <div
-          className={`h-[1px] transition-all ease-out group-hover:w-14 ${
-            showLine ? 'w-10 opacity-100 duration-600' : 'w-0 opacity-0 duration-300'
-          }`}
+          className="absolute top-4 left-4 w-6 h-6 pointer-events-none"
           style={{
-            backgroundColor: `${accentColor}55`,
+            borderTop: '1px solid rgba(196,152,91,0.25)',
+            borderLeft: '1px solid rgba(196,152,91,0.25)',
           }}
         />
-      </div>
-
-      {/* ── Icon (scales in with soft bounce) ── */}
-      <div className="flex justify-center mb-7">
         <div
-          className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-700 group-hover:scale-110 ${
-            showIcon ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.6]'
-          }`}
+          className="absolute top-4 right-4 w-6 h-6 pointer-events-none"
           style={{
-            backgroundColor: CIRCLE_BG[index] || CIRCLE_BG[2],
-            transitionTimingFunction: showIcon
-              ? 'cubic-bezier(0.34, 1.56, 0.64, 1)' // slight overshoot
-              : 'ease-out',
+            borderTop: '1px solid rgba(196,152,91,0.25)',
+            borderRight: '1px solid rgba(196,152,91,0.25)',
           }}
-        >
-          {getIcon()}
+        />
+        <div
+          className="absolute bottom-4 left-4 w-6 h-6 pointer-events-none"
+          style={{
+            borderBottom: '1px solid rgba(196,152,91,0.25)',
+            borderLeft: '1px solid rgba(196,152,91,0.25)',
+          }}
+        />
+        <div
+          className="absolute bottom-4 right-4 w-6 h-6 pointer-events-none"
+          style={{
+            borderBottom: '1px solid rgba(196,152,91,0.25)',
+            borderRight: '1px solid rgba(196,152,91,0.25)',
+          }}
+        />
+
+        {/* ── Icon (scales in with soft bounce) ── */}
+        <div className="flex justify-center mb-8">
+          <div
+            className={`w-18 h-18 rounded-full flex items-center justify-center transition-all duration-700 group-hover:scale-110 ${
+              showIcon ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.6]'
+            }`}
+            style={{
+              width: '4.5rem',
+              height: '4.5rem',
+              backgroundColor: CIRCLE_BG[index] || CIRCLE_BG[2],
+              transitionTimingFunction: showIcon
+                ? 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+                : 'ease-out',
+            }}
+          >
+            {getIcon()}
+          </div>
         </div>
+
+        {/* ── Title (fades up) ── */}
+        <div className="overflow-hidden mb-5">
+          <h3
+            className={`text-lg md:text-xl font-light tracking-[0.3em] uppercase garamond-300 transition-all duration-600 ease-out ${
+              showTitle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
+            style={{ color: cardColor }}
+          >
+            {item.title}
+          </h3>
+        </div>
+
+        {/* ── Accent line (expands from center) ── */}
+        <div className="flex justify-center mb-6">
+          <div
+            className={`h-[1px] transition-all ease-out group-hover:w-16 ${
+              showLine ? 'w-12 opacity-100 duration-600' : 'w-0 opacity-0 duration-300'
+            }`}
+            style={{
+              backgroundColor: 'rgba(196,152,91,0.35)',
+            }}
+          />
+        </div>
+
+        {/* ── Time ── */}
+        <div className="mb-5 overflow-hidden">
+          <div
+            className={`transition-all duration-700 ease-out ${
+              showTime
+                ? 'opacity-100 translate-y-0 scale-100'
+                : 'opacity-0 translate-y-5 scale-[0.92]'
+            }`}
+          >
+            <span
+              className="text-3xl md:text-4xl font-light tracking-[0.15em] garamond-300 transition-all duration-500 group-hover:opacity-100"
+              style={{ color: cardColor, opacity: showTime ? 0.8 : 0 }}
+            >
+              {item.time}
+            </span>
+          </div>
+        </div>
+
+        {/* ── Location (gentle fade) ── */}
+        {item.location && (
+          <p
+            className={`text-xs md:text-sm tracking-[0.08em] font-light max-w-[260px] mx-auto leading-relaxed transition-all duration-500 ease-out ${
+              showDetails
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-2'
+            }`}
+            style={{ color: cardColorLight }}
+          >
+            {item.location}
+          </p>
+        )}
+
+        {/* ── Description (if any) ── */}
+        {item.description && item.description.trim() !== '' && (
+          <p
+            className={`mt-5 text-sm font-light max-w-[240px] mx-auto leading-relaxed transition-all duration-500 ease-out ${
+              showDetails ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{ color: cardColorLight }}
+          >
+            {item.description}
+          </p>
+        )}
       </div>
-
-      {/* ── Title (fades up) ── */}
-      <div className="overflow-hidden mb-5">
-        <h3
-          className={`text-base md:text-lg font-light tracking-[0.3em] uppercase text-[#5c5c5c] garamond-300 transition-all duration-600 ease-out ${
-            showTitle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
-        >
-          {item.title}
-        </h3>
-      </div>
-
-      {/* ── Location (gentle fade) ── */}
-      {item.location && (
-        <p
-          className={`text-[11px] md:text-xs tracking-[0.08em] font-light max-w-[220px] mx-auto leading-relaxed transition-all duration-500 ease-out ${
-            showDetails
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 translate-y-2'
-          }`}
-          style={{ color: `${accentColor}88` }}
-        >
-          {item.location}
-        </p>
-      )}
-
-      {/* ── Description (if any) ── */}
-      {item.description && item.description.trim() !== '' && (
-        <p
-          className={`mt-5 text-xs font-light max-w-[200px] mx-auto leading-relaxed transition-all duration-500 ease-out ${
-            showDetails ? 'opacity-100' : 'opacity-0'
-          }`}
-          style={{ color: `${accentColor}66` }}
-        >
-          {item.description}
-        </p>
-      )}
     </div>
   );
 }

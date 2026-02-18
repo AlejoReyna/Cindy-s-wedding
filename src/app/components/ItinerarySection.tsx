@@ -171,39 +171,15 @@ export default function ItinerarySection() {
         </div>
 
         {/* ═══ Events triptych ═══ */}
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-3">
+        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
           {itineraryItems.map((item, index) => (
-            <div key={index} className="relative">
-              {/* Mobile divider (between items) */}
-              {index > 0 && (
-                <div className="md:hidden flex items-center justify-center gap-2 py-4">
-                  <div className="w-6 h-[1px] bg-[#C4985B]/20" />
-                  <div className="w-1 h-1 rounded-full bg-[#C4985B]/25" />
-                  <div className="w-6 h-[1px] bg-[#C4985B]/20" />
-                </div>
-              )}
-
-              {/* Desktop vertical divider — fades in with the card */}
-              {index > 0 && (
-                <div
-                  className="hidden md:block absolute left-0 top-[12%] bottom-[12%] w-[1px]"
-                  style={{
-                    backgroundColor:
-                      revealPhase >= index + 1
-                        ? 'rgba(196,152,91,0.12)'
-                        : 'transparent',
-                    transition: 'background-color 0.8s ease',
-                  }}
-                />
-              )}
-
-              <ItineraryItemCard
-                item={item}
-                index={index}
-                isRevealed={revealPhase >= index + 1}
-                accentColor={TIME_ACCENTS[index]}
-              />
-            </div>
+            <ItineraryItemCard
+              key={index}
+              item={item}
+              index={index}
+              isRevealed={revealPhase >= index + 1}
+              accentColor={TIME_ACCENTS[index]}
+            />
           ))}
         </div>
       </div>

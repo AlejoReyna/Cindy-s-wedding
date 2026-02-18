@@ -39,11 +39,11 @@ export default function MessageSection({ className }: { className?: string }) {
     <div className={`${className ?? ''}`}>
 
       {/* Section label */}
-      <div className="text-center mb-6">
-        <p className="garamond-300 tracking-[0.3em] text-[11px] md:text-xs uppercase text-white/50 mb-2">
+      <div className="text-center mb-7">
+        <p className="garamond-300 tracking-[0.3em] text-[11px] md:text-xs uppercase text-white/80 mb-2">
           Mensaje
         </p>
-        <p className="garamond-regular text-sm text-white/40">
+        <p className="garamond-regular text-sm text-white/65">
           Comparte tus buenos deseos
         </p>
       </div>
@@ -53,7 +53,7 @@ export default function MessageSection({ className }: { className?: string }) {
         action="https://api.web3forms.com/submit"
         method="POST"
         onSubmit={handleSubmit}
-        className="space-y-4 max-w-sm mx-auto"
+        className="space-y-5 max-w-sm mx-auto"
       >
         <input type="hidden" name="access_key" value={WEB3FORMS_ACCESS_KEY} />
         <input type="hidden" name="subject" value="Nuevo mensaje de invitación de boda" />
@@ -61,52 +61,58 @@ export default function MessageSection({ className }: { className?: string }) {
 
         {/* Name */}
         <div>
-          <label className="block garamond-300 text-[10px] tracking-[0.2em] uppercase text-white/45 mb-2">
+          <label className="block garamond-300 text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">
             Nombre
           </label>
-          <input
-            type="text"
-            name="name"
-            required
-            placeholder="Tu nombre completo"
-            className="w-full px-4 py-3 bg-white/[0.07] border border-white/15 text-white text-sm garamond-regular placeholder-white/25 focus:outline-none focus:border-white/35 transition-all duration-300"
-          />
+          <div className="liquid-glass-light">
+            <input
+              type="text"
+              name="name"
+              required
+              placeholder="Tu nombre completo"
+              className="w-full px-4 py-3.5 bg-transparent text-white text-sm garamond-regular placeholder-white/40 focus:outline-none"
+            />
+          </div>
         </div>
 
         {/* Email */}
         <div>
-          <label className="block garamond-300 text-[10px] tracking-[0.2em] uppercase text-white/45 mb-2">
+          <label className="block garamond-300 text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">
             Correo electrónico
           </label>
-          <input
-            type="email"
-            name="email"
-            required
-            placeholder="tu@email.com"
-            className="w-full px-4 py-3 bg-white/[0.07] border border-white/15 text-white text-sm garamond-regular placeholder-white/25 focus:outline-none focus:border-white/35 transition-all duration-300"
-          />
+          <div className="liquid-glass-light">
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="tu@email.com"
+              className="w-full px-4 py-3.5 bg-transparent text-white text-sm garamond-regular placeholder-white/40 focus:outline-none"
+            />
+          </div>
         </div>
 
         {/* Message */}
         <div>
-          <label className="block garamond-300 text-[10px] tracking-[0.2em] uppercase text-white/45 mb-2">
+          <label className="block garamond-300 text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">
             Mensaje
           </label>
-          <textarea
-            name="message"
-            required
-            rows={4}
-            placeholder="Comparte tus buenos deseos y bendiciones..."
-            className="w-full px-4 py-3 bg-white/[0.07] border border-white/15 text-white text-sm garamond-regular placeholder-white/25 focus:outline-none focus:border-white/35 transition-all duration-300 resize-none"
-          />
+          <div className="liquid-glass-light">
+            <textarea
+              name="message"
+              required
+              rows={4}
+              placeholder="Comparte tus buenos deseos y bendiciones..."
+              className="w-full px-4 py-3.5 bg-transparent text-white text-sm garamond-regular placeholder-white/40 focus:outline-none resize-none"
+            />
+          </div>
         </div>
 
         {/* Submit */}
-        <div className="pt-1">
+        <div className="pt-2">
           <button
             type="submit"
             disabled={formStatus === 'loading'}
-            className="w-full px-6 py-3 border border-white/20 text-white/70 garamond-300 tracking-[0.15em] uppercase text-xs hover:bg-white/10 hover:border-white/35 hover:text-white transition-all duration-500 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="liquid-glass-btn w-full px-6 py-3.5 text-white garamond-300 tracking-[0.15em] uppercase text-xs disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {formStatus === 'loading' ? 'Enviando...' : 'Enviar Mensaje'}
           </button>

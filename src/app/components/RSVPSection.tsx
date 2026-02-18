@@ -46,14 +46,14 @@ export default function RSVPSection() {
 
   // WhatsApp icon
   const WhatsAppIcon = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" opacity="0.9">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" opacity="0.9">
       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
     </svg>
   );
 
   // Calendar icon
   const CalendarIcon = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.9">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.9">
       <rect x="3" y="4" width="18" height="18" rx="2" />
       <line x1="16" y1="2" x2="16" y2="6" />
       <line x1="8" y1="2" x2="8" y2="6" />
@@ -86,22 +86,26 @@ export default function RSVPSection() {
         backgroundRepeat: 'no-repeat'
       }}
     >
-      {/* Refined dark overlay — softer, lets the photo breathe */}
-      <div className="absolute inset-0 bg-black/45" />
+      {/* Overlay — slightly lighter to let the glass panels pop (figure-ground) */}
+      <div className="absolute inset-0 bg-black/40" />
       <div
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.2) 100%)'
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.04) 40%, rgba(0,0,0,0.22) 100%)'
         }}
       />
 
-      <div className="max-w-5xl mx-auto relative z-10 px-6 w-full">
+      {/* ═══════════════════════════════════════════════
+          Gestalt: single centered column — continuity & proximity
+          The eye flows naturally top → bottom through the glass panels
+          ═══════════════════════════════════════════════ */}
+      <div className="max-w-lg mx-auto relative z-10 px-5 w-full flex flex-col items-center gap-10 md:gap-14">
 
-        {/* ── Centered header ── */}
-        <div className="text-center mb-14 md:mb-20">
+        {/* ── Header ── */}
+        <div className="text-center">
 
           {/* Top ornamental line */}
-          <div className={`flex items-center justify-center gap-3 mb-10 transition-all duration-[1800ms] ease-out ${
+          <div className={`flex items-center justify-center gap-3 mb-8 transition-all duration-[1800ms] ease-out ${
             isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
           }`} style={{ transitionDelay: '100ms' }}>
             <span className="block w-16 h-[0.5px] bg-white/30" />
@@ -110,45 +114,42 @@ export default function RSVPSection() {
           </div>
 
           {/* Script accent */}
-          <p className={`mrs-saint-delafield-regular text-3xl md:text-4xl text-white/50 mb-2 transition-all duration-[1600ms] ease-out ${
+          <p className={`mrs-saint-delafield-regular text-3xl md:text-4xl text-white/80 mb-2 transition-all duration-[1600ms] ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`} style={{ transitionDelay: '250ms' }}>
             Confirma
           </p>
 
           {/* Section title */}
-          <h2 className={`garamond-300 text-xs md:text-sm tracking-[0.35em] uppercase text-white/70 mb-8 transition-all duration-[1600ms] ease-out ${
+          <h2 className={`garamond-300 text-xs md:text-sm tracking-[0.35em] uppercase text-white/90 mb-6 transition-all duration-[1600ms] ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`} style={{ transitionDelay: '400ms' }}>
             tu asistencia
           </h2>
 
           {/* Welcome message */}
-          <p className={`garamond-regular text-base md:text-lg text-white/70 leading-relaxed max-w-md mx-auto transition-all duration-[1800ms] ease-out ${
+          <p className={`garamond-regular text-base md:text-lg text-white/85 leading-relaxed max-w-md mx-auto transition-all duration-[1800ms] ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`} style={{ transitionDelay: '550ms' }}>
             Para nosotros es muy importante tu presencia, es por eso que te pedimos confirmar tu asistencia antes del 15 de septiembre.
           </p>
         </div>
 
-        {/* ══════════════════════════════════════════════
-            Horizontal layout — two columns side by side
-            ══════════════════════════════════════════════ */}
-        <div className="flex flex-col md:flex-row md:items-start md:justify-center gap-10 md:gap-0">
+        {/* ── Glass Panel 1: RSVP Actions ──
+            Gestalt "common region" — buttons grouped inside a shared glass surface */}
+        <div className={`w-full transition-all duration-[1800ms] ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`} style={{ transitionDelay: '750ms' }}>
+          <div className="liquid-glass px-6 py-8 md:px-8 md:py-10 text-center">
 
-          {/* ── Left: RSVP actions ── */}
-          <div className={`flex-1 text-center md:px-8 transition-all duration-[1800ms] ease-out ${
-            isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 md:-translate-x-10'
-          }`} style={{ transitionDelay: '750ms' }}>
-
-            <p className="garamond-regular text-lg md:text-xl text-white/60 mb-10">
+            <p className="garamond-regular text-lg md:text-xl text-white/90 mb-8">
               ¡Te esperamos!
             </p>
 
-            {/* Action buttons */}
+            {/* Gestalt "similarity" — both buttons share the same glass style */}
             <div className="flex flex-col gap-4 max-w-xs mx-auto">
               <button
-                className="group inline-flex items-center justify-center gap-3 px-6 py-3.5 border border-white/20 text-white/80 garamond-300 tracking-[0.15em] uppercase text-xs hover:bg-white/10 hover:border-white/35 hover:text-white transition-all duration-500"
+                className="liquid-glass-btn group inline-flex items-center justify-center gap-3 px-6 py-4 text-white garamond-300 tracking-[0.15em] uppercase text-xs"
                 onClick={() => {
                   window.open('https://wa.me/0000000000?text=Confirmo%20mi%20asistencia%20a%20la%20boda%20de%20Cindy%20%26%20Alexis.%0ALos%20nombres%20confirmados%20en%20esta%20invitaci%C3%B3n%20son%3A%20____________', '_blank');
                 }}
@@ -158,7 +159,7 @@ export default function RSVPSection() {
               </button>
 
               <button
-                className="group inline-flex items-center justify-center gap-3 px-6 py-3.5 border border-white/20 text-white/80 garamond-300 tracking-[0.15em] uppercase text-xs hover:bg-white/10 hover:border-white/35 hover:text-white transition-all duration-500"
+                className="liquid-glass-btn group inline-flex items-center justify-center gap-3 px-6 py-4 text-white garamond-300 tracking-[0.15em] uppercase text-xs"
                 onClick={addToCalendar}
               >
                 <CalendarIcon />
@@ -166,36 +167,29 @@ export default function RSVPSection() {
               </button>
             </div>
           </div>
+        </div>
 
-          {/* ── Center divider ── */}
-          <div className={`flex items-center justify-center transition-all duration-[1800ms] ease-out ${
-            isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
-          }`} style={{ transitionDelay: '900ms' }}>
-            {/* Mobile: horizontal */}
-            <div className="flex md:hidden items-center gap-4 py-2">
-              <span className="block w-12 h-[0.5px] bg-white/15" />
-              <span className="garamond-300 text-[11px] tracking-[0.2em] text-white/25 uppercase">&</span>
-              <span className="block w-12 h-[0.5px] bg-white/15" />
-            </div>
-            {/* Desktop: vertical */}
-            <div className="hidden md:flex flex-col items-center gap-4 self-stretch py-4 min-h-[280px]">
-              <span className="block w-[0.5px] flex-1 bg-white/15" />
-              <span className="garamond-300 text-[11px] tracking-[0.2em] text-white/25 uppercase">&</span>
-              <span className="block w-[0.5px] flex-1 bg-white/15" />
-            </div>
-          </div>
+        {/* ── Ornamental divider — Gestalt "continuity" guides the eye downward ── */}
+        <div className={`flex items-center justify-center gap-4 transition-all duration-[1800ms] ease-out ${
+          isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+        }`} style={{ transitionDelay: '900ms' }}>
+          <span className="block w-10 h-[0.5px] bg-white/20" />
+          <span className="garamond-300 text-[11px] tracking-[0.25em] text-white/25 uppercase">&</span>
+          <span className="block w-10 h-[0.5px] bg-white/20" />
+        </div>
 
-          {/* ── Right: Message form ── */}
-          <div className={`flex-1 md:px-8 transition-all duration-[2000ms] ease-out ${
-            isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 md:translate-x-10'
-          }`} style={{ transitionDelay: '1000ms' }}>
+        {/* ── Glass Panel 2: Message Form ──
+            Second "common region" — form lives in its own glass surface */}
+        <div className={`w-full transition-all duration-[2000ms] ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`} style={{ transitionDelay: '1000ms' }}>
+          <div className="liquid-glass px-6 py-8 md:px-8 md:py-10">
             <MessageSection />
           </div>
-
         </div>
 
         {/* ── Bottom ornamental line ── */}
-        <div className={`flex items-center justify-center gap-3 mt-16 md:mt-20 transition-all duration-[1800ms] ease-out ${
+        <div className={`flex items-center justify-center gap-3 transition-all duration-[1800ms] ease-out ${
           isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
         }`} style={{ transitionDelay: '1300ms' }}>
           <span className="block w-16 h-[0.5px] bg-white/30" />
