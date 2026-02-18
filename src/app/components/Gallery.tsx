@@ -1,32 +1,33 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import CountdownTimer from '../../components/CountdownTimer';
+
+// ── Polaroid data ──
+const polaroids = [
+  { label: 'FOTO 1', rotation: -3, caption: '' },
+  { label: 'FOTO 2', rotation: 4, caption: '' },
+  { label: 'FOTO 3', rotation: -2, caption: '' },
+  { label: 'FOTO 4', rotation: 5, caption: '' },
+  { label: 'FOTO 5', rotation: -4, caption: '' },
+  { label: 'FOTO 6', rotation: 2, caption: '' },
+  { label: 'FOTO 7', rotation: -5, caption: '' },
+];
 
 export default function Gallery() {
-  const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [animationStep, setAnimationStep] = useState(0);
-  const [quoteVisible, setQuoteVisible] = useState(false);
-  const [visiblePhotos, setVisiblePhotos] = useState<Set<number>>(new Set());
   const sectionRef = useRef<HTMLDivElement>(null);
-  const quoteRef = useRef<HTMLDivElement>(null);
-  const photoRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const photos = [
-    { label: 'FOTO PLACEHOLDER 1' },
-    { label: 'FOTO PLACEHOLDER 2' },
-    { label: 'FOTO PLACEHOLDER 3' },
-    { label: 'FOTO PLACEHOLDER 4' },
-    { label: 'FOTO PLACEHOLDER 5' },
-    { label: 'FOTO PLACEHOLDER 6' },
-    { label: 'FOTO PLACEHOLDER 7' },
-  ];
+  // ── Card stack state ──
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [dragX, setDragX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [exitDirection, setExitDirection] = useState<'left' | 'right' | null>(null);
+  const dragStartX = useRef(0);
+  const stackRef = useRef<HTMLDivElement>(null);
+  const filmstripRef = useRef<HTMLDivElement>(null);
 
-  // Grid area names — each photo maps to a named CSS grid area
-  const gridAreaNames = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
-
-  // ── Section observer for header entrance animations ──
+  // ── Section observer ──
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -34,12 +35,13 @@ export default function Gallery() {
           if (entry.isIntersecting && !isVisible) {
             setIsVisible(true);
             setAnimationStep(1);
-            setTimeout(() => setAnimationStep(2), 700);
-            setTimeout(() => setAnimationStep(3), 1200);
+            setTimeout(() => setAnimationStep(2), 600);
+            setTimeout(() => setAnimationStep(3), 1100);
+            setTimeout(() => setAnimationStep(4), 1600);
           }
         });
       },
-      { threshold: 0.15, rootMargin: '-20px' }
+      { threshold: 0.1, rootMargin: '-20px' }
     );
 
     const currentRef = sectionRef.current;
@@ -47,355 +49,423 @@ export default function Gallery() {
     return () => { if (currentRef) observer.unobserve(currentRef); };
   }, [isVisible]);
 
-  // ── Quote observer ──
+  // ── Auto-scroll filmstrip to active thumb ──
   useEffect(() => {
-    const quoteObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !quoteVisible) setQuoteVisible(true);
-        });
-      },
-      { threshold: 0.3, rootMargin: '-50px' }
-    );
+    if (!filmstripRef.current) return;
+    const activeThumb = filmstripRef.current.children[currentIndex] as HTMLElement | undefined;
+    if (activeThumb) {
+      activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, [currentIndex]);
 
-    const currentQuoteRef = quoteRef.current;
-    if (currentQuoteRef) quoteObserver.observe(currentQuoteRef);
-    return () => { if (currentQuoteRef) quoteObserver.unobserve(currentQuoteRef); };
-  }, [quoteVisible]);
+  // ── Swipe threshold ──
+  const SWIPE_THRESHOLD = 80;
 
-  // ── Staggered photo reveal on scroll ──
-  useEffect(() => {
-    if (animationStep < 3) return;
+  // ── Mouse handlers ──
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (currentIndex >= polaroids.length) return;
+    setIsDragging(true);
+    dragStartX.current = e.clientX;
+    setDragX(0);
+  }, [currentIndex]);
 
-    const photoObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = Number(entry.target.getAttribute('data-index'));
-            setTimeout(() => {
-              setVisiblePhotos((prev) => new Set([...prev, index]));
-            }, index * 120);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '-20px' }
-    );
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    setDragX(e.clientX - dragStartX.current);
+  }, [isDragging]);
 
-    const refs = photoRefs.current;
-    refs.forEach((ref) => {
-      if (ref) photoObserver.observe(ref);
-    });
+  const handleMouseUp = useCallback(() => {
+    if (!isDragging) return;
+    setIsDragging(false);
 
-    return () => {
-      refs.forEach((ref) => {
-        if (ref) photoObserver.unobserve(ref);
-      });
-    };
-  }, [animationStep]);
+    if (Math.abs(dragX) > SWIPE_THRESHOLD && currentIndex < polaroids.length) {
+      const direction = dragX > 0 ? 'right' : 'left';
+      setExitDirection(direction);
+      setTimeout(() => {
+        setCurrentIndex((prev) => Math.min(prev + 1, polaroids.length));
+        setExitDirection(null);
+        setDragX(0);
+      }, 350);
+    } else {
+      setDragX(0);
+    }
+  }, [isDragging, dragX, currentIndex]);
 
-  // ── Keyboard navigation for lightbox ──
-  const closeModal = useCallback(() => {
-    setSelectedImage(null);
-    document.body.style.overflow = 'auto';
-  }, []);
+  // ── Touch handlers ──
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (currentIndex >= polaroids.length) return;
+    setIsDragging(true);
+    dragStartX.current = e.touches[0].clientX;
+    setDragX(0);
+  }, [currentIndex]);
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (selectedImage === null) return;
-      if (e.key === 'Escape') closeModal();
-      if (e.key === 'ArrowLeft' && selectedImage > 0) setSelectedImage(selectedImage - 1);
-      if (e.key === 'ArrowRight' && selectedImage < photos.length - 1) setSelectedImage(selectedImage + 1);
-    },
-    [selectedImage, photos.length, closeModal]
-  );
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDragging) return;
+    setDragX(e.touches[0].clientX - dragStartX.current);
+  }, [isDragging]);
 
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging) return;
+    setIsDragging(false);
 
-  const openModal = (index: number) => {
-    setSelectedImage(index);
-    document.body.style.overflow = 'hidden';
+    if (Math.abs(dragX) > SWIPE_THRESHOLD && currentIndex < polaroids.length) {
+      const direction = dragX > 0 ? 'right' : 'left';
+      setExitDirection(direction);
+      setTimeout(() => {
+        setCurrentIndex((prev) => Math.min(prev + 1, polaroids.length));
+        setExitDirection(null);
+        setDragX(0);
+      }, 350);
+    } else {
+      setDragX(0);
+    }
+  }, [isDragging, dragX, currentIndex]);
+
+  // ── Navigate to specific photo via filmstrip ──
+  const goToPhoto = (index: number) => {
+    if (index === currentIndex || index >= polaroids.length) return;
+    setCurrentIndex(index);
+    setDragX(0);
+    setExitDirection(null);
   };
 
-  // ─────────────────────────────────────────────
-  // RENDER
-  // ─────────────────────────────────────────────
+  // ── Reset carousel ──
+  const resetCarousel = () => {
+    setCurrentIndex(0);
+    setDragX(0);
+    setExitDirection(null);
+  };
+
+  // ── Compute card styles ──
+  const getCardStyle = (index: number): React.CSSProperties => {
+    const relativeIndex = index - currentIndex;
+
+    if (relativeIndex < 0) {
+      return { display: 'none' };
+    }
+
+    if (relativeIndex === 0) {
+      const rotation = polaroids[index].rotation;
+
+      if (exitDirection) {
+        const exitX = exitDirection === 'right' ? 900 : -900;
+        const exitRotation = exitDirection === 'right' ? rotation + 25 : rotation - 25;
+        return {
+          transform: `translateX(${exitX}px) rotate(${exitRotation}deg)`,
+          transition: 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease',
+          opacity: 0.4,
+          zIndex: polaroids.length - relativeIndex,
+          cursor: 'grab',
+        };
+      }
+
+      if (isDragging) {
+        const dragRotation = rotation + dragX * 0.08;
+        return {
+          transform: `translateX(${dragX}px) rotate(${dragRotation}deg)`,
+          transition: 'none',
+          zIndex: polaroids.length - relativeIndex,
+          cursor: 'grabbing',
+        };
+      }
+
+      return {
+        transform: `rotate(${rotation}deg)`,
+        transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        zIndex: polaroids.length - relativeIndex,
+        cursor: 'grab',
+      };
+    }
+
+    if (relativeIndex <= 3) {
+      const offsetY = relativeIndex * 8;
+      const offsetX = relativeIndex * 5;
+      const scale = 1 - relativeIndex * 0.03;
+      const stackRotation = polaroids[index].rotation * 0.6;
+      return {
+        transform: `translateY(${offsetY}px) translateX(${offsetX}px) scale(${scale}) rotate(${stackRotation}deg)`,
+        transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        zIndex: polaroids.length - relativeIndex,
+        pointerEvents: 'none' as const,
+      };
+    }
+
+    return { display: 'none' };
+  };
+
+  const dragProgress = Math.min(Math.abs(dragX) / SWIPE_THRESHOLD, 1);
+
   return (
     <section
       id="galeria"
       ref={sectionRef}
-      className="min-h-screen w-full py-24 relative overflow-hidden"
+      className="min-h-screen w-full relative overflow-hidden flex items-center"
       style={{
         background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)',
       }}
     >
       {/* Organic texture overlay */}
-      <div className="absolute inset-0 opacity-[0.03] z-[2] pointer-events-none">
+      <div className="absolute inset-0 opacity-[0.03] z-[1] pointer-events-none">
         <div
           className="absolute inset-0"
           style={{
             backgroundImage: `radial-gradient(circle at 30% 20%, rgba(196, 152, 91, 0.15) 0%, transparent 60%),
                               radial-gradient(circle at 70% 60%, rgba(139, 115, 85, 0.12) 0%, transparent 60%),
-                              radial-gradient(circle at 50% 90%, rgba(180, 147, 113, 0.1) 0%, transparent 60%),
-                              radial-gradient(circle at 20% 70%, rgba(155, 131, 102, 0.08) 0%, transparent 50%),
-                              radial-gradient(circle at 80% 30%, rgba(212, 169, 113, 0.1) 0%, transparent 55%)`,
+                              radial-gradient(circle at 50% 90%, rgba(180, 147, 113, 0.1) 0%, transparent 60%)`,
           }}
         />
       </div>
 
-      {/* ═══ Header ═══ */}
-      <div className="max-w-6xl mx-auto relative z-10 px-4 md:px-8 pointer-events-none">
-        <div className="text-center mb-16">
-          {/* Flowers decoration */}
-          <div
-            className={`flex justify-center mb-6 transition-all duration-1000 ease-out ${
-              animationStep >= 1 ? 'opacity-100 -translate-y-0' : 'opacity-0 -translate-y-4'
-            }`}
-          >
-            <div className="w-68 h-24 relative">
-              <Image
-                src="/assets/legal_assets/flowers_s2.png"
-                alt="Decorative flowers"
-                fill
-                className="object-contain"
-                style={{
-                  filter: 'sepia(20%) saturate(90%) hue-rotate(10deg) brightness(1.05)',
-                  opacity: 0.8,
-                }}
-              />
-            </div>
-          </div>
+      {/* ═══ Main Split Layout ═══ */}
+      <div className="w-full max-w-[1400px] mx-auto relative z-10 px-6 md:px-10 lg:px-12 py-16">
+        <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
 
-          {/* Title */}
-          <div className="relative overflow-hidden">
-            <h2
-              className={`text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.3em] uppercase text-[#5c5c5c] mb-2 garamond-300 relative transition-all duration-500 ease-out ${
+          {/* ── LEFT: Elegant Text ── */}
+          <div className="w-full lg:w-[32%] flex flex-col items-center lg:items-start text-center lg:text-left shrink-0">
+
+            {/* Decorative flowers */}
+            <div
+              className={`mb-6 transition-all duration-1000 ease-out ${
+                animationStep >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+              }`}
+            >
+              <div className="w-56 h-20 relative mx-auto lg:mx-0">
+                <Image
+                  src="/assets/legal_assets/flowers_s2.png"
+                  alt="Decorative flowers"
+                  fill
+                  className="object-contain"
+                  style={{
+                    filter: 'sepia(20%) saturate(90%) hue-rotate(10deg) brightness(1.05)',
+                    opacity: 0.8,
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Date */}
+            <div
+              className={`transition-all duration-700 ease-out ${
                 animationStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               }`}
             >
-              ¡Nos Casamos!
-            </h2>
+              <p className="text-[#C4985B] tracking-[0.45em] text-sm md:text-base uppercase garamond-regular mb-4">
+                05 &middot; 10 &middot; 2025
+              </p>
+            </div>
+
+            {/* Title */}
+            <div
+              className={`transition-all duration-700 ease-out ${
+                animationStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+            >
+              <h2 className="text-4xl md:text-5xl lg:text-[3.4rem] font-light tracking-[0.2em] uppercase text-[#5c5c5c] garamond-300 leading-tight mb-6">
+                ¡Nos<br />Casamos!
+              </h2>
+            </div>
+
+            {/* Decorative line */}
+            <div
+              className={`transition-all duration-700 ease-out ${
+                animationStep >= 3 ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+              }`}
+              style={{ transformOrigin: 'left center' }}
+            >
+              <div className="w-16 h-[1px] bg-gradient-to-r from-[#C4985B] to-transparent mb-6 mx-auto lg:mx-0" />
+            </div>
+
+            {/* Subtitle text */}
+            <div
+              className={`transition-all duration-800 ease-out ${
+                animationStep >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+            >
+              <p className="text-[#8B7355] text-base md:text-lg garamond-300 leading-relaxed max-w-sm">
+                Con inmensa alegría en nuestros corazones, queremos invitarte a celebrar el día en que uniremos nuestras vidas para siempre.
+              </p>
+            </div>
+
+            {/* Swipe hint */}
+            <div
+              className={`mt-8 flex items-center gap-2 transition-all duration-700 ${
+                animationStep >= 4 ? 'opacity-60' : 'opacity-0'
+              }`}
+            >
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[#8B7355]/50 garamond-300">
+                Desliza las fotos
+              </span>
+              <svg className="w-4 h-4 text-[#8B7355]/40 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
           </div>
 
-          {/* Countdown */}
+          {/* ── RIGHT: Stacked Polaroid Carousel + Filmstrip ── */}
           <div
-            className={`flex justify-center mt-4 transition-all duration-500 ease-out ${
-              animationStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            className={`w-full lg:w-[68%] flex flex-col items-center lg:items-end relative transition-all duration-1000 ease-out ${
+              animationStep >= 4 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'
             }`}
           >
-            <CountdownTimer targetDate="2026-08-22T00:00:00" variant="light" />
-          </div>
-        </div>
-      </div>
-
-      {/* ═══ MOSAIC GRID ═══ */}
-      <div
-        className={`max-w-6xl mx-auto px-4 md:px-8 relative z-10 transition-all duration-1000 ease-out ${
-          animationStep >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`}
-      >
-        <div className="gallery-mosaic">
-          {photos.map((photo, index) => (
+            {/* Card stack container */}
             <div
-              key={index}
-              ref={(el) => {
-                photoRefs.current[index] = el;
-              }}
-              data-index={index}
-              className="mosaic-cell group cursor-pointer relative overflow-hidden"
+              ref={stackRef}
+              className="relative select-none"
               style={{
-                gridArea: gridAreaNames[index],
-                opacity: visiblePhotos.has(index) ? 1 : 0,
-                transform: visiblePhotos.has(index)
-                  ? 'translateY(0) scale(1)'
-                  : 'translateY(24px) scale(0.97)',
-                transition: 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                width: 'clamp(320px, 46vw, 540px)',
+                height: 'clamp(420px, 58vw, 680px)',
               }}
-              onClick={() => openModal(index)}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={() => { if (isDragging) handleMouseUp(); }}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
-              {/* Photo container */}
-              <div className="relative w-full h-full bg-[#ede9e2] overflow-hidden">
-                {/* Placeholder label */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[10px] md:text-xs uppercase tracking-[0.25em] text-[#8B7355]/50 text-center px-4 garamond-300 select-none">
-                    {photo.label}
-                  </span>
-                </div>
+              {polaroids.map((polaroid, index) => (
+                <div
+                  key={index}
+                  className="absolute inset-0"
+                  style={getCardStyle(index)}
+                >
+                  {/* Polaroid frame — tight margins */}
+                  <div
+                    className="bg-white rounded-[3px] w-full h-full"
+                    style={{
+                      padding: '8px 8px clamp(36px, 5.5vw, 56px) 8px',
+                      boxShadow: index === currentIndex
+                        ? '0 10px 40px rgba(0,0,0,0.13), 0 3px 10px rgba(0,0,0,0.07)'
+                        : '0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
+                    }}
+                  >
+                    {/* Photo area — placeholder */}
+                    <div className="relative w-full h-full bg-[#ede9e2] overflow-hidden">
+                      {/* Replace with <Image src="..." fill className="object-cover" /> */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-sm md:text-base uppercase tracking-[0.25em] text-[#8B7355]/30 garamond-300 select-none">
+                          {polaroid.label}
+                        </span>
+                      </div>
 
-                {/* Soft inner image zoom on hover */}
-                <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
-
-                {/* Hover tint */}
-                <div className="absolute inset-0 bg-[#8B7355]/0 group-hover:bg-[#8B7355]/[0.06] transition-colors duration-500" />
-
-                {/* Bottom accent line */}
-                <div className="absolute bottom-0 left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-[#C4985B]/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-600" />
-
-                {/* View indicator */}
-                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 group-hover:translate-y-0">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-full p-1.5">
-                    <svg
-                      className="w-3 h-3 text-[#8B7355]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+                      {/* Subtle vignette */}
+                      <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{ boxShadow: 'inset 0 0 50px rgba(0,0,0,0.05)' }}
                       />
-                    </svg>
+                    </div>
+
+                    {/* Caption area */}
+                    <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center" style={{ height: 'clamp(30px, 5vw, 50px)' }}>
+                      <p className="text-[10px] md:text-xs text-[#8B7355]/40 garamond-300 tracking-[0.2em] uppercase italic">
+                        {polaroid.caption || '\u00A0'}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+              ))}
 
-      {/* ═══ Quote ═══ */}
-      <div className="max-w-6xl mx-auto relative z-10 px-4 md:px-8">
-        <div
-          ref={quoteRef}
-          className={`text-center mt-20 transition-all duration-1000 ease-out pointer-events-none ${
-            quoteVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <div className="relative py-2 px-8">
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: 'none',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center center',
-                backgroundSize: 'contain',
-                filter: 'sepia(60%) saturate(120%) hue-rotate(25deg) brightness(1.1) contrast(1.05)',
-                opacity: 0.15,
-              }}
-            />
-            <div className="relative z-10">
-              <p className="text-3xl text-stone-700 italic max-w-lg mx-auto garamond-300 leading-relaxed font-medium">
-                &ldquo; Frase pendiente &rdquo;
-                <br />
-                <small>- Autor pendiente</small>
+              {/* All swiped away — reset */}
+              {currentIndex >= polaroids.length && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <p className="text-[#8B7355]/50 garamond-300 text-sm tracking-[0.2em] uppercase mb-6">
+                    Fin de las fotos
+                  </p>
+                  <button
+                    onClick={resetCarousel}
+                    className="px-6 py-2.5 border border-[#C4985B]/40 text-[#8B7355] garamond-300 text-xs tracking-[0.25em] uppercase hover:bg-[#C4985B]/10 transition-all duration-300 rounded-sm"
+                  >
+                    Ver de nuevo
+                  </button>
+                </div>
+              )}
+
+              {/* Drag direction indicator */}
+              {isDragging && Math.abs(dragX) > 20 && (
+                <div
+                  className="absolute -bottom-10 left-1/2 -translate-x-1/2 pointer-events-none"
+                  style={{ opacity: dragProgress * 0.6 }}
+                >
+                  <svg
+                    className="w-5 h-5 text-[#C4985B]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    style={{
+                      transform: dragX > 0 ? 'rotate(0deg)' : 'rotate(180deg)',
+                    }}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              )}
+            </div>
+
+            {/* ═══ Filmstrip / Carrete ═══ */}
+            <div className="mt-8 w-full max-w-md lg:max-w-lg">
+              {/* Thin line above */}
+              <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[#C4985B]/20 to-transparent mb-3" />
+
+              <div
+                ref={filmstripRef}
+                className="flex items-center gap-2 overflow-x-auto px-2 py-1"
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                {polaroids.map((polaroid, i) => (
+                  <button
+                    key={i}
+                    onClick={() => goToPhoto(i)}
+                    className="flex-shrink-0 relative overflow-hidden rounded-[2px] transition-all duration-300 focus:outline-none"
+                    style={{
+                      width: i === currentIndex ? 48 : 40,
+                      height: i === currentIndex ? 60 : 50,
+                      opacity: i === currentIndex ? 1 : i < currentIndex ? 0.35 : 0.55,
+                      border: i === currentIndex
+                        ? '2px solid rgba(196, 152, 91, 0.6)'
+                        : '1px solid rgba(139, 115, 85, 0.15)',
+                      transform: i === currentIndex ? 'scale(1)' : 'scale(0.95)',
+                      boxShadow: i === currentIndex
+                        ? '0 2px 8px rgba(196, 152, 91, 0.2)'
+                        : 'none',
+                    }}
+                  >
+                    {/* Thumbnail placeholder — replace with real thumbnail */}
+                    <div className="w-full h-full bg-[#ede9e2] flex items-center justify-center">
+                      <span className="text-[6px] uppercase tracking-wider text-[#8B7355]/30 garamond-300 select-none">
+                        {i + 1}
+                      </span>
+                    </div>
+
+                    {/* Seen overlay for already-swiped */}
+                    {i < currentIndex && (
+                      <div className="absolute inset-0 bg-[#f5f2ee]/40" />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* Thin line below */}
+              <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[#C4985B]/20 to-transparent mt-3" />
+
+              {/* Counter text */}
+              <p className="text-center mt-2 text-[10px] tracking-[0.3em] uppercase text-[#8B7355]/40 garamond-300">
+                {Math.min(currentIndex + 1, polaroids.length)}&thinsp;/&thinsp;{polaroids.length}
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ═══ Lightbox Modal ═══ */}
-      {selectedImage !== null && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md"
-          onClick={closeModal}
-        >
-          {/* Close button */}
-          <button
-            className="absolute top-6 right-6 z-10 text-white/50 hover:text-white transition-colors duration-300"
-            onClick={(e) => {
-              e.stopPropagation();
-              closeModal();
-            }}
-          >
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
-          {/* Counter */}
-          <div className="absolute top-7 left-1/2 -translate-x-1/2 text-white/30 text-sm tracking-[0.3em] uppercase garamond-300">
-            {selectedImage + 1}&thinsp;/&thinsp;{photos.length}
-          </div>
-
-          {/* Previous arrow */}
-          {selectedImage > 0 && (
-            <button
-              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-10 text-white/30 hover:text-white/80 transition-colors duration-300 p-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedImage(selectedImage - 1);
-              }}
-            >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-          )}
-
-          {/* Next arrow */}
-          {selectedImage < photos.length - 1 && (
-            <button
-              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-10 text-white/30 hover:text-white/80 transition-colors duration-300 p-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedImage(selectedImage + 1);
-              }}
-            >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          )}
-
-          {/* Image display area */}
-          <div
-            className="relative w-full h-full max-w-5xl max-h-[80vh] mx-4 md:mx-16 flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="relative w-full h-full bg-[#1a1a1a] flex items-center justify-center rounded-sm">
-              <span className="text-white/25 text-sm uppercase tracking-[0.25em] garamond-300">
-                {photos[selectedImage].label}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ═══ Grid Styles ═══ */}
+      {/* ═══ Hide filmstrip scrollbar ═══ */}
       <style jsx>{`
-        /* ── Mobile-first: 2-column mosaic ── */
-        .gallery-mosaic {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          grid-template-rows: repeat(6, clamp(120px, 22vw, 180px));
-          gap: 6px;
-          grid-template-areas:
-            'a a'
-            'a a'
-            'b c'
-            'd d'
-            'e f'
-            'g g';
-        }
-
-        /* ── Tablet+: 4-column editorial mosaic ── */
-        @media (min-width: 768px) {
-          .gallery-mosaic {
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(3, 220px);
-            gap: 10px;
-            grid-template-areas:
-              'a a b c'
-              'a a d d'
-              'e f f g';
-          }
-        }
-
-        /* ── Desktop: taller cells, more breathing room ── */
-        @media (min-width: 1024px) {
-          .gallery-mosaic {
-            grid-template-rows: repeat(3, 260px);
-            gap: 12px;
-          }
-        }
-
-        .mosaic-cell {
-          border-radius: 2px;
+        div::-webkit-scrollbar {
+          display: none;
         }
       `}</style>
     </section>

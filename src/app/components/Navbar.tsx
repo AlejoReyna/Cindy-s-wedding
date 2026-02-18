@@ -396,7 +396,7 @@ const Navbar = () => {
             SLIDE-OUT MOBILE MENU  (< md)
         ═══════════════════════════════════════════ */}
         <div
-          className={`md:hidden fixed top-0 right-0 w-3/5 h-screen z-50 border-l transition-transform duration-500 ease-out ${
+          className={`md:hidden fixed top-0 right-0 bottom-0 w-3/5 h-[100dvh] z-50 border-l transition-transform duration-500 ease-out ${
             isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
           style={{
@@ -495,7 +495,7 @@ const Navbar = () => {
         {/* Overlay backdrop for mobile menu */}
         {isMobileMenuOpen && (
           <div
-            className="md:hidden fixed inset-0 bg-black/25 backdrop-blur-[2px] z-40 transition-opacity duration-500"
+            className="md:hidden fixed inset-0 h-[100dvh] bg-black/45 z-40 transition-opacity duration-500"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}

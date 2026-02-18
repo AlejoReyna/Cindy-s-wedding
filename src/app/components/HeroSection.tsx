@@ -4,6 +4,57 @@ import { useStatusBarSection } from '../../hooks/useStatusBarManager';
 import { useTheme } from '../context/ThemeContext';
 import CountdownTimer from '../../components/CountdownTimer';
 
+// ── FLORAL DRAWN ANIMATION ───────────────────────────────────────────────────
+// The ornament is drawn as if by hand: each SVG path is revealed over time using
+// the stroke-dasharray / stroke-dashoffset technique. Paths are normalised with
+// pathLength="1", so dasharray:1 + dashoffset:1 hides the stroke; animating
+// dashoffset to 0 "draws" the line. Each path has its own delay and duration
+// so stems, leaves, and the rose appear in a natural order (~3.1s total).
+//
+// FLORAL array: [svgPath d, delay(ms), duration(ms), strokeWidth, isGold]
+// - delay: when this path starts (relative to start of floral sequence).
+// - duration: how long the path takes to draw.
+// - isGold: true = main gold stroke; false = secondary brown.
+// ─────────────────────────────────────────────────────────────────────────────
+const FLORAL: [string, number, number, number, boolean][] = [
+  // ① Main arch stem — left → right, gentle arc (draws first, 0ms)
+  ["M 15,88 C 65,76 115,68 150,66 C 185,68 235,76 285,88",    0,    900, 0.8, true ],
+  // ② Center stem — rises straight up to flower base (starts at 600ms)
+  ["M 150,66 C 150,54 150,38 150,22",                          600,  450, 0.8, true ],
+  // ③ Left branch (starts at 850ms, overlaps with arch end)
+  ["M 108,69 C 97,57 86,43 80,28",                             850,  550, 0.65, false],
+  // ④ Right branch (mirror of ③)
+  ["M 192,69 C 203,57 214,43 220,28",                          850,  550, 0.65, false],
+  // ⑤ Left end bud (teardrop at arch tip)
+  ["M 20,87 C 15,78 16,67 20,62 C 24,67 25,78 20,87",         940,  360, 0.55, false],
+  // ⑥ Right end bud (mirror of ⑤)
+  ["M 280,87 C 285,78 284,67 280,62 C 276,67 275,78 280,87",  940,  360, 0.55, false],
+  // ⑦ Left outer leaf along arch
+  ["M 45,83 C 37,71 39,59 45,55 C 49,61 47,73 45,83",         1060, 360, 0.55, false],
+  // ⑧ Right outer leaf (mirror of ⑦)
+  ["M 255,83 C 263,71 261,59 255,55 C 251,61 253,73 255,83",  1060, 360, 0.55, false],
+  // ⑨ Left mid-stem leaf
+  ["M 120,67 C 112,55 105,53 107,61 C 113,60 118,65 120,67",  1160, 380, 0.6,  false],
+  // ⑩ Right mid-stem leaf (mirror of ⑨)
+  ["M 180,67 C 188,55 195,53 193,61 C 187,60 182,65 180,67",  1160, 380, 0.6,  false],
+  // ⑪ Left branch-tip leaf
+  ["M 80,28 C 67,22 57,30 64,39 C 71,35 76,29 80,28",         1360, 460, 0.6,  false],
+  // ⑫ Right branch-tip leaf (mirror of ⑪)
+  ["M 220,28 C 233,22 243,30 236,39 C 229,35 224,29 220,28",  1360, 460, 0.6,  false],
+  // ⑬ Rose petal — top (12 o'clock)
+  ["M 150,28 C 154,21 152,11 150,8 C 148,11 146,21 150,28",   1580, 370, 0.7,  true ],
+  // ⑭ Rose petal — top-right (~2 o'clock)
+  ["M 150,28 C 158,24 162,15 160,11 C 155,14 151,23 150,28",  1780, 370, 0.7,  true ],
+  // ⑮ Rose petal — lower-right (~4 o'clock)
+  ["M 150,28 C 159,28 165,36 163,41 C 157,36 152,28 150,28",  1980, 370, 0.7,  true ],
+  // ⑯ Rose petal — lower-left (~8 o'clock)
+  ["M 150,28 C 141,28 135,36 137,41 C 143,36 148,28 150,28",  2180, 370, 0.7,  true ],
+  // ⑰ Rose petal — top-left (~10 o'clock)
+  ["M 150,28 C 142,24 138,15 140,11 C 145,14 149,23 150,28",  2380, 370, 0.7,  true ],
+  // ⑱ Rose centre circle (drawn last)
+  ["M 145,22 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0",            2620, 480, 0.6,  true ],
+];
+
 const HeroSection = () => {
   const { isNightMode } = useTheme();
   const [loaded, setLoaded] = useState(false);
@@ -20,42 +71,27 @@ const HeroSection = () => {
     return () => clearTimeout(t);
   }, []);
 
-  // ── Animation timing (ms after `loaded` fires) ──────────────────────────
-  // "Cindy":  5 letters × 110ms → last starts at 440ms, done ~790ms
-  // Pause →   "&" at 700ms (160ms gap), done ~1350ms
-  // Pause →   "Jorge" at 1050ms (350ms gap), last starts at 1490ms, done ~1840ms
-  // POST_NAMES: everything else fades in after names finish
+  // ── Animation timing constants (ms after `loaded` fires at 150ms) ─────────
+  // Names:    "Cindy" → pause → "&" → pause → "Jorge"  ≈ 0 – 1870ms
+  // POST_NAMES: all other elements begin here
+  // Flower:   draws over ~3100ms starting at POST_NAMES
+  // Text etc: staggered in while flower draws
   const CINDY_START = 0;
   const AMP_START   = 700;
   const JORGE_START = 1050;
   const POST_NAMES  = 1900;
 
-  // Decorative flourish SVG — gold/brown tones for cream background
-  const Ornament = () => (
-    <svg width="90" height="55" viewBox="0 0 90 55" fill="none" className="mx-auto">
-      {/* Center flower */}
-      <circle cx="45" cy="18" r="3.5" stroke="#C4985B" strokeWidth="0.8" opacity="0.55" />
-      <circle cx="45" cy="18" r="1.2" fill="#C4985B" opacity="0.45" />
-      {/* Petals */}
-      <ellipse cx="45" cy="11" rx="2.2" ry="4.5" stroke="#8B7355" strokeWidth="0.6" opacity="0.35" />
-      <ellipse cx="38" cy="16" rx="2" ry="4" stroke="#8B7355" strokeWidth="0.6" opacity="0.3" transform="rotate(-40 38 16)" />
-      <ellipse cx="52" cy="16" rx="2" ry="4" stroke="#8B7355" strokeWidth="0.6" opacity="0.3" transform="rotate(40 52 16)" />
-      {/* Swirl left */}
-      <path d="M34,22 Q28,17 22,22 Q16,27 22,30 Q28,32 32,27" stroke="#C4985B" strokeWidth="0.7" fill="none" opacity="0.4" />
-      <path d="M22,22 Q16,17 10,22" stroke="#C4985B" strokeWidth="0.6" fill="none" opacity="0.3" />
-      {/* Swirl right */}
-      <path d="M56,22 Q62,17 68,22 Q74,27 68,30 Q62,32 58,27" stroke="#C4985B" strokeWidth="0.7" fill="none" opacity="0.4" />
-      <path d="M68,22 Q74,17 80,22" stroke="#C4985B" strokeWidth="0.6" fill="none" opacity="0.3" />
-      {/* Small leaves */}
-      <path d="M24,30 Q19,35 14,32" stroke="#8B7355" strokeWidth="0.5" fill="none" opacity="0.25" />
-      <path d="M66,30 Q71,35 76,32" stroke="#8B7355" strokeWidth="0.5" fill="none" opacity="0.25" />
-      {/* Tiny dots */}
-      <circle cx="8" cy="24" r="0.8" fill="#C4985B" opacity="0.25" />
-      <circle cx="82" cy="24" r="0.8" fill="#C4985B" opacity="0.25" />
-      <circle cx="41" cy="9" r="0.6" fill="#8B7355" opacity="0.2" />
-      <circle cx="49" cy="9" r="0.6" fill="#8B7355" opacity="0.2" />
-    </svg>
-  );
+  // Misma fecha que el CountdownTimer (22 de agosto de 2026)
+  const weddingDate = new Date('2026-08-22T00:00:00');
+  const weddingDateLabel = weddingDate.toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  // Floral stroke colours
+  const goldColor   = isNightMode ? 'rgba(255,255,255,0.55)' : '#C4985B';
+  const brownColor  = isNightMode ? 'rgba(255,255,255,0.32)' : '#8B7355';
 
   return (
     <section
@@ -67,39 +103,37 @@ const HeroSection = () => {
         transition: 'background-color 0.5s ease',
       }}
     >
-      {/* ── Main content — centered ── */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 w-full">
 
-        {/* Ornament — fades in AFTER names finish */}
-        <div
-          className={`mb-8 transition-all duration-[1800ms] ease-out ${
-            loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-          }`}
-          style={{ transitionDelay: `${POST_NAMES}ms` }}
-        >
-          <Ornament />
-        </div>
+        {/* ── Floral drawn animation (SVG) ───────────────────────────────────
+             Each FLORAL path is a <path> with pathLength="1". The CSS class
+             .floral-path sets stroke-dasharray:1 and stroke-dashoffset:1 (hidden).
+             When `loaded` is true, .floral-drawing runs the floralDraw keyframe,
+             animating stroke-dashoffset to 0 so the stroke appears to be drawn.
+             Per-path timing: --fd = animation-delay (POST_NAMES + path delay),
+             --fdr = animation-duration. Paths are inline (not in a sub-component)
+             so styled-jsx scopes .floral-path / .floral-drawing and @keyframes
+             floralDraw with the same suffix and they match.                         */}
+      
 
-        {/* "NUESTRA BODA" with lines — after ornament */}
+        {/* "NUESTRA BODA" — fades in while rose petals are still being drawn */}
         <div
-          className={`flex items-center justify-center gap-4 mb-8 transition-all duration-[1600ms] ease-out ${
+          className={`flex items-center justify-center gap-4 mb-8 transition-all duration-[1400ms] ease-out ${
             loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
-          style={{ transitionDelay: `${POST_NAMES + 200}ms` }}
+          style={{ transitionDelay: `${POST_NAMES + 1500}ms` }}
         >
           <span className={`block w-14 md:w-20 h-[0.5px] ${isNightMode ? 'bg-white/30' : 'bg-[#C4985B]/50'}`} />
-          <span className={`hero-label-text ${isNightMode ? 'text-white/60' : 'text-[#8B7355]/70'}`}>
-            NUESTRA BODA
+          <span className={`hero-label-text ${isNightMode ? 'text-white/60' : 'text-[#543c24]/55'}`}>
+            {weddingDateLabel}
           </span>
           <span className={`block w-14 md:w-20 h-[0.5px] ${isNightMode ? 'bg-white/30' : 'bg-[#C4985B]/50'}`} />
         </div>
 
-        {/* ── Names — FIRST animation: letter-by-letter writing ─────────────
-             NOTE: spans are rendered directly here (not in a sub-component)
-             so that styled-jsx scoping applies correctly to .letter-span     */}
+        {/* ── Names — FIRST animation: letter-by-letter writing ───────────── */}
         <div>
 
-          {/* "Cindy" — each letter writes in one at a time */}
+          {/* "Cindy" — letters write in one at a time */}
           <h1 className={`hero-names-text ${isNightMode ? 'text-white/90' : 'text-[#543c24]'}`}>
             {'Cindy'.split('').map((char, i) => (
               <span
@@ -114,7 +148,9 @@ const HeroSection = () => {
 
           {/* "&" — cursive swirl-in after a short pause */}
           <p
-            className={`hero-ampersand ${isNightMode ? 'text-white/60' : 'text-[#8B7355]/60'}${loaded ? ' ampersand-animated' : ' ampersand-hidden'}`}
+            className={`hero-ampersand ${isNightMode ? 'text-white/60' : 'text-[#8B7355]/60'}${
+              loaded ? ' ampersand-animated' : ' ampersand-hidden'
+            }`}
             style={{ animationDelay: `${AMP_START}ms` }}
           >
             &amp;
@@ -135,56 +171,56 @@ const HeroSection = () => {
 
         </div>
 
-        {/* Thin decorative line — after names */}
+        {/* Thin decorative line */}
         <div
           className={`mt-8 mb-12 transition-all duration-[1600ms] ease-out ${
             loaded ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
           }`}
-          style={{ transitionDelay: `${POST_NAMES + 400}ms` }}
+          style={{ transitionDelay: `${POST_NAMES + 2000}ms` }}
         >
           <span className={`block w-10 h-[0.5px] mx-auto ${isNightMode ? 'bg-white/25' : 'bg-[#C4985B]/40'}`} />
         </div>
 
-        {/* Countdown timer — after names */}
+         {/* Confirmar asistencia — right below names */}
+         <div
+            className={`mt-6 transition-all duration-[1600ms] ease-out ${
+              loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+            }`}
+            style={{ transitionDelay: `${POST_NAMES + 2200}ms` }}
+          >
+            <a
+              href="#rsvp"
+              className="hero-cta"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              <span className={`hero-cta-text ${isNightMode ? 'text-white/90' : 'text-[#543c24]'}`}>
+                Confirma Tu Asistencia
+              </span>
+              <span className={`hero-cta-underline ${loaded ? 'hero-cta-underline--drawn' : ''} ${isNightMode ? 'hero-cta-underline--night' : ''}`} />
+            </a>
+          </div>
+
+        {/* Countdown timer */}
         <div
           className={`transition-all duration-[1800ms] ease-out ${
             loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
-          style={{ transitionDelay: `${POST_NAMES + 600}ms` }}
+          style={{ transitionDelay: `${POST_NAMES + 2400}ms` }}
         >
-          <CountdownTimer targetDate="2026-08-22T00:00:00" variant="light" />
-        </div>
-
-        {/* ── Confirm reservation — after names ── */}
-        <div
-          className={`mt-12 md:mt-16 transition-all duration-[2000ms] ease-out ${
-            loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
-          }`}
-          style={{ transitionDelay: `${POST_NAMES + 800}ms` }}
-        >
-          <a
-            href="#rsvp"
-            className="hero-cta"
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-          >
-            <span className={`hero-cta-text ${isNightMode ? 'text-white/50' : 'text-[#8B7355]/70'}`}>
-              Confirmar Asistencia
-            </span>
-            <span className={`hero-cta-underline ${loaded ? 'hero-cta-underline--drawn' : ''} ${isNightMode ? 'hero-cta-underline--night' : ''}`} />
-          </a>
+          <CountdownTimer targetDate={weddingDate.toISOString()} variant="light" />
         </div>
 
       </div>
 
-      {/* ── Scroll indicator at bottom — after names ── */}
+      {/* Scroll indicator */}
       <div
         className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-10 transition-all duration-[1800ms] ease-out ${
           loaded ? 'opacity-100' : 'opacity-0'
         }`}
-        style={{ transitionDelay: `${POST_NAMES + 900}ms` }}
+        style={{ transitionDelay: `${POST_NAMES + 3200}ms` }}
       >
         <svg
           width="20"
@@ -201,19 +237,47 @@ const HeroSection = () => {
 
       <style jsx>{`
 
-        /* ═══════════════════════════════════════════════════════════
-           Letter writing animation
-           — spans are rendered inline so styled-jsx scoping applies
-        ═══════════════════════════════════════════════════════════ */
+        /* ═══════════════════════════════════════════════════════════════
+           FLORAL DRAWN ANIMATION (hand-drawn line effect)
+           ─────────────────────────────────────────────────────────────
+           Technique: pathLength="1" on each <path> normalises stroke length
+           to 1. With stroke-dasharray: 1 and stroke-dashoffset: 1 the stroke
+           is fully "dashed away" (invisible). The animation runs stroke-dashoffset
+           from 1 → 0, so the stroke is revealed along the path = "drawing" effect.
+           Timing: --fd (animation-delay) and --fdr (animation-duration) are set
+           per <path> in React; .floral-drawing and @keyframes floralDraw share
+           the same styled-jsx scope so the keyframe name resolves correctly.
+        ═══════════════════════════════════════════════════════════════ */
 
-        /* Initial hidden state — always applied */
+        /* Start with stroke hidden (dash covers full length, offset hides it) */
+        .floral-path {
+          stroke-dasharray: 1;
+          stroke-dashoffset: 1;
+        }
+
+        /* When .floral-drawing is added, animate stroke into view (ease-out) */
+        .floral-drawing {
+          animation: floralDraw var(--fdr) cubic-bezier(0.37, 0, 0.63, 1) var(--fd) forwards;
+        }
+
+        /* Single keyframe: reveal the full stroke (dashoffset 0 = fully visible) */
+        @keyframes floralDraw {
+          to { stroke-dashoffset: 0; }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           LETTER WRITING ANIMATION
+           animationDelay is set via inline style on each span, which
+           overrides the implicit animation-delay:0s from the shorthand.
+           Spans are rendered directly in HeroSection JSX (not a sub-
+           component) so styled-jsx applies its scope attribute to them.
+        ═══════════════════════════════════════════════════════════════ */
+
         .letter-span {
           display: inline-block;
           opacity: 0;
         }
 
-        /* Triggered when loaded=true — animationDelay is set via inline style
-           which overrides the implicit animation-delay:0s from the shorthand  */
         .letter-animated {
           animation: letterWrite 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
@@ -221,36 +285,34 @@ const HeroSection = () => {
         @keyframes letterWrite {
           0%   { opacity: 0; transform: translateY(10px) scaleX(0.4); filter: blur(2px); }
           55%  { opacity: 1; filter: blur(0); }
-          100% { opacity: 1; transform: translateY(0)   scaleX(1);   filter: blur(0); }
+          100% { opacity: 1; transform: translateY(0) scaleX(1); filter: blur(0); }
         }
 
-        /* ═══════════════════════════════════════════════════════════
-           Ampersand — cursive swirl-in with spring bounce
-        ═══════════════════════════════════════════════════════════ */
+        /* ═══════════════════════════════════════════════════════════════
+           AMPERSAND — cursive swirl-in with spring bounce
+        ═══════════════════════════════════════════════════════════════ */
 
-        .ampersand-hidden {
-          opacity: 0;
-        }
+        .ampersand-hidden { opacity: 0; }
 
-        /* animationDelay set via inline style */
         .ampersand-animated {
           animation: ampersandSwirl 0.65s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
-          opacity: 0; /* starts transparent; keyframe takes over */
+          opacity: 0;
         }
 
         @keyframes ampersandSwirl {
           0%   { opacity: 0; transform: scale(0.3) rotate(-20deg) translateY(15px); filter: blur(4px); }
           60%  { opacity: 0.9; transform: scale(1.08) rotate(3deg) translateY(-3px); filter: blur(0); }
-          100% { opacity: 1; transform: scale(1)   rotate(0deg)  translateY(0);    filter: blur(0); }
+          100% { opacity: 1; transform: scale(1) rotate(0deg) translateY(0); filter: blur(0); }
         }
 
-        /* ═══════════════════════════════════════════════════════════
-           Text styles
-        ═══════════════════════════════════════════════════════════ */
+        /* ═══════════════════════════════════════════════════════════════
+           TYPE STYLES
+        ═══════════════════════════════════════════════════════════════ */
+
         .hero-label-text {
           font-family: 'EB Garamond', 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 10px;
+          font-size: 12px;
           letter-spacing: 0.35em;
           text-transform: uppercase;
         }
@@ -271,23 +333,25 @@ const HeroSection = () => {
           margin: -2px 0;
         }
         @media (min-width: 640px) {
-          .hero-label-text { font-size: 11px; letter-spacing: 0.4em; }
+          .hero-label-text { font-size: 13px; letter-spacing: 0.4em; }
           .hero-names-text { font-size: 60px; }
           .hero-ampersand  { font-size: 38px; }
         }
         @media (min-width: 768px) {
-          .hero-label-text { font-size: 12px; }
+          .hero-label-text { font-size: 14px; }
           .hero-names-text { font-size: 72px; }
           .hero-ampersand  { font-size: 44px; }
         }
         @media (min-width: 1024px) {
+          .hero-label-text { font-size: 15px; }
           .hero-names-text { font-size: 84px; }
           .hero-ampersand  { font-size: 48px; }
         }
 
-        /* ═══════════════════════════════════════════════════════════
-           Confirm reservation CTA
-        ═══════════════════════════════════════════════════════════ */
+        /* ═══════════════════════════════════════════════════════════════
+           CONFIRM RESERVATION CTA
+        ═══════════════════════════════════════════════════════════════ */
+
         .hero-cta {
           display: inline-flex;
           flex-direction: column;
@@ -298,19 +362,18 @@ const HeroSection = () => {
         .hero-cta-text {
           font-family: 'EB Garamond', 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 11px;
+          font-size: 13px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
           transition: opacity 0.5s ease;
         }
         .hero-cta:hover .hero-cta-text { opacity: 1 !important; }
 
-        /* Underline — draws from left */
         .hero-cta-underline {
           display: block;
           height: 0.5px;
-          margin-top: 6px;
-          background: #C4985B;
+          margin-top: 8px;
+          background: #543c24;
           width: 0;
           opacity: 0;
           transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 2.2s,
@@ -318,24 +381,23 @@ const HeroSection = () => {
         }
         .hero-cta-underline--drawn {
           width: 60%;
-          opacity: 0.4;
+          opacity: 0.5;
           animation: ctaBreath 3.5s ease-in-out 4s infinite;
         }
-        .hero-cta-underline--night { background: rgba(255, 255, 255, 0.5); }
+        .hero-cta-underline--night { background: rgba(255, 255, 255, 0.6); }
         .hero-cta:hover .hero-cta-underline {
           width: 100%;
-          opacity: 0.6;
+          opacity: 0.7;
           animation: none;
         }
-
         @keyframes ctaBreath {
           0%, 100% { opacity: 0.4; }
           50%       { opacity: 0.65; }
         }
 
-        @media (min-width: 640px) { .hero-cta-text { font-size: 11.5px; letter-spacing: 0.35em; } }
-        @media (min-width: 768px)  { .hero-cta-text { font-size: 12px; } }
-        @media (min-width: 1024px) { .hero-cta-text { font-size: 12.5px; } }
+        @media (min-width: 640px) { .hero-cta-text { font-size: 14px; letter-spacing: 0.35em; } }
+        @media (min-width: 768px)  { .hero-cta-text { font-size: 15px; } }
+        @media (min-width: 1024px) { .hero-cta-text { font-size: 16px; } }
       `}</style>
     </section>
   );
