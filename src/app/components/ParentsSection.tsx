@@ -22,7 +22,7 @@ export default function ParentsSection() {
     }
 
     return () => observer.disconnect()
-  }, []) // Removí la dependencia de `step`
+  }, [step])
 
   /* Cascade: each step triggers the next */
   useEffect(() => {

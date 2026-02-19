@@ -32,7 +32,7 @@ export default function ItineraryItemCard({
   item,
   index,
   isRevealed,
-  accentColor,
+  accentColor: _accentColor,
 }: ItineraryItemCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);

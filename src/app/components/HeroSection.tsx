@@ -16,7 +16,7 @@ import CountdownTimer from '../../components/CountdownTimer';
 // - duration: how long the path takes to draw.
 // - isGold: true = main gold stroke; false = secondary brown.
 // ─────────────────────────────────────────────────────────────────────────────
-const FLORAL: [string, number, number, number, boolean][] = [
+const _FLORAL: [string, number, number, number, boolean][] = [
   // ① Main arch stem — left → right, gentle arc (draws first, 0ms)
   ["M 15,88 C 65,76 115,68 150,66 C 185,68 235,76 285,88",    0,    900, 0.8, true ],
   // ② Center stem — rises straight up to flower base (starts at 600ms)
@@ -88,10 +88,6 @@ const HeroSection = () => {
     month: 'long',
     year: 'numeric',
   });
-
-  // Floral stroke colours
-  const goldColor   = isNightMode ? 'rgba(255,255,255,0.55)' : '#C4985B';
-  const brownColor  = isNightMode ? 'rgba(255,255,255,0.32)' : '#8B7355';
 
   return (
     <section
