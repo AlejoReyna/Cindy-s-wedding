@@ -1,6 +1,5 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from 'react';
-import Image from 'next/image';
 
 // ── Polaroid data ──
 const polaroids = [
@@ -13,10 +12,154 @@ const polaroids = [
   { label: 'FOTO 7', rotation: -5, caption: '' },
 ];
 
+// ═══════════════════════════════════════════════════════════════════════
+// QUILL-TRACE TYPING ANIMATION
+// ───────────────────────────────────────────────────────────────────────
+// Unlike the Hero's "letter materialise" (translateY + scaleX + blur),
+// this animation reveals letters *in place* behind a gliding golden cursor.
+// The cursor is the star — it moves; the letters simply appear.
+//
+// HERO vs GALLERY comparison:
+//   Hero  → letters POP IN with motion (translateY, scaleX, blur)
+//   Gallery → letters APPEAR STILL, cursor GLIDES across revealing them
+//
+// PRIORITY ORDER (sequential, like Hero):
+//   ① Decorative flowers fade in                   (0ms)
+//   ② Date  "22 · 08 · 2026" — typed with cursor   (~600ms)
+//   ③ Title "¡Nos Casamos!" — typed with cursor     (after ② done)
+//   ④ Decorative line draws                         (after ③ done)
+//   ⑤ Subtitle paragraph — word-by-word with cursor (after ④)
+//   ⑥ Swipe hint fades in                           (after ⑤ done)
+//   ⑦ Polaroid cards slide in                       (with ⑥)
+// ═══════════════════════════════════════════════════════════════════════
+
+/** Reusable component: types text with a trailing golden cursor.
+ *  `mode`: 'letter' = char by char, 'word' = word by word.
+ *  `started`: when true the animation begins.
+ *  `speed`: ms per unit (char or word).
+ *  `onDone`: fires once all units are revealed + cursor fades. */
+function QuillText({
+  text,
+  started,
+  speed = 70,
+  mode = 'letter',
+  className = '',
+  cursorColor = 'rgba(196, 152, 91, 0.7)',
+  onDone,
+}: {
+  text: string;
+  started: boolean;
+  speed?: number;
+  mode?: 'letter' | 'word';
+  className?: string;
+  cursorColor?: string;
+  onDone?: () => void;
+}) {
+  const [revealCount, setRevealCount] = useState(0);
+  const [cursorVisible, setCursorVisible] = useState(false);
+  const [cursorFading, setCursorFading] = useState(false);
+  const doneRef = useRef(false);
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
+
+  // Split into renderable units
+  const units = mode === 'word' ? text.split(/(\s+)/) : text.split('');
+  const totalUnits = units.length;
+
+  useEffect(() => {
+    if (!started) return;
+    setCursorVisible(true);
+    setCursorFading(false);
+    doneRef.current = false;
+    setRevealCount(0);
+
+    let count = 0;
+    const interval = setInterval(() => {
+      count++;
+      setRevealCount(count);
+      if (count >= totalUnits) {
+        clearInterval(interval);
+        // Cursor lingers briefly, then fades away gracefully
+        setTimeout(() => {
+          setCursorFading(true);
+          setTimeout(() => {
+            setCursorVisible(false);
+            if (!doneRef.current) {
+              doneRef.current = true;
+              onDoneRef.current?.();
+            }
+          }, 350);
+        }, 400);
+      }
+    }, speed);
+
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [started, totalUnits, speed]);
+
+  // Build the revealed portion
+  const revealedUnits = units.slice(0, revealCount);
+
+  // Render text (supporting \n for multi-line titles)
+  const renderRevealed = () => {
+    const joinedText = revealedUnits.join('');
+    const lines = joinedText.split('\n');
+    return lines.map((line, li) => (
+      <span key={li}>
+        {line.split('').map((ch, ci) => (
+          <span key={`${li}-${ci}`} className="gallery-quill-letter">
+            {ch === ' ' ? '\u00A0' : ch}
+          </span>
+        ))}
+        {li < lines.length - 1 && <br />}
+      </span>
+    ));
+  };
+
+  // Placeholder (invisible) to reserve layout space
+  const renderPlaceholder = () => {
+    const lines = text.split('\n');
+    return lines.map((line, li) => (
+      <span key={li}>
+        {line}
+        {li < lines.length - 1 && <br />}
+      </span>
+    ));
+  };
+
+  return (
+    <span className={`gallery-quill-wrap ${className}`}>
+      <span className="gallery-quill-visible" aria-live="polite">
+        {renderRevealed()}
+        {cursorVisible && (
+          <span
+            className={`gallery-quill-cursor${cursorFading ? ' gallery-quill-cursor--fading' : ''}`}
+            style={{ '--qc': cursorColor } as React.CSSProperties}
+          />
+        )}
+      </span>
+      {/* Invisible copy to hold width/height */}
+      <span className="gallery-quill-ghost" aria-hidden="true">
+        {renderPlaceholder()}
+      </span>
+    </span>
+  );
+}
+
+
 export default function Gallery() {
   const [isVisible, setIsVisible] = useState(false);
-  const [animationStep, setAnimationStep] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
+
+  // ── Quill typing sequence flags ──
+  // Each becomes true when the previous finishes, creating a chain.
+  const [flowersVisible, setFlowersVisible] = useState(false);
+  const [dateStarted, setDateStarted] = useState(false);
+  const [titleStarted, setTitleStarted] = useState(false);
+  const [lineDrawn, setLineDrawn] = useState(false);
+  const [subtitleStarted, setSubtitleStarted] = useState(false);
+  const [hintVisible, setHintVisible] = useState(false);
+  const [cardsVisible, setCardsVisible] = useState(false);
 
   // ── Card stack state ──
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -27,17 +170,17 @@ export default function Gallery() {
   const stackRef = useRef<HTMLDivElement>(null);
   const filmstripRef = useRef<HTMLDivElement>(null);
 
-  // ── Section observer ──
+  // ── Section observer → kicks off the chain ──
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !isVisible) {
             setIsVisible(true);
-            setAnimationStep(1);
-            setTimeout(() => setAnimationStep(2), 600);
-            setTimeout(() => setAnimationStep(3), 1100);
-            setTimeout(() => setAnimationStep(4), 1600);
+            // ① Flowers fade in immediately
+            setFlowersVisible(true);
+            // ② Date typing starts 700ms later
+            setTimeout(() => setDateStarted(true), 700);
           }
         });
       },
@@ -49,13 +192,42 @@ export default function Gallery() {
     return () => { if (currentRef) observer.unobserve(currentRef); };
   }, [isVisible]);
 
+  // ── Chain callbacks ──
+  const onDateDone = useCallback(() => {
+    // ③ Title starts after small pause
+    setTimeout(() => setTitleStarted(true), 250);
+  }, []);
+
+  const onTitleDone = useCallback(() => {
+    // ④ Line draws in
+    setTimeout(() => setLineDrawn(true), 200);
+    // ⑤ Subtitle starts after line
+    setTimeout(() => setSubtitleStarted(true), 800);
+  }, []);
+
+  const onSubtitleDone = useCallback(() => {
+    // ⑥⑦ Hint + cards appear together
+    setTimeout(() => {
+      setHintVisible(true);
+      setCardsVisible(true);
+    }, 300);
+  }, []);
+
   // ── Auto-scroll filmstrip to active thumb ──
   useEffect(() => {
-    if (!filmstripRef.current) return;
-    const activeThumb = filmstripRef.current.children[currentIndex] as HTMLElement | undefined;
-    if (activeThumb) {
-      activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    }
+    const filmstrip = filmstripRef.current;
+    if (!filmstrip) return;
+
+    const activeThumb = filmstrip.children[currentIndex] as HTMLElement | undefined;
+    if (!activeThumb) return;
+
+    const targetLeft =
+      activeThumb.offsetLeft - (filmstrip.clientWidth - activeThumb.clientWidth) / 2;
+
+    filmstrip.scrollTo({
+      left: Math.max(0, targetLeft),
+      behavior: 'smooth',
+    });
   }, [currentIndex]);
 
   // ── Swipe threshold ──
@@ -221,76 +393,78 @@ export default function Gallery() {
       <div className="w-full max-w-[1400px] mx-auto relative z-10 px-6 md:px-10 lg:px-12 py-16">
         <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
 
-          {/* ── LEFT: Elegant Text ── */}
+          {/* ── LEFT: Elegant Text with Quill-Trace Typing ── */}
           <div className="w-full lg:w-[32%] flex flex-col items-center lg:items-start text-center lg:text-left shrink-0">
 
-            {/* Decorative flowers */}
+            {/* ① Decorative flowers — simple fade in (first element) */}
             <div
               className={`mb-6 transition-all duration-1000 ease-out ${
-                animationStep >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+                flowersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
               }`}
             >
-              <div className="w-56 h-20 relative mx-auto lg:mx-0">
-                <Image
-                  src="/assets/legal_assets/flowers_s2.png"
-                  alt="Decorative flowers"
-                  fill
-                  className="object-contain"
-                  style={{
-                    filter: 'sepia(20%) saturate(90%) hue-rotate(10deg) brightness(1.05)',
-                    opacity: 0.8,
-                  }}
-                />
+              <div className="w-56 h-20 relative mx-auto lg:mx-0 bg-[#ede9e2] rounded-sm flex items-center justify-center">
+                <span className="text-xs uppercase tracking-[0.25em] text-[#8B7355]/40 garamond-300 select-none">
+                  Flores decorativas
+                </span>
               </div>
             </div>
 
-            {/* Date */}
-            <div
-              className={`transition-all duration-700 ease-out ${
-                animationStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-              }`}
-            >
-              <p className="text-[#C4985B] tracking-[0.45em] text-sm md:text-base uppercase garamond-regular mb-4">
-                05 &middot; 10 &middot; 2025
+            {/* ② Date — quill-typed letter by letter */}
+            <div className="mb-4">
+              <p className="gallery-date-text">
+                <QuillText
+                  text="22 · 08 · 2026"
+                  started={dateStarted}
+                  speed={80}
+                  mode="letter"
+                  cursorColor="rgba(196, 152, 91, 0.8)"
+                  onDone={onDateDone}
+                />
               </p>
             </div>
 
-            {/* Title */}
-            <div
-              className={`transition-all duration-700 ease-out ${
-                animationStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-              }`}
-            >
-              <h2 className="text-4xl md:text-5xl lg:text-[3.4rem] font-light tracking-[0.2em] uppercase text-[#5c5c5c] garamond-300 leading-tight mb-6">
-                ¡Nos<br />Casamos!
+            {/* ③ Title — quill-typed letter by letter (two lines) */}
+            <div className="mb-6">
+              <h2 className="gallery-title-text">
+                <QuillText
+                  text={"¡Nos\nCasamos!"}
+                  started={titleStarted}
+                  speed={90}
+                  mode="letter"
+                  cursorColor="rgba(92, 92, 92, 0.5)"
+                  onDone={onTitleDone}
+                />
               </h2>
             </div>
 
-            {/* Decorative line */}
+            {/* ④ Decorative line — draws in after title */}
             <div
-              className={`transition-all duration-700 ease-out ${
-                animationStep >= 3 ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+              className={`transition-all duration-[900ms] ease-out ${
+                lineDrawn ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
               }`}
-              style={{ transformOrigin: 'left center' }}
+              style={{ transformOrigin: 'center center' }}
             >
-              <div className="w-16 h-[1px] bg-gradient-to-r from-[#C4985B] to-transparent mb-6 mx-auto lg:mx-0" />
+              <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C4985B] to-transparent mb-6 mx-auto lg:mx-0" />
             </div>
 
-            {/* Subtitle text */}
-            <div
-              className={`transition-all duration-800 ease-out ${
-                animationStep >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-              }`}
-            >
-              <p className="text-[#8B7355] text-base md:text-lg garamond-300 leading-relaxed max-w-sm">
-                Con inmensa alegría en nuestros corazones, queremos invitarte a celebrar el día en que uniremos nuestras vidas para siempre.
+            {/* ⑤ Subtitle — quill-typed word by word */}
+            <div className="max-w-sm">
+              <p className="gallery-subtitle-text">
+                <QuillText
+                  text="Con inmensa alegría en nuestros corazones, queremos invitarte a celebrar el día en que uniremos nuestras vidas para siempre."
+                  started={subtitleStarted}
+                  speed={55}
+                  mode="word"
+                  cursorColor="rgba(139, 115, 85, 0.6)"
+                  onDone={onSubtitleDone}
+                />
               </p>
             </div>
 
-            {/* Swipe hint */}
+            {/* ⑥ Swipe hint — fades in last */}
             <div
-              className={`mt-8 flex items-center gap-2 transition-all duration-700 ${
-                animationStep >= 4 ? 'opacity-60' : 'opacity-0'
+              className={`mt-8 flex items-center gap-2 transition-all duration-[800ms] ${
+                hintVisible ? 'opacity-60' : 'opacity-0'
               }`}
             >
               <span className="text-[10px] uppercase tracking-[0.3em] text-[#8B7355]/50 garamond-300">
@@ -303,9 +477,10 @@ export default function Gallery() {
           </div>
 
           {/* ── RIGHT: Stacked Polaroid Carousel + Filmstrip ── */}
+          {/* ⑦ Cards slide in with the hint */}
           <div
             className={`w-full lg:w-[68%] flex flex-col items-center lg:items-end relative transition-all duration-1000 ease-out ${
-              animationStep >= 4 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'
+              cardsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'
             }`}
           >
             {/* Card stack container */}
@@ -342,7 +517,6 @@ export default function Gallery() {
                   >
                     {/* Photo area — placeholder */}
                     <div className="relative w-full h-full bg-[#ede9e2] overflow-hidden">
-                      {/* Replace with <Image src="..." fill className="object-cover" /> */}
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span className="text-sm md:text-base uppercase tracking-[0.25em] text-[#8B7355]/30 garamond-300 select-none">
                           {polaroid.label}
@@ -417,7 +591,7 @@ export default function Gallery() {
                   WebkitOverflowScrolling: 'touch',
                 }}
               >
-                {polaroids.map((polaroid, i) => (
+                {polaroids.map((_polaroid, i) => (
                   <button
                     key={i}
                     onClick={() => goToPhoto(i)}
@@ -435,7 +609,7 @@ export default function Gallery() {
                         : 'none',
                     }}
                   >
-                    {/* Thumbnail placeholder — replace with real thumbnail */}
+                    {/* Thumbnail placeholder */}
                     <div className="w-full h-full bg-[#ede9e2] flex items-center justify-center">
                       <span className="text-[6px] uppercase tracking-wider text-[#8B7355]/30 garamond-300 select-none">
                         {i + 1}
@@ -462,8 +636,103 @@ export default function Gallery() {
         </div>
       </div>
 
-      {/* ═══ Hide filmstrip scrollbar ═══ */}
+      {/* ═══════════════════════════════════════════════════════════════
+           GALLERY QUILL-TRACE STYLES
+           ─────────────────────────────────────────────────────────────
+           .gallery-quill-wrap    — inline container using CSS grid overlap
+           .gallery-quill-visible — the real (revealed) text layer
+           .gallery-quill-ghost   — invisible copy holding layout space
+           .gallery-quill-letter  — each revealed character fades in
+           .gallery-quill-cursor  — the thin golden bar that glides
+         ═══════════════════════════════════════════════════════════════ */}
       <style jsx>{`
+
+        /* ── Typography ── */
+        .gallery-date-text {
+          font-family: 'Cormorant Garamond', 'EB Garamond', serif;
+          font-weight: 400;
+          font-size: 14px;
+          letter-spacing: 0.45em;
+          text-transform: uppercase;
+          color: #C4985B;
+        }
+        .gallery-title-text {
+          font-family: 'Cormorant Garamond', 'EB Garamond', serif;
+          font-weight: 300;
+          font-size: 2.25rem;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: #5c5c5c;
+          line-height: 1.1;
+        }
+        .gallery-subtitle-text {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 1rem;
+          color: #8B7355;
+          line-height: 1.7;
+        }
+
+        @media (min-width: 640px) {
+          .gallery-date-text { font-size: 15px; }
+          .gallery-title-text { font-size: 2.8rem; }
+          .gallery-subtitle-text { font-size: 1.05rem; }
+        }
+        @media (min-width: 768px) {
+          .gallery-date-text { font-size: 16px; }
+          .gallery-title-text { font-size: 3.4rem; }
+          .gallery-subtitle-text { font-size: 1.125rem; }
+        }
+
+        /* ── Quill container: grid overlap so ghost holds space ── */
+        .gallery-quill-wrap {
+          display: inline-grid;
+        }
+        .gallery-quill-wrap > * {
+          grid-area: 1 / 1;
+        }
+        .gallery-quill-visible {
+          z-index: 1;
+        }
+        .gallery-quill-ghost {
+          visibility: hidden;
+          pointer-events: none;
+          user-select: none;
+        }
+
+        /* ── Letter reveal: pure opacity (no motion — that's the hero's thing) ── */
+        .gallery-quill-letter {
+          display: inline;
+          animation: quillReveal 0.22s ease-out forwards;
+        }
+        @keyframes quillReveal {
+          from { opacity: 0.15; }
+          to   { opacity: 1; }
+        }
+
+        /* ── Cursor: thin golden bar with breathing glow ── */
+        .gallery-quill-cursor {
+          display: inline-block;
+          width: 1.5px;
+          height: 0.85em;
+          vertical-align: baseline;
+          margin-left: 1px;
+          background: var(--qc, rgba(196, 152, 91, 0.7));
+          border-radius: 1px;
+          animation: quillCursorPulse 0.8s ease-in-out infinite;
+          transition: opacity 0.35s ease;
+        }
+        .gallery-quill-cursor--fading {
+          opacity: 0 !important;
+          animation: none;
+        }
+
+        @keyframes quillCursorPulse {
+          0%, 100% { opacity: 0.9; box-shadow: 0 0 3px var(--qc, rgba(196, 152, 91, 0.3)); }
+          50%      { opacity: 0.4; box-shadow: 0 0 6px var(--qc, rgba(196, 152, 91, 0.15)); }
+        }
+
+        /* ── Scrollbar hide ── */
         div::-webkit-scrollbar {
           display: none;
         }

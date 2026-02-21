@@ -32,7 +32,7 @@ export default function ItineraryItemCard({
   item,
   index,
   isRevealed,
-  accentColor: _accentColor,
+  accentColor,
 }: ItineraryItemCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
@@ -127,6 +127,7 @@ export default function ItineraryItemCard({
   // Unified color palette
   const cardColor = '#7a6a5a';
   const cardColorLight = '#7a6a5a99';
+  const accent = accentColor || '#C4985B';
 
   return (
     <div ref={cardRef} className="group px-2 md:px-3 text-center">
@@ -211,7 +212,8 @@ export default function ItineraryItemCard({
               showLine ? 'w-12 opacity-100 duration-600' : 'w-0 opacity-0 duration-300'
             }`}
             style={{
-              backgroundColor: 'rgba(196,152,91,0.35)',
+              backgroundColor: accent,
+              opacity: 0.35,
             }}
           />
         </div>

@@ -16,45 +16,6 @@ import CountdownTimer from '../../components/CountdownTimer';
 // - duration: how long the path takes to draw.
 // - isGold: true = main gold stroke; false = secondary brown.
 // ─────────────────────────────────────────────────────────────────────────────
-const _FLORAL: [string, number, number, number, boolean][] = [
-  // ① Main arch stem — left → right, gentle arc (draws first, 0ms)
-  ["M 15,88 C 65,76 115,68 150,66 C 185,68 235,76 285,88",    0,    900, 0.8, true ],
-  // ② Center stem — rises straight up to flower base (starts at 600ms)
-  ["M 150,66 C 150,54 150,38 150,22",                          600,  450, 0.8, true ],
-  // ③ Left branch (starts at 850ms, overlaps with arch end)
-  ["M 108,69 C 97,57 86,43 80,28",                             850,  550, 0.65, false],
-  // ④ Right branch (mirror of ③)
-  ["M 192,69 C 203,57 214,43 220,28",                          850,  550, 0.65, false],
-  // ⑤ Left end bud (teardrop at arch tip)
-  ["M 20,87 C 15,78 16,67 20,62 C 24,67 25,78 20,87",         940,  360, 0.55, false],
-  // ⑥ Right end bud (mirror of ⑤)
-  ["M 280,87 C 285,78 284,67 280,62 C 276,67 275,78 280,87",  940,  360, 0.55, false],
-  // ⑦ Left outer leaf along arch
-  ["M 45,83 C 37,71 39,59 45,55 C 49,61 47,73 45,83",         1060, 360, 0.55, false],
-  // ⑧ Right outer leaf (mirror of ⑦)
-  ["M 255,83 C 263,71 261,59 255,55 C 251,61 253,73 255,83",  1060, 360, 0.55, false],
-  // ⑨ Left mid-stem leaf
-  ["M 120,67 C 112,55 105,53 107,61 C 113,60 118,65 120,67",  1160, 380, 0.6,  false],
-  // ⑩ Right mid-stem leaf (mirror of ⑨)
-  ["M 180,67 C 188,55 195,53 193,61 C 187,60 182,65 180,67",  1160, 380, 0.6,  false],
-  // ⑪ Left branch-tip leaf
-  ["M 80,28 C 67,22 57,30 64,39 C 71,35 76,29 80,28",         1360, 460, 0.6,  false],
-  // ⑫ Right branch-tip leaf (mirror of ⑪)
-  ["M 220,28 C 233,22 243,30 236,39 C 229,35 224,29 220,28",  1360, 460, 0.6,  false],
-  // ⑬ Rose petal — top (12 o'clock)
-  ["M 150,28 C 154,21 152,11 150,8 C 148,11 146,21 150,28",   1580, 370, 0.7,  true ],
-  // ⑭ Rose petal — top-right (~2 o'clock)
-  ["M 150,28 C 158,24 162,15 160,11 C 155,14 151,23 150,28",  1780, 370, 0.7,  true ],
-  // ⑮ Rose petal — lower-right (~4 o'clock)
-  ["M 150,28 C 159,28 165,36 163,41 C 157,36 152,28 150,28",  1980, 370, 0.7,  true ],
-  // ⑯ Rose petal — lower-left (~8 o'clock)
-  ["M 150,28 C 141,28 135,36 137,41 C 143,36 148,28 150,28",  2180, 370, 0.7,  true ],
-  // ⑰ Rose petal — top-left (~10 o'clock)
-  ["M 150,28 C 142,24 138,15 140,11 C 145,14 149,23 150,28",  2380, 370, 0.7,  true ],
-  // ⑱ Rose centre circle (drawn last)
-  ["M 145,22 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0",            2620, 480, 0.6,  true ],
-];
-
 const HeroSection = () => {
   const { isNightMode } = useTheme();
   const [loaded, setLoaded] = useState(false);
