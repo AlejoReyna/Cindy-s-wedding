@@ -145,15 +145,12 @@ export default function ItinerarySection() {
             headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
-          {/* Clock asset */}
+          {/* Clock asset placeholder */}
           <div className="flex justify-center mb-10">
-            <div className="w-20 h-20 md:w-24 md:h-24 relative">
-              <Image
-                src="/assets/clock.png"
-                alt="Reloj decorativo"
-                fill
-                className="object-contain opacity-70"
-              />
+            <div className="w-20 h-20 md:w-24 md:h-24 relative bg-[#ede9e2] rounded-full flex items-center justify-center">
+              <span className="text-xs uppercase tracking-[0.25em] text-[#8B7355]/40 garamond-300 select-none">
+                Reloj
+              </span>
             </div>
           </div>
 

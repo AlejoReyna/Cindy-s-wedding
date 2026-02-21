@@ -13,146 +13,32 @@ const polaroids = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
-// QUILL-TRACE TYPING ANIMATION
+// LETTER-WRITING ANIMATION (same technique as HeroSection)
 // ───────────────────────────────────────────────────────────────────────
-// Unlike the Hero's "letter materialise" (translateY + scaleX + blur),
-// this animation reveals letters *in place* behind a gliding golden cursor.
-// The cursor is the star — it moves; the letters simply appear.
-//
-// HERO vs GALLERY comparison:
-//   Hero  → letters POP IN with motion (translateY, scaleX, blur)
-//   Gallery → letters APPEAR STILL, cursor GLIDES across revealing them
+// Each letter/word is a <span> that starts invisible and animates in
+// via the `letterWrite` keyframe: translateY + scaleX + blur → normal.
+// Each unit gets a staggered animationDelay so they appear one by one.
 //
 // PRIORITY ORDER (sequential, like Hero):
-//   ① Decorative flowers fade in                   (0ms)
-//   ② Date  "22 · 08 · 2026" — typed with cursor   (~600ms)
-//   ③ Title "¡Nos Casamos!" — typed with cursor     (after ② done)
-//   ④ Decorative line draws                         (after ③ done)
-//   ⑤ Subtitle paragraph — word-by-word with cursor (after ④)
-//   ⑥ Swipe hint fades in                           (after ⑤ done)
-//   ⑦ Polaroid cards slide in                       (with ⑥)
+//   ① Decorative flowers fade in                    (on scroll)
+//   ② Date  "22 · 08 · 2026" — letter by letter     (+700ms)
+//   ③ Title "¡Nos Casamos!" — letter by letter       (after ② ends)
+//   ④ Decorative line draws                          (after ③ ends)
+//   ⑤ Subtitle paragraph — word by word              (after ④)
+//   ⑥ Swipe hint fades in                            (after ⑤ ends)
+//   ⑦ Polaroid cards slide in                        (with ⑥)
 // ═══════════════════════════════════════════════════════════════════════
 
-/** Reusable component: types text with a trailing golden cursor.
- *  `mode`: 'letter' = char by char, 'word' = word by word.
- *  `started`: when true the animation begins.
- *  `speed`: ms per unit (char or word).
- *  `onDone`: fires once all units are revealed + cursor fades. */
-function QuillText({
-  text,
-  started,
-  speed = 70,
-  mode = 'letter',
-  className = '',
-  cursorColor = 'rgba(196, 152, 91, 0.7)',
-  onDone,
-}: {
-  text: string;
-  started: boolean;
-  speed?: number;
-  mode?: 'letter' | 'word';
-  className?: string;
-  cursorColor?: string;
-  onDone?: () => void;
-}) {
-  const [revealCount, setRevealCount] = useState(0);
-  const [cursorVisible, setCursorVisible] = useState(false);
-  const [cursorFading, setCursorFading] = useState(false);
-  const doneRef = useRef(false);
-  const onDoneRef = useRef(onDone);
-  onDoneRef.current = onDone;
-
-  // Split into renderable units
-  const units = mode === 'word' ? text.split(/(\s+)/) : text.split('');
-  const totalUnits = units.length;
-
-  useEffect(() => {
-    if (!started) return;
-    setCursorVisible(true);
-    setCursorFading(false);
-    doneRef.current = false;
-    setRevealCount(0);
-
-    let count = 0;
-    const interval = setInterval(() => {
-      count++;
-      setRevealCount(count);
-      if (count >= totalUnits) {
-        clearInterval(interval);
-        // Cursor lingers briefly, then fades away gracefully
-        setTimeout(() => {
-          setCursorFading(true);
-          setTimeout(() => {
-            setCursorVisible(false);
-            if (!doneRef.current) {
-              doneRef.current = true;
-              onDoneRef.current?.();
-            }
-          }, 350);
-        }, 400);
-      }
-    }, speed);
-
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [started, totalUnits, speed]);
-
-  // Build the revealed portion
-  const revealedUnits = units.slice(0, revealCount);
-
-  // Render text (supporting \n for multi-line titles)
-  const renderRevealed = () => {
-    const joinedText = revealedUnits.join('');
-    const lines = joinedText.split('\n');
-    return lines.map((line, li) => (
-      <span key={li}>
-        {line.split('').map((ch, ci) => (
-          <span key={`${li}-${ci}`} className="gallery-quill-letter">
-            {ch === ' ' ? '\u00A0' : ch}
-          </span>
-        ))}
-        {li < lines.length - 1 && <br />}
-      </span>
-    ));
-  };
-
-  // Placeholder (invisible) to reserve layout space
-  const renderPlaceholder = () => {
-    const lines = text.split('\n');
-    return lines.map((line, li) => (
-      <span key={li}>
-        {line}
-        {li < lines.length - 1 && <br />}
-      </span>
-    ));
-  };
-
-  return (
-    <span className={`gallery-quill-wrap ${className}`}>
-      <span className="gallery-quill-visible" aria-live="polite">
-        {renderRevealed()}
-        {cursorVisible && (
-          <span
-            className={`gallery-quill-cursor${cursorFading ? ' gallery-quill-cursor--fading' : ''}`}
-            style={{ '--qc': cursorColor } as React.CSSProperties}
-          />
-        )}
-      </span>
-      {/* Invisible copy to hold width/height */}
-      <span className="gallery-quill-ghost" aria-hidden="true">
-        {renderPlaceholder()}
-      </span>
-    </span>
-  );
-}
+// Timing constants
+const LETTER_SPEED = 95;   // ms between each letter
+const WORD_SPEED   = 70;   // ms between each word
 
 
 export default function Gallery() {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  // ── Quill typing sequence flags ──
-  // Each becomes true when the previous finishes, creating a chain.
+  // ── Sequential animation chain flags ──
   const [flowersVisible, setFlowersVisible] = useState(false);
   const [dateStarted, setDateStarted] = useState(false);
   const [titleStarted, setTitleStarted] = useState(false);
@@ -170,6 +56,17 @@ export default function Gallery() {
   const stackRef = useRef<HTMLDivElement>(null);
   const filmstripRef = useRef<HTMLDivElement>(null);
 
+  // ── Text data ──
+  const dateText = '22 · 08 · 2026';
+  const titleLine1 = '¡Nos';
+  const titleLine2 = 'Casamos!';
+  const subtitleWords = 'Con inmensa alegría en nuestros corazones, queremos invitarte a celebrar el día en que uniremos nuestras vidas para siempre.'.split(' ');
+
+  // Compute total animation durations for chaining
+  const dateDuration = dateText.length * LETTER_SPEED + 380;  // letters + animation time
+  const titleDuration = (titleLine1.length + titleLine2.length) * LETTER_SPEED + 380;
+  const subtitleDuration = subtitleWords.length * WORD_SPEED + 500;
+
   // ── Section observer → kicks off the chain ──
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -179,7 +76,7 @@ export default function Gallery() {
             setIsVisible(true);
             // ① Flowers fade in immediately
             setFlowersVisible(true);
-            // ② Date typing starts 700ms later
+            // ② Date starts after flowers settle
             setTimeout(() => setDateStarted(true), 700);
           }
         });
@@ -192,26 +89,30 @@ export default function Gallery() {
     return () => { if (currentRef) observer.unobserve(currentRef); };
   }, [isVisible]);
 
-  // ── Chain callbacks ──
-  const onDateDone = useCallback(() => {
-    // ③ Title starts after small pause
-    setTimeout(() => setTitleStarted(true), 250);
-  }, []);
+  // ── Chain: date done → title ──
+  useEffect(() => {
+    if (!dateStarted) return;
+    const t = setTimeout(() => setTitleStarted(true), dateDuration + 200);
+    return () => clearTimeout(t);
+  }, [dateStarted, dateDuration]);
 
-  const onTitleDone = useCallback(() => {
-    // ④ Line draws in
-    setTimeout(() => setLineDrawn(true), 200);
-    // ⑤ Subtitle starts after line
-    setTimeout(() => setSubtitleStarted(true), 800);
-  }, []);
+  // ── Chain: title done → line + subtitle ──
+  useEffect(() => {
+    if (!titleStarted) return;
+    const tLine = setTimeout(() => setLineDrawn(true), titleDuration + 150);
+    const tSub  = setTimeout(() => setSubtitleStarted(true), titleDuration + 600);
+    return () => { clearTimeout(tLine); clearTimeout(tSub); };
+  }, [titleStarted, titleDuration]);
 
-  const onSubtitleDone = useCallback(() => {
-    // ⑥⑦ Hint + cards appear together
-    setTimeout(() => {
+  // ── Chain: subtitle done → hint + cards ──
+  useEffect(() => {
+    if (!subtitleStarted) return;
+    const t = setTimeout(() => {
       setHintVisible(true);
       setCardsVisible(true);
-    }, 300);
-  }, []);
+    }, subtitleDuration + 200);
+    return () => clearTimeout(t);
+  }, [subtitleStarted, subtitleDuration]);
 
   // ── Auto-scroll filmstrip to active thumb ──
   useEffect(() => {
@@ -294,7 +195,6 @@ export default function Gallery() {
     }
   }, [isDragging, dragX, currentIndex]);
 
-  // ── Navigate to specific photo via filmstrip ──
   const goToPhoto = (index: number) => {
     if (index === currentIndex || index >= polaroids.length) return;
     setCurrentIndex(index);
@@ -302,20 +202,16 @@ export default function Gallery() {
     setExitDirection(null);
   };
 
-  // ── Reset carousel ──
   const resetCarousel = () => {
     setCurrentIndex(0);
     setDragX(0);
     setExitDirection(null);
   };
 
-  // ── Compute card styles ──
   const getCardStyle = (index: number): React.CSSProperties => {
     const relativeIndex = index - currentIndex;
 
-    if (relativeIndex < 0) {
-      return { display: 'none' };
-    }
+    if (relativeIndex < 0) return { display: 'none' };
 
     if (relativeIndex === 0) {
       const rotation = polaroids[index].rotation;
@@ -393,10 +289,10 @@ export default function Gallery() {
       <div className="w-full max-w-[1400px] mx-auto relative z-10 px-6 md:px-10 lg:px-12 py-16">
         <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
 
-          {/* ── LEFT: Elegant Text with Quill-Trace Typing ── */}
+          {/* ── LEFT: Elegant Text with Hero-style Letter Writing ── */}
           <div className="w-full lg:w-[32%] flex flex-col items-center lg:items-start text-center lg:text-left shrink-0">
 
-            {/* ① Decorative flowers — simple fade in (first element) */}
+            {/* ① Decorative flowers — fade in */}
             <div
               className={`mb-6 transition-all duration-1000 ease-out ${
                 flowersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
@@ -409,35 +305,49 @@ export default function Gallery() {
               </div>
             </div>
 
-            {/* ② Date — quill-typed letter by letter */}
+            {/* ② Date — letter by letter writing animation */}
             <div className="mb-4">
               <p className="gallery-date-text">
-                <QuillText
-                  text="22 · 08 · 2026"
-                  started={dateStarted}
-                  speed={80}
-                  mode="letter"
-                  cursorColor="rgba(196, 152, 91, 0.8)"
-                  onDone={onDateDone}
-                />
+                {dateText.split('').map((char, i) => (
+                  <span
+                    key={`d-${i}`}
+                    className={`gl-letter${dateStarted ? ' gl-letter--animated' : ''}`}
+                    style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
+                  >
+                    {char === ' ' ? '\u00A0' : char}
+                  </span>
+                ))}
               </p>
             </div>
 
-            {/* ③ Title — quill-typed letter by letter (two lines) */}
+            {/* ③ Title — letter by letter, two lines */}
             <div className="mb-6">
               <h2 className="gallery-title-text">
-                <QuillText
-                  text={"¡Nos\nCasamos!"}
-                  started={titleStarted}
-                  speed={90}
-                  mode="letter"
-                  cursorColor="rgba(92, 92, 92, 0.5)"
-                  onDone={onTitleDone}
-                />
+                {/* Line 1: ¡Nos */}
+                {titleLine1.split('').map((char, i) => (
+                  <span
+                    key={`t1-${i}`}
+                    className={`gl-letter${titleStarted ? ' gl-letter--animated' : ''}`}
+                    style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
+                  >
+                    {char}
+                  </span>
+                ))}
+                <br />
+                {/* Line 2: Casamos! */}
+                {titleLine2.split('').map((char, i) => (
+                  <span
+                    key={`t2-${i}`}
+                    className={`gl-letter${titleStarted ? ' gl-letter--animated' : ''}`}
+                    style={{ animationDelay: `${(titleLine1.length + i) * LETTER_SPEED}ms` }}
+                  >
+                    {char}
+                  </span>
+                ))}
               </h2>
             </div>
 
-            {/* ④ Decorative line — draws in after title */}
+            {/* ④ Decorative line — draws in */}
             <div
               className={`transition-all duration-[900ms] ease-out ${
                 lineDrawn ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
@@ -447,17 +357,20 @@ export default function Gallery() {
               <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C4985B] to-transparent mb-6 mx-auto lg:mx-0" />
             </div>
 
-            {/* ⑤ Subtitle — quill-typed word by word */}
+            {/* ⑤ Subtitle — word by word writing animation */}
             <div className="max-w-sm">
               <p className="gallery-subtitle-text">
-                <QuillText
-                  text="Con inmensa alegría en nuestros corazones, queremos invitarte a celebrar el día en que uniremos nuestras vidas para siempre."
-                  started={subtitleStarted}
-                  speed={55}
-                  mode="word"
-                  cursorColor="rgba(139, 115, 85, 0.6)"
-                  onDone={onSubtitleDone}
-                />
+                {subtitleWords.map((word, i) => (
+                  <span key={`w-${i}`}>
+                    <span
+                      className={`gl-word${subtitleStarted ? ' gl-word--animated' : ''}`}
+                      style={{ animationDelay: `${i * WORD_SPEED}ms` }}
+                    >
+                      {word}
+                    </span>
+                    {i < subtitleWords.length - 1 && ' '}
+                  </span>
+                ))}
               </p>
             </div>
 
@@ -505,7 +418,6 @@ export default function Gallery() {
                   className="absolute inset-0"
                   style={getCardStyle(index)}
                 >
-                  {/* Polaroid frame — tight margins */}
                   <div
                     className="bg-white rounded-[3px] w-full h-full"
                     style={{
@@ -515,22 +427,17 @@ export default function Gallery() {
                         : '0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
                     }}
                   >
-                    {/* Photo area — placeholder */}
                     <div className="relative w-full h-full bg-[#ede9e2] overflow-hidden">
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span className="text-sm md:text-base uppercase tracking-[0.25em] text-[#8B7355]/30 garamond-300 select-none">
                           {polaroid.label}
                         </span>
                       </div>
-
-                      {/* Subtle vignette */}
                       <div
                         className="absolute inset-0 pointer-events-none"
                         style={{ boxShadow: 'inset 0 0 50px rgba(0,0,0,0.05)' }}
                       />
                     </div>
-
-                    {/* Caption area */}
                     <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center" style={{ height: 'clamp(30px, 5vw, 50px)' }}>
                       <p className="text-[10px] md:text-xs text-[#8B7355]/40 garamond-300 tracking-[0.2em] uppercase italic">
                         {polaroid.caption || '\u00A0'}
@@ -540,7 +447,6 @@ export default function Gallery() {
                 </div>
               ))}
 
-              {/* All swiped away — reset */}
               {currentIndex >= polaroids.length && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <p className="text-[#8B7355]/50 garamond-300 text-sm tracking-[0.2em] uppercase mb-6">
@@ -555,7 +461,6 @@ export default function Gallery() {
                 </div>
               )}
 
-              {/* Drag direction indicator */}
               {isDragging && Math.abs(dragX) > 20 && (
                 <div
                   className="absolute -bottom-10 left-1/2 -translate-x-1/2 pointer-events-none"
@@ -579,7 +484,6 @@ export default function Gallery() {
 
             {/* ═══ Filmstrip / Carrete ═══ */}
             <div className="mt-8 w-full max-w-md lg:max-w-lg">
-              {/* Thin line above */}
               <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[#C4985B]/20 to-transparent mb-3" />
 
               <div
@@ -609,14 +513,11 @@ export default function Gallery() {
                         : 'none',
                     }}
                   >
-                    {/* Thumbnail placeholder */}
                     <div className="w-full h-full bg-[#ede9e2] flex items-center justify-center">
                       <span className="text-[6px] uppercase tracking-wider text-[#8B7355]/30 garamond-300 select-none">
                         {i + 1}
                       </span>
                     </div>
-
-                    {/* Seen overlay for already-swiped */}
                     {i < currentIndex && (
                       <div className="absolute inset-0 bg-[#f5f2ee]/40" />
                     )}
@@ -624,10 +525,8 @@ export default function Gallery() {
                 ))}
               </div>
 
-              {/* Thin line below */}
               <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[#C4985B]/20 to-transparent mt-3" />
 
-              {/* Counter text */}
               <p className="text-center mt-2 text-[10px] tracking-[0.3em] uppercase text-[#8B7355]/40 garamond-300">
                 {Math.min(currentIndex + 1, polaroids.length)}&thinsp;/&thinsp;{polaroids.length}
               </p>
@@ -637,14 +536,9 @@ export default function Gallery() {
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════
-           GALLERY QUILL-TRACE STYLES
-           ─────────────────────────────────────────────────────────────
-           .gallery-quill-wrap    — inline container using CSS grid overlap
-           .gallery-quill-visible — the real (revealed) text layer
-           .gallery-quill-ghost   — invisible copy holding layout space
-           .gallery-quill-letter  — each revealed character fades in
-           .gallery-quill-cursor  — the thin golden bar that glides
-         ═══════════════════════════════════════════════════════════════ */}
+           GALLERY LETTER-WRITING STYLES
+           Same technique as HeroSection: translateY + scaleX + blur
+           ═══════════════════════════════════════════════════════════════ */}
       <style jsx>{`
 
         /* ── Typography ── */
@@ -684,52 +578,32 @@ export default function Gallery() {
           .gallery-subtitle-text { font-size: 1.125rem; }
         }
 
-        /* ── Quill container: grid overlap so ghost holds space ── */
-        .gallery-quill-wrap {
-          display: inline-grid;
-        }
-        .gallery-quill-wrap > * {
-          grid-area: 1 / 1;
-        }
-        .gallery-quill-visible {
-          z-index: 1;
-        }
-        .gallery-quill-ghost {
-          visibility: hidden;
-          pointer-events: none;
-          user-select: none;
-        }
-
-        /* ── Letter reveal: pure opacity (no motion — that's the hero's thing) ── */
-        .gallery-quill-letter {
-          display: inline;
-          animation: quillReveal 0.22s ease-out forwards;
-        }
-        @keyframes quillReveal {
-          from { opacity: 0.15; }
-          to   { opacity: 1; }
-        }
-
-        /* ── Cursor: thin golden bar with breathing glow ── */
-        .gallery-quill-cursor {
+        /* ═══ LETTER WRITING — same as Hero ═══ */
+        .gl-letter {
           display: inline-block;
-          width: 1.5px;
-          height: 0.85em;
-          vertical-align: baseline;
-          margin-left: 1px;
-          background: var(--qc, rgba(196, 152, 91, 0.7));
-          border-radius: 1px;
-          animation: quillCursorPulse 0.8s ease-in-out infinite;
-          transition: opacity 0.35s ease;
+          opacity: 0;
         }
-        .gallery-quill-cursor--fading {
-          opacity: 0 !important;
-          animation: none;
+        .gl-letter--animated {
+          animation: glLetterWrite 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        @keyframes glLetterWrite {
+          0%   { opacity: 0; transform: translateY(10px) scaleX(0.4); filter: blur(2px); }
+          55%  { opacity: 1; filter: blur(0); }
+          100% { opacity: 1; transform: translateY(0) scaleX(1); filter: blur(0); }
         }
 
-        @keyframes quillCursorPulse {
-          0%, 100% { opacity: 0.9; box-shadow: 0 0 3px var(--qc, rgba(196, 152, 91, 0.3)); }
-          50%      { opacity: 0.4; box-shadow: 0 0 6px var(--qc, rgba(196, 152, 91, 0.15)); }
+        /* ═══ WORD WRITING — same feel, slightly softer for paragraphs ═══ */
+        .gl-word {
+          display: inline-block;
+          opacity: 0;
+        }
+        .gl-word--animated {
+          animation: glWordWrite 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        @keyframes glWordWrite {
+          0%   { opacity: 0; transform: translateY(8px) scaleX(0.6); filter: blur(1.5px); }
+          55%  { opacity: 1; filter: blur(0); }
+          100% { opacity: 1; transform: translateY(0) scaleX(1); filter: blur(0); }
         }
 
         /* ── Scrollbar hide ── */
