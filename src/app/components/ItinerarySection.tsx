@@ -245,9 +245,14 @@ export default function ItinerarySection() {
                 <div className="flex justify-center">
                   <div
                     style={{
-                      width: '1px',
+                      width: '5px',
                       height: i === 0 ? '48px' : '72px',
-                      background: 'linear-gradient(to bottom, rgba(196,152,91,0.25), rgba(196,152,91,0.35))',
+                      backgroundImage: 'radial-gradient(circle at center, rgba(196,152,91,0.6) 1.5px, transparent 1.5px)',
+                      backgroundSize: '5px 9px',
+                      backgroundRepeat: 'repeat-y',
+                      backgroundPosition: 'center top',
+                      maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
+                      WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
                       opacity:         segDrawn ? 1 : 0,
                       transform:       segDrawn ? 'scaleY(1)' : 'scaleY(0)',
                       transformOrigin: 'top center',
@@ -289,14 +294,19 @@ export default function ItinerarySection() {
 
                 </div>
 
-                {/* Trailing line after last event */}
+                {/* Trailing dotted line after last event */}
                 {i === EVENTS.length - 1 && (
                   <div className="flex justify-center mt-2">
                     <div
                       style={{
-                        width: '1px',
+                        width: '5px',
                         height: '48px',
-                        background: 'linear-gradient(to bottom, rgba(196,152,91,0.3), transparent)',
+                        backgroundImage: 'radial-gradient(circle at center, rgba(196,152,91,0.5) 1.5px, transparent 1.5px)',
+                        backgroundSize: '5px 9px',
+                        backgroundRepeat: 'repeat-y',
+                        backgroundPosition: 'center top',
+                        maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+                        WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
                         opacity:         started ? 1 : 0,
                         transform:       started ? 'scaleY(1)' : 'scaleY(0)',
                         transformOrigin: 'top center',
