@@ -37,6 +37,22 @@ const WORD_SPEED   = 70;   // ms between each word
 export default function Gallery() {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const borderPathRef = useRef<SVGRectElement>(null);
+  const [borderPerimeter, setBorderPerimeter] = useState(0);
+
+  // ── Measure the SVG rect perimeter once mounted ──
+  useEffect(() => {
+    const measure = () => {
+      const rect = borderPathRef.current;
+      if (rect) {
+        const len = rect.getTotalLength();
+        setBorderPerimeter(len);
+      }
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
 
   // ── Sequential animation chain flags ──
   const [flowersVisible, setFlowersVisible] = useState(false);
@@ -273,6 +289,27 @@ export default function Gallery() {
         background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)',
       }}
     >
+      {/* ═══ Elegant border frame — SVG drawn with stroke-dashoffset animation ═══ */}
+      <div className="gl-border-frame pointer-events-none" aria-hidden="true">
+        <svg
+          className={`gl-border-svg ${isVisible && borderPerimeter > 0 ? 'gl-border-svg--draw' : ''}`}
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+          style={{ ['--perim' as string]: borderPerimeter } as React.CSSProperties}
+        >
+          <rect
+            ref={borderPathRef}
+            className="gl-border-path"
+            x="1" y="1"
+            width="calc(100% - 2px)" height="calc(100% - 2px)"
+            rx="0" ry="0"
+            fill="none"
+            stroke="rgba(196,152,91,0.28)"
+            strokeWidth="0.5"
+          />
+        </svg>
+      </div>
+
       {/* Organic texture overlay */}
       <div className="absolute inset-0 opacity-[0.03] z-[1] pointer-events-none">
         <div
@@ -604,6 +641,50 @@ export default function Gallery() {
           0%   { opacity: 0; transform: translateY(8px) scaleX(0.6); filter: blur(1.5px); }
           55%  { opacity: 1; filter: blur(0); }
           100% { opacity: 1; transform: translateY(0) scaleX(1); filter: blur(0); }
+        }
+
+        /* ═══ BORDER FRAME — DRAWING ANIMATION ═══ */
+        .gl-border-frame {
+          position: absolute;
+          top:    20px;
+          left:   20px;
+          right:  20px;
+          bottom: 20px;
+          z-index: 2;
+        }
+        @media (min-width: 640px) {
+          .gl-border-frame { top: 28px; left: 28px; right: 28px; bottom: 28px; }
+        }
+        @media (min-width: 768px) {
+          .gl-border-frame { top: 36px; left: 36px; right: 36px; bottom: 36px; }
+        }
+
+        .gl-border-svg {
+          display: block;
+          width: 100%;
+          height: 100%;
+          overflow: visible;
+        }
+
+        /*
+         * stroke-dasharray / dashoffset are set to the actual SVG rect
+         * perimeter (measured by JS, passed via --perim CSS variable).
+         * The animation draws the border from dashoffset = perimeter → 0.
+         */
+        .gl-border-path {
+          stroke-dasharray: var(--perim);
+          stroke-dashoffset: var(--perim);
+          opacity: 0;
+        }
+        .gl-border-svg--draw .gl-border-path {
+          animation: glDrawBorder 3s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+          animation-delay: 0.5s;
+        }
+
+        @keyframes glDrawBorder {
+          0%   { stroke-dashoffset: var(--perim); opacity: 0; }
+          3%   { opacity: 1; }
+          100% { stroke-dashoffset: 0; opacity: 1; }
         }
 
         /* ── Scrollbar hide ── */
