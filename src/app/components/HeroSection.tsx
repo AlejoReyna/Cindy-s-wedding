@@ -155,27 +155,29 @@ const HeroSection = () => {
 
         {/* ── Bottom group: CTA + timer (below the people in the photo) ── */}
         <div className="flex flex-col items-center gap-6 mb-8">
-          {/* Confirmar asistencia */}
-          <div
-            className={`transition-all duration-[1600ms] ease-out ${
-              loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
-            }`}
-            style={{ transitionDelay: `${POST_NAMES + 2200}ms` }}
+          {/* Confirmar asistencia — rectangular button with drawn border */}
+          <a
+            href="#rsvp"
+            className={`hero-cta-btn ${loaded ? 'hero-cta-btn--animate' : ''}`}
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            style={{
+              '--btn-delay': `${POST_NAMES + 2000}ms`,
+              '--btn-draw-duration': '1.2s',
+              '--btn-fill-delay': `${POST_NAMES + 2000 + 1200}ms`,
+            } as React.CSSProperties}
           >
-            <a
-              href="#rsvp"
-              className="hero-cta"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              <span className="hero-cta-text text-[#F9F6EE]">
-                Confirma Tu Asistencia
-              </span>
-              <span className={`hero-cta-underline ${loaded ? 'hero-cta-underline--drawn' : ''}`} />
-            </a>
-          </div>
+            {/* Border that draws itself via conic-gradient mask */}
+            <span className={`hero-cta-border-el ${loaded ? 'hero-cta-border-el--draw' : ''}`} />
+            {/* Background fill (fades in after border is drawn) */}
+            <span className={`hero-cta-bg ${loaded ? 'hero-cta-bg--visible' : ''}`} />
+            {/* Text */}
+            <span className={`hero-cta-label ${loaded ? 'hero-cta-label--visible' : ''}`}>
+              Confirma Tu Asistencia
+            </span>
+          </a>
 
           {/* Countdown timer */}
           <div
@@ -209,6 +211,15 @@ const HeroSection = () => {
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </div>
+
+      {/* @property must be global so the browser can interpolate the angle */}
+      <style>{`
+        @property --cta-border-angle {
+          syntax: '<angle>';
+          inherits: false;
+          initial-value: 0deg;
+        }
+      `}</style>
 
       <style jsx>{`
         .hero-media {
@@ -327,55 +338,120 @@ const HeroSection = () => {
         }
 
         /* ═══════════════════════════════════════════════════════════════
-           CONFIRM RESERVATION CTA
+           CONFIRM RESERVATION CTA — rectangular button with drawn border
+           ─────────────────────────────────────────────────────────────
+           1. The SVG <rect> border draws itself using stroke-dashoffset
+              (same technique as the floral ornament).
+           2. After the border finishes drawing, a semi-transparent
+              background fades in behind the text.
+           3. The text fades in simultaneously with the border draw.
         ═══════════════════════════════════════════════════════════════ */
 
-        .hero-cta {
+        .hero-cta-btn {
+          position: relative;
           display: inline-flex;
-          flex-direction: column;
           align-items: center;
+          justify-content: center;
+          padding: 14px 32px;
           cursor: pointer;
           text-decoration: none;
+          min-width: 220px;
         }
-        .hero-cta-text {
+
+        /* ── CSS-only drawn border ──────────────────────────────────
+           Uses a conic-gradient mask that sweeps from 0→360° to
+           progressively reveal the border, like a pen tracing it.
+           The custom property --cta-border-angle is registered with
+           @property so the browser can interpolate it smoothly.    */
+
+        .hero-cta-border-el {
+          position: absolute;
+          inset: 0;
+          border: 1px solid rgba(249, 246, 238, 0.7);
+          border-radius: 8px;
+          pointer-events: none;
+          --cta-border-angle: 0deg;
+          -webkit-mask-image: conic-gradient(from -135deg at 50% 50%, #000 var(--cta-border-angle), transparent 0);
+          mask-image: conic-gradient(from -135deg at 50% 50%, #000 var(--cta-border-angle), transparent 0);
+          opacity: 0;
+        }
+
+        .hero-cta-border-el--draw {
+          animation:
+            ctaBorderAppear 0.01s linear var(--btn-delay) forwards,
+            ctaBorderDraw var(--btn-draw-duration) cubic-bezier(0.37, 0, 0.63, 1) var(--btn-delay) forwards;
+        }
+
+        /* Tiny keyframe just to flip opacity so the border is visible during draw */
+        @keyframes ctaBorderAppear {
+          to { opacity: 1; }
+        }
+
+        @keyframes ctaBorderDraw {
+          from { --cta-border-angle: 0deg; }
+          to   { --cta-border-angle: 360deg; }
+        }
+
+        /* Background fill — starts invisible, fades in after border is drawn */
+        .hero-cta-bg {
+          position: absolute;
+          inset: 1px;
+          border-radius: 7px;
+          background: rgba(101, 67, 33, 0.35);
+          backdrop-filter: blur(4px);
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .hero-cta-bg--visible {
+          animation: ctaBgFill 0.6s ease-out var(--btn-fill-delay) forwards;
+        }
+
+        @keyframes ctaBgFill {
+          to { opacity: 1; }
+        }
+
+        /* Label text */
+        .hero-cta-label {
+          position: relative;
+          z-index: 1;
           font-family: 'EB Garamond', 'Cormorant Garamond', serif;
           font-weight: 300;
           font-size: 13px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          transition: opacity 0.5s ease;
-        }
-        .hero-cta:hover .hero-cta-text { opacity: 1 !important; }
-
-        .hero-cta-underline {
-          display: block;
-          height: 0.5px;
-          margin-top: 8px;
-          background: #543c24;
-          width: 0;
+          color: #F9F6EE;
           opacity: 0;
-          transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 2.2s,
-                      opacity 0.8s ease 2.2s;
-        }
-        .hero-cta-underline--drawn {
-          width: 60%;
-          opacity: 0.5;
-          animation: ctaBreath 3.5s ease-in-out 4s infinite;
-        }
-        .hero-cta-underline--night { background: rgba(255, 255, 255, 0.6); }
-        .hero-cta:hover .hero-cta-underline {
-          width: 100%;
-          opacity: 0.7;
-          animation: none;
-        }
-        @keyframes ctaBreath {
-          0%, 100% { opacity: 0.4; }
-          50%       { opacity: 0.65; }
+          transition: color 0.3s ease;
         }
 
-        @media (min-width: 640px) { .hero-cta-text { font-size: 14px; letter-spacing: 0.35em; } }
-        @media (min-width: 768px)  { .hero-cta-text { font-size: 15px; } }
-        @media (min-width: 1024px) { .hero-cta-text { font-size: 16px; } }
+        .hero-cta-label--visible {
+          animation: ctaLabelIn 0.8s ease-out var(--btn-delay) forwards;
+        }
+
+        @keyframes ctaLabelIn {
+          to { opacity: 1; }
+        }
+
+        /* Hover effects */
+        .hero-cta-btn:hover .hero-cta-bg {
+          background: rgba(101, 67, 33, 0.5);
+        }
+        .hero-cta-btn:hover .hero-cta-border-el {
+          border-color: rgba(249, 246, 238, 1);
+        }
+
+        @media (min-width: 640px) {
+          .hero-cta-btn { padding: 15px 38px; min-width: 250px; }
+          .hero-cta-label { font-size: 14px; letter-spacing: 0.35em; }
+        }
+        @media (min-width: 768px) {
+          .hero-cta-btn { padding: 16px 44px; min-width: 280px; }
+          .hero-cta-label { font-size: 15px; }
+        }
+        @media (min-width: 1024px) {
+          .hero-cta-label { font-size: 16px; }
+        }
       `}</style>
     </section>
   );
