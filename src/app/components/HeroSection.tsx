@@ -199,7 +199,6 @@ const HeroSection = () => {
       <SongPlayer
         loaded={loaded}
         delay={POST_NAMES + 3000}
-        isNightMode={isNightMode}
       />
 
       {/* @property must be global so the browser can interpolate the angle */}

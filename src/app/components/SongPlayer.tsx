@@ -4,12 +4,10 @@ import { useState, useRef, useEffect } from 'react';
 interface SongPlayerProps {
   loaded: boolean;
   delay: number;
-  isNightMode?: boolean;
 }
 
-const SongPlayer = ({ loaded, delay, isNightMode }: SongPlayerProps) => {
+const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const togglePlay = () => {
@@ -22,10 +20,11 @@ const SongPlayer = ({ loaded, delay, isNightMode }: SongPlayerProps) => {
     setIsPlaying(!isPlaying);
   };
 
-  // Pause when component unmounts
   useEffect(() => {
+    const audio = audioRef.current;
+
     return () => {
-      audioRef.current?.pause();
+      audio?.pause();
     };
   }, []);
 
@@ -44,8 +43,6 @@ const SongPlayer = ({ loaded, delay, isNightMode }: SongPlayerProps) => {
       >
         <button
           onClick={togglePlay}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
           className="song-player-pill"
           aria-label={isPlaying ? 'Pause music' : 'Play music'}
         >
