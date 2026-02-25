@@ -92,15 +92,15 @@ export default function CountdownTimer({ targetDate, className = "", variant = '
        
 
         {/* Los números del countdown - ACTUALIZADO con garamond-300 para armonía tipográfica */}
-        <div className="flex flex-nowrap justify-center gap-2 md:gap-8">
+        <div className="flex flex-nowrap justify-center gap-3 md:gap-10">
           
           {/* Días */}
           <div className="flex flex-col items-center">
-            <div className={`${isLight ? '' : 'bg-white/10 backdrop-blur-sm'} p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
-              <div className={`text-2xl md:text-4xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-white'} tracking-wide garamond-300`}>
+            <div className={`p-2 md:p-4 min-w-[72px] md:min-w-[110px] text-center`}>
+              <div className={`text-4xl md:text-6xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-[#F9F6EE] [text-shadow:0_2px_8px_rgba(0,0,0,0.4)]'} tracking-wide garamond-300`}>
                 {formatNumber(timeLeft.days)}
               </div>
-              <div className={`text-xs md:text-sm ${isLight ? 'text-[#5e5e5a]/70' : 'text-white/70'} mt-1 uppercase tracking-wider garamond-300`}>
+              <div className={`text-sm md:text-base ${isLight ? 'text-[#5e5e5a]/70' : 'text-[#F9F6EE]/70 [text-shadow:0_1px_4px_rgba(0,0,0,0.35)]'} mt-1 uppercase tracking-wider garamond-300`}>
                 Días
               </div>
             </div>
@@ -108,11 +108,11 @@ export default function CountdownTimer({ targetDate, className = "", variant = '
 
           {/* Horas */}
           <div className="flex flex-col items-center">
-            <div className={`${isLight ? '' : 'bg-white/10 backdrop-blur-sm'} p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
-              <div className={`text-2xl md:text-4xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-white'} tracking-wide garamond-300`}>
+            <div className={`p-2 md:p-4 min-w-[72px] md:min-w-[110px] text-center`}>
+              <div className={`text-4xl md:text-6xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-[#F9F6EE] [text-shadow:0_2px_8px_rgba(0,0,0,0.4)]'} tracking-wide garamond-300`}>
                 {formatNumber(timeLeft.hours)}
               </div>
-              <div className={`text-xs md:text-sm ${isLight ? 'text-[#5e5e5a]/70' : 'text-white/70'} mt-1 uppercase tracking-wider garamond-300`}>
+              <div className={`text-sm md:text-base ${isLight ? 'text-[#5e5e5a]/70' : 'text-[#F9F6EE]/70 [text-shadow:0_1px_4px_rgba(0,0,0,0.35)]'} mt-1 uppercase tracking-wider garamond-300`}>
                 Horas
               </div>
             </div>
@@ -120,11 +120,11 @@ export default function CountdownTimer({ targetDate, className = "", variant = '
 
           {/* Minutos */}
           <div className="flex flex-col items-center">
-            <div className={`${isLight ? '' : 'bg-white/10 backdrop-blur-sm'} p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
-              <div className={`text-2xl md:text-4xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-white'} tracking-wide garamond-300`}>
+            <div className={`p-2 md:p-4 min-w-[72px] md:min-w-[110px] text-center`}>
+              <div className={`text-4xl md:text-6xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-[#F9F6EE] [text-shadow:0_2px_8px_rgba(0,0,0,0.4)]'} tracking-wide garamond-300`}>
                 {formatNumber(timeLeft.minutes)}
               </div>
-              <div className={`text-xs md:text-sm ${isLight ? 'text-[#5e5e5a]/70' : 'text-white/70'} mt-1 uppercase tracking-wider garamond-300`}>
+              <div className={`text-sm md:text-base ${isLight ? 'text-[#5e5e5a]/70' : 'text-[#F9F6EE]/70 [text-shadow:0_1px_4px_rgba(0,0,0,0.35)]'} mt-1 uppercase tracking-wider garamond-300`}>
                 Minutos
               </div>
             </div>
@@ -132,11 +132,11 @@ export default function CountdownTimer({ targetDate, className = "", variant = '
 
           {/* Segundos */}
           <div className="flex flex-col items-center">
-            <div className={`${isLight ? '' : 'bg-white/10 backdrop-blur-sm'} p-2 md:p-4 min-w-[60px] md:min-w-[90px] text-center`}>
-              <div className={`text-2xl md:text-4xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-white'} tracking-wide garamond-300`}>
+            <div className={`p-2 md:p-4 min-w-[72px] md:min-w-[110px] text-center`}>
+              <div className={`text-4xl md:text-6xl font-light ${isLight ? 'text-[#5e5e5a]' : 'text-[#F9F6EE] [text-shadow:0_2px_8px_rgba(0,0,0,0.4)]'} tracking-wide garamond-300`}>
                 {formatNumber(timeLeft.seconds)}
               </div>
-              <div className={`text-xs md:text-sm ${isLight ? 'text-[#5e5e5a]/70' : 'text-white/70'} mt-1 uppercase tracking-wider garamond-300`}>
+              <div className={`text-sm md:text-base ${isLight ? 'text-[#5e5e5a]/70' : 'text-[#F9F6EE]/70 [text-shadow:0_1px_4px_rgba(0,0,0,0.35)]'} mt-1 uppercase tracking-wider garamond-300`}>
                 Segundos
               </div>
             </div>

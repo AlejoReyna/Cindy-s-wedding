@@ -5,7 +5,7 @@ import RSVPSection from './components/RSVPSection';
 import MinimalistFooter from './components/Footer';
 import ItinerarySection from './components/ItinerarySection';
 import Navbar from './components/Navbar';
-import Gallery from './components/Gallery';
+import Gallery3D from './components/Gallery3D';
 import ParentsSection from './components/ParentsSection';
 import DressCodeSection from './components/DressCodeSection';
 import { ThemeProvider } from './context/ThemeContext';
@@ -19,7 +19,7 @@ export default function Home() {
       
       
       <div id="galeria">
-        <Gallery />
+        <Gallery3D />
       </div>
       <ParentsSection />
       <div id="itinerario">

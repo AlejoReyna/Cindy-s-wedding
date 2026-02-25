@@ -122,7 +122,7 @@ const Navbar = () => {
   const shadowAlpha = isSpecialSection ? 0 : lerp(0, 0.06, t);
 
   const textCls = isDark
-    ? 'text-white/60 hover:text-white'
+    ? 'text-[#F9F6EE]/60 hover:text-[#F9F6EE] [text-shadow:0_1px_4px_rgba(0,0,0,0.4)]'
     : 'text-[#543c24]/55 hover:text-[#543c24]';
 
   const lineColor = isDark ? '#ffffff' : '#543c24';
@@ -184,7 +184,7 @@ const Navbar = () => {
                     e.preventDefault();
                     handleNavClick(item.id);
                   }}
-                  className={`text-[11px] garamond-300 tracking-[0.25em] transition-all duration-400 relative group py-1 ${textCls}`}
+                  className={`text-[13px] garamond-300 tracking-[0.25em] transition-all duration-400 relative group py-1 ${textCls}`}
                 >
                   {item.label.toUpperCase()}
                   {/* Hover underline */}
@@ -233,7 +233,7 @@ const Navbar = () => {
                     e.preventDefault();
                     handleNavClick(item.id);
                   }}
-                  className={`text-[11px] garamond-300 tracking-[0.25em] transition-all duration-400 relative group py-1 ${textCls}`}
+                  className={`text-[13px] garamond-300 tracking-[0.25em] transition-all duration-400 relative group py-1 ${textCls}`}
                 >
                   {item.label.toUpperCase()}
                   <span
@@ -258,7 +258,7 @@ const Navbar = () => {
             TABLET  (md → lg)
         ═══════════════════════════════════════════ */}
         <div className="hidden md:grid lg:hidden grid-cols-[1fr_auto_1fr_auto] items-center gap-3">
-          <ul className="flex items-center justify-end gap-3 text-[11px]">
+          <ul className="flex items-center justify-end gap-3 text-[13px]">
             {navigationItems.slice(0, 2).map((item) => (
               <li key={item.id}>
                 <a
@@ -290,7 +290,7 @@ const Navbar = () => {
             />
           </div>
 
-          <ul className="flex items-center justify-start gap-3 text-[11px]">
+          <ul className="flex items-center justify-start gap-3 text-[13px]">
             {navigationItems.slice(2, 4).map((item) => (
               <li key={item.id}>
                 <a
@@ -455,7 +455,7 @@ const Navbar = () => {
                       e.preventDefault();
                       handleNavClick(item.id);
                     }}
-                    className={`group flex items-center gap-3 py-3.5 garamond-300 text-[11px] tracking-[0.22em] uppercase transition-all duration-400 ${
+                    className={`group flex items-center gap-3 py-3.5 garamond-300 text-[13px] tracking-[0.22em] uppercase transition-all duration-400 ${
                       activeSection === item.id
                         ? 'text-[#543c24]'
                         : 'text-[#8B7355]/50 hover:text-[#543c24]'

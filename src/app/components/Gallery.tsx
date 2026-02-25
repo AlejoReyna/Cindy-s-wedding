@@ -29,13 +29,14 @@ const polaroids = [
 //   ⑦ Polaroid cards slide in                        (with ⑥)
 // ═══════════════════════════════════════════════════════════════════════
 
-// Timing constants
-const LETTER_SPEED = 95;   // ms between each letter
-const WORD_SPEED   = 70;   // ms between each word
+// Timing constants — tuned so the full cascade completes in ~2s
+const LETTER_SPEED = 35;   // ms between each letter
+const WORD_SPEED   = 30;   // ms between each word
 
 
 export default function Gallery() {
   const [isVisible, setIsVisible] = useState(false);
+  const hasTriggered = useRef(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const borderPathRef = useRef<SVGRectElement>(null);
   const [borderPerimeter, setBorderPerimeter] = useState(0);
@@ -78,22 +79,23 @@ export default function Gallery() {
   const titleLine2 = 'Casamos!';
   const subtitleWords = 'Con inmensa alegría en nuestros corazones, queremos invitarte a celebrar el día en que uniremos nuestras vidas para siempre.'.split(' ');
 
-  // Compute total animation durations for chaining
-  const dateDuration = dateText.length * LETTER_SPEED + 380;  // letters + animation time
-  const titleDuration = (titleLine1.length + titleLine2.length) * LETTER_SPEED + 380;
-  const subtitleDuration = subtitleWords.length * WORD_SPEED + 500;
-
-  // ── Section observer → kicks off the chain ──
+  // ── Section observer → kicks off an overlapping cascade (~2s total) ──
   useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const after = (ms: number, fn: () => void) => timers.push(setTimeout(fn, ms));
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !isVisible) {
+          if (entry.isIntersecting && !hasTriggered.current) {
+            hasTriggered.current = true;
             setIsVisible(true);
-            // ① Flowers fade in immediately
             setFlowersVisible(true);
-            // ② Date starts after flowers settle
-            setTimeout(() => setDateStarted(true), 700);
+            after(150,  () => setDateStarted(true));
+            after(400,  () => setTitleStarted(true));
+            after(750,  () => setLineDrawn(true));
+            after(850,  () => setSubtitleStarted(true));
+            after(1500, () => { setHintVisible(true); setCardsVisible(true); });
           }
         });
       },
@@ -102,33 +104,11 @@ export default function Gallery() {
 
     const currentRef = sectionRef.current;
     if (currentRef) observer.observe(currentRef);
-    return () => { if (currentRef) observer.unobserve(currentRef); };
-  }, [isVisible]);
-
-  // ── Chain: date done → title ──
-  useEffect(() => {
-    if (!dateStarted) return;
-    const t = setTimeout(() => setTitleStarted(true), dateDuration + 200);
-    return () => clearTimeout(t);
-  }, [dateStarted, dateDuration]);
-
-  // ── Chain: title done → line + subtitle ──
-  useEffect(() => {
-    if (!titleStarted) return;
-    const tLine = setTimeout(() => setLineDrawn(true), titleDuration + 150);
-    const tSub  = setTimeout(() => setSubtitleStarted(true), titleDuration + 600);
-    return () => { clearTimeout(tLine); clearTimeout(tSub); };
-  }, [titleStarted, titleDuration]);
-
-  // ── Chain: subtitle done → hint + cards ──
-  useEffect(() => {
-    if (!subtitleStarted) return;
-    const t = setTimeout(() => {
-      setHintVisible(true);
-      setCardsVisible(true);
-    }, subtitleDuration + 200);
-    return () => clearTimeout(t);
-  }, [subtitleStarted, subtitleDuration]);
+    return () => {
+      if (currentRef) observer.unobserve(currentRef);
+      timers.forEach(clearTimeout);
+    };
+  }, []);
 
   // ── Auto-scroll filmstrip to active thumb ──
   useEffect(() => {
@@ -331,7 +311,7 @@ export default function Gallery() {
 
             {/* ① Decorative flowers — fade in */}
             <div
-              className={`mb-6 transition-all duration-1000 ease-out ${
+              className={`mb-6 transition-all duration-500 ease-out ${
                 flowersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
               }`}
             >
@@ -621,7 +601,7 @@ export default function Gallery() {
           opacity: 0;
         }
         .gl-letter--animated {
-          animation: glLetterWrite 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+          animation: glLetterWrite 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
         @keyframes glLetterWrite {
           0%   { opacity: 0; transform: translateY(10px) scaleX(0.4); filter: blur(2px); }
@@ -635,7 +615,7 @@ export default function Gallery() {
           opacity: 0;
         }
         .gl-word--animated {
-          animation: glWordWrite 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+          animation: glWordWrite 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
         @keyframes glWordWrite {
           0%   { opacity: 0; transform: translateY(8px) scaleX(0.6); filter: blur(1.5px); }
@@ -677,8 +657,8 @@ export default function Gallery() {
           opacity: 0;
         }
         .gl-border-svg--draw .gl-border-path {
-          animation: glDrawBorder 3s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-          animation-delay: 0.5s;
+          animation: glDrawBorder 1.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+          animation-delay: 0.15s;
         }
 
         @keyframes glDrawBorder {

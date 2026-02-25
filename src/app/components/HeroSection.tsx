@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useStatusBarSection } from '../../hooks/useStatusBarManager';
 import { useTheme } from '../context/ThemeContext';
 import CountdownTimer from '../../components/CountdownTimer';
+import SongPlayer from './SongPlayer';
 
 const HERO_PHOTO_ONE = '/assets/hero-0624.jpg';
 
@@ -86,22 +87,11 @@ const HeroSection = () => {
 
       <div className="relative z-10 flex flex-col items-center justify-between text-center px-6 w-full min-h-screen py-16">
 
-        {/* ── Floral drawn animation (SVG) ───────────────────────────────────
-             Each FLORAL path is a <path> with pathLength="1". The CSS class
-             .floral-path sets stroke-dasharray:1 and stroke-dashoffset:1 (hidden).
-             When `loaded` is true, .floral-drawing runs the floralDraw keyframe,
-             animating stroke-dashoffset to 0 so the stroke appears to be drawn.
-             Per-path timing: --fd = animation-delay (POST_NAMES + path delay),
-             --fdr = animation-duration. Paths are inline (not in a sub-component)
-             so styled-jsx scopes .floral-path / .floral-drawing and @keyframes
-             floralDraw with the same suffix and they match.                         */}
-      
-
-        {/* Top spacer */}
-        <div />
+        {/* Top spacer — small so names sit in the upper-center */}
+        <div className="flex-[0.4]" />
 
         {/* ── Center group: date + names ───────────────────────────────── */}
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center flex-[0]">
           {/* Wedding date label */}
           <div
             className={`flex items-center justify-center gap-4 mb-8 transition-all duration-[1400ms] ease-out ${
@@ -109,11 +99,11 @@ const HeroSection = () => {
             }`}
             style={{ transitionDelay: `${POST_NAMES + 1500}ms` }}
           >
-            <span className="block w-14 md:w-20 h-[0.5px] bg-[#F9F6EE]/40" />
-            <span className="hero-label-text text-[#F9F6EE]/85">
+            <span className="block w-14 md:w-20 h-[0.5px] bg-[#F9F6EE]/55" />
+            <span className="hero-label-text text-[#F9F6EE]">
               {weddingDateLabel}
             </span>
-            <span className="block w-14 md:w-20 h-[0.5px] bg-[#F9F6EE]/40" />
+            <span className="block w-14 md:w-20 h-[0.5px] bg-[#F9F6EE]/55" />
           </div>
 
           {/* ── Names — letter-by-letter writing ───────────── */}
@@ -131,7 +121,7 @@ const HeroSection = () => {
             </h1>
 
             <p
-              className={`hero-ampersand text-[#F9F6EE]/80${
+              className={`hero-ampersand text-[#F9F6EE]${
                 loaded ? ' ampersand-animated' : ' ampersand-hidden'
               }`}
               style={{ animationDelay: `${AMP_START}ms` }}
@@ -153,8 +143,11 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* ── Bottom group: CTA + timer (below the people in the photo) ── */}
-        <div className="flex flex-col items-center gap-6 mb-8">
+        {/* Bottom flexible space */}
+        <div className="flex-[1.6]" />
+
+        {/* ── Bottom group: CTA + separator + timer ── */}
+        <div className="hero-bottom-group flex flex-col items-center gap-5 mb-0">
           {/* Confirmar asistencia — rectangular button with drawn border */}
           <a
             href="#rsvp"
@@ -165,8 +158,8 @@ const HeroSection = () => {
             }}
             style={{
               '--btn-delay': `${POST_NAMES + 2000}ms`,
-              '--btn-draw-duration': '1.2s',
-              '--btn-fill-delay': `${POST_NAMES + 2000 + 1200}ms`,
+              '--btn-draw-duration': '1.6s',
+              '--btn-fill-delay': `${POST_NAMES + 2000 + 1600}ms`,
             } as React.CSSProperties}
           >
             {/* Border that draws itself via conic-gradient mask */}
@@ -179,9 +172,19 @@ const HeroSection = () => {
             </span>
           </a>
 
+          {/* Separator line */}
+          <div
+            className={`hero-separator mt-5 transition-all duration-[1600ms] ease-out ${
+              loaded ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+            }`}
+            style={{ transitionDelay: `${POST_NAMES + 2300}ms` }}
+          >
+            <span className="block w-16 md:w-24 h-[0.5px] mx-auto bg-[#F9F6EE]/40" />
+          </div>
+
           {/* Countdown timer */}
           <div
-            className={`transition-all duration-[1800ms] ease-out ${
+            className={`hero-timer-wrap mt-4 transition-all duration-[1800ms] ease-out ${
               loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             }`}
             style={{ transitionDelay: `${POST_NAMES + 2400}ms` }}
@@ -192,25 +195,12 @@ const HeroSection = () => {
 
       </div>
 
-      {/* Scroll indicator */}
-      <div
-        className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-10 transition-all duration-[1800ms] ease-out ${
-          loaded ? 'opacity-100' : 'opacity-0'
-        }`}
-        style={{ transitionDelay: `${POST_NAMES + 3200}ms` }}
-      >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#F9F6EE"
-          strokeWidth="1"
-          className="animate-bounce opacity-30"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
-      </div>
+      {/* ── Song Player — bottom-right corner ──────────────────────────── */}
+      <SongPlayer
+        loaded={loaded}
+        delay={POST_NAMES + 3000}
+        isNightMode={isNightMode}
+      />
 
       {/* @property must be global so the browser can interpolate the angle */}
       <style>{`
@@ -304,6 +294,7 @@ const HeroSection = () => {
           font-size: 12px;
           letter-spacing: 0.35em;
           text-transform: uppercase;
+          text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
         }
         .hero-names-text {
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
@@ -312,6 +303,7 @@ const HeroSection = () => {
           line-height: 1.05;
           letter-spacing: 0.18em;
           text-transform: uppercase;
+          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
         .hero-ampersand {
           display: block;
@@ -320,6 +312,7 @@ const HeroSection = () => {
           font-size: 32px;
           line-height: 1;
           margin: -2px 0;
+          text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
         }
         @media (min-width: 640px) {
           .hero-label-text { font-size: 13px; letter-spacing: 0.4em; }
@@ -370,6 +363,7 @@ const HeroSection = () => {
           border: 1px solid rgba(249, 246, 238, 0.7);
           border-radius: 8px;
           pointer-events: none;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.2);
           --cta-border-angle: 0deg;
           -webkit-mask-image: conic-gradient(from -135deg at 50% 50%, #000 var(--cta-border-angle), transparent 0);
           mask-image: conic-gradient(from -135deg at 50% 50%, #000 var(--cta-border-angle), transparent 0);
@@ -379,7 +373,7 @@ const HeroSection = () => {
         .hero-cta-border-el--draw {
           animation:
             ctaBorderAppear 0.01s linear var(--btn-delay) forwards,
-            ctaBorderDraw var(--btn-draw-duration) cubic-bezier(0.37, 0, 0.63, 1) var(--btn-delay) forwards;
+            ctaBorderDraw var(--btn-draw-duration) cubic-bezier(0.25, 0.1, 0.25, 1) var(--btn-delay) forwards;
         }
 
         /* Tiny keyframe just to flip opacity so the border is visible during draw */
@@ -404,7 +398,7 @@ const HeroSection = () => {
         }
 
         .hero-cta-bg--visible {
-          animation: ctaBgFill 0.6s ease-out var(--btn-fill-delay) forwards;
+          animation: ctaBgFill 0.9s ease-in-out var(--btn-fill-delay) forwards;
         }
 
         @keyframes ctaBgFill {
@@ -416,12 +410,13 @@ const HeroSection = () => {
           position: relative;
           z-index: 1;
           font-family: 'EB Garamond', 'Cormorant Garamond', serif;
-          font-weight: 300;
+          font-weight: 400;
           font-size: 13px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
           color: #F9F6EE;
           opacity: 0;
+          text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5), 0 0 2px rgba(0, 0, 0, 0.3);
           transition: color 0.3s ease;
         }
 
@@ -451,6 +446,32 @@ const HeroSection = () => {
         }
         @media (min-width: 1024px) {
           .hero-cta-label { font-size: 16px; }
+        }
+
+        /* ── 13" MacBook / short viewport fix ──────────────────────────
+           On screens ≤ 820px tall the bottom group overlaps the couple.
+           Shrink spacing and scale down the timer to keep it at the
+           very bottom without covering the photo subjects.            */
+        @media (max-height: 820px) {
+          .hero-bottom-group {
+            gap: 8px;
+            margin-bottom: 0;
+          }
+          .hero-cta-btn {
+            padding: 10px 26px;
+            min-width: 200px;
+          }
+          .hero-cta-label {
+            font-size: 12px;
+          }
+          .hero-timer-wrap {
+            margin-top: 4px;
+            transform: scale(0.85);
+            transform-origin: top center;
+          }
+          .hero-separator {
+            margin-top: 4px;
+          }
         }
       `}</style>
     </section>
