@@ -29,6 +29,7 @@ const Navbar = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isInFooterSection, setIsInFooterSection] = useState(false);
   const [isInRSVPSection, setIsInRSVPSection] = useState(false);
+  const [isInHeroSection, setIsInHeroSection] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
   const { isNightMode } = useTheme();
@@ -59,8 +60,16 @@ const Navbar = () => {
 
       // Footer / RSVP section detection
       const wh = window.innerHeight;
+      const heroRect = document.getElementById('hero-section')?.getBoundingClientRect();
       const footerRect = document.getElementById('footer')?.getBoundingClientRect();
       const rsvpRect = document.getElementById('rsvp')?.getBoundingClientRect();
+
+      if (heroRect && heroRect.bottom > 0 && heroRect.top < wh) {
+        const probeLine = wh * 0.35;
+        setIsInHeroSection(heroRect.top <= probeLine && heroRect.bottom >= probeLine);
+      } else {
+        setIsInHeroSection(false);
+      }
 
       setIsInFooterSection(footerRect ? footerRect.top < wh * 0.8 : false);
 
@@ -101,7 +110,7 @@ const Navbar = () => {
 
   // ── Derived visual values ──
   const t = scrollProgress;
-  const isDark = isNightMode || isInRSVPSection || isInFooterSection;
+  const isDark = isNightMode || isInHeroSection || isInRSVPSection || isInFooterSection;
   const isSpecialSection = isInRSVPSection || isInFooterSection;
 
   const logoDesktop = lerp(100, 48, t);

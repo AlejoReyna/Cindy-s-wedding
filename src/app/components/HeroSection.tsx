@@ -1,8 +1,11 @@
 "use client"
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useStatusBarSection } from '../../hooks/useStatusBarManager';
 import { useTheme } from '../context/ThemeContext';
 import CountdownTimer from '../../components/CountdownTimer';
+
+const HERO_PHOTO_ONE = '/assets/hero-0624.jpg';
 
 // ── FLORAL DRAWN ANIMATION ───────────────────────────────────────────────────
 // The ornament is drawn as if by hand: each SVG path is revealed over time using
@@ -19,7 +22,6 @@ import CountdownTimer from '../../components/CountdownTimer';
 const HeroSection = () => {
   const { isNightMode } = useTheme();
   const [loaded, setLoaded] = useState(false);
-
   const heroSectionRef = useStatusBarSection({
     sectionId: 'hero',
     color: '#f9f5e9',
@@ -60,7 +62,29 @@ const HeroSection = () => {
         transition: 'background-color 0.5s ease',
       }}
     >
-      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 w-full">
+      {/* Background photo */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="hero-media">
+          <Image
+            src={HERO_PHOTO_ONE}
+            alt="Cindy y Jorge caminando por el campo"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+        </div>
+
+        <div
+          className={`absolute inset-0 ${
+            isNightMode
+              ? 'bg-gradient-to-b from-black/55 via-black/45 to-black/60'
+              : 'bg-gradient-to-b from-black/40 via-black/30 to-black/50'
+          }`}
+        />
+      </div>
+
+      <div className="relative z-10 flex flex-col items-center justify-between text-center px-6 w-full min-h-screen py-16">
 
         {/* ── Floral drawn animation (SVG) ───────────────────────────────────
              Each FLORAL path is a <path> with pathLength="1". The CSS class
@@ -73,74 +97,67 @@ const HeroSection = () => {
              floralDraw with the same suffix and they match.                         */}
       
 
-        {/* "NUESTRA BODA" — fades in while rose petals are still being drawn */}
-        <div
-          className={`flex items-center justify-center gap-4 mb-8 transition-all duration-[1400ms] ease-out ${
-            loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
-          style={{ transitionDelay: `${POST_NAMES + 1500}ms` }}
-        >
-          <span className={`block w-14 md:w-20 h-[0.5px] ${isNightMode ? 'bg-white/30' : 'bg-[#C4985B]/50'}`} />
-          <span className={`hero-label-text ${isNightMode ? 'text-white/60' : 'text-[#543c24]/55'}`}>
-            {weddingDateLabel}
-          </span>
-          <span className={`block w-14 md:w-20 h-[0.5px] ${isNightMode ? 'bg-white/30' : 'bg-[#C4985B]/50'}`} />
-        </div>
+        {/* Top spacer */}
+        <div />
 
-        {/* ── Names — FIRST animation: letter-by-letter writing ───────────── */}
-        <div>
-
-          {/* "Cindy" — letters write in one at a time */}
-          <h1 className={`hero-names-text ${isNightMode ? 'text-white/90' : 'text-[#543c24]'}`}>
-            {'Cindy'.split('').map((char, i) => (
-              <span
-                key={`c-${i}`}
-                className={`letter-span${loaded ? ' letter-animated' : ''}`}
-                style={{ animationDelay: `${CINDY_START + i * 110}ms` }}
-              >
-                {char}
-              </span>
-            ))}
-          </h1>
-
-          {/* "&" — cursive swirl-in after a short pause */}
-          <p
-            className={`hero-ampersand ${isNightMode ? 'text-white/60' : 'text-[#8B7355]/60'}${
-              loaded ? ' ampersand-animated' : ' ampersand-hidden'
+        {/* ── Center group: date + names ───────────────────────────────── */}
+        <div className="flex flex-col items-center">
+          {/* Wedding date label */}
+          <div
+            className={`flex items-center justify-center gap-4 mb-8 transition-all duration-[1400ms] ease-out ${
+              loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
-            style={{ animationDelay: `${AMP_START}ms` }}
+            style={{ transitionDelay: `${POST_NAMES + 1500}ms` }}
           >
-            &amp;
-          </p>
+            <span className="block w-14 md:w-20 h-[0.5px] bg-[#F9F6EE]/40" />
+            <span className="hero-label-text text-[#F9F6EE]/85">
+              {weddingDateLabel}
+            </span>
+            <span className="block w-14 md:w-20 h-[0.5px] bg-[#F9F6EE]/40" />
+          </div>
 
-          {/* "Jorge" — letters write in after the "&" settles */}
-          <h1 className={`hero-names-text ${isNightMode ? 'text-white/90' : 'text-[#543c24]'}`}>
-            {'Jorge'.split('').map((char, i) => (
-              <span
-                key={`j-${i}`}
-                className={`letter-span${loaded ? ' letter-animated' : ''}`}
-                style={{ animationDelay: `${JORGE_START + i * 110}ms` }}
-              >
-                {char}
-              </span>
-            ))}
-          </h1>
+          {/* ── Names — letter-by-letter writing ───────────── */}
+          <div>
+            <h1 className="hero-names-text text-[#F9F6EE]">
+              {'Cindy'.split('').map((char, i) => (
+                <span
+                  key={`c-${i}`}
+                  className={`letter-span${loaded ? ' letter-animated' : ''}`}
+                  style={{ animationDelay: `${CINDY_START + i * 110}ms` }}
+                >
+                  {char}
+                </span>
+              ))}
+            </h1>
 
+            <p
+              className={`hero-ampersand text-[#F9F6EE]/80${
+                loaded ? ' ampersand-animated' : ' ampersand-hidden'
+              }`}
+              style={{ animationDelay: `${AMP_START}ms` }}
+            >
+              &amp;
+            </p>
+
+            <h1 className="hero-names-text text-[#F9F6EE]">
+              {'Jorge'.split('').map((char, i) => (
+                <span
+                  key={`j-${i}`}
+                  className={`letter-span${loaded ? ' letter-animated' : ''}`}
+                  style={{ animationDelay: `${JORGE_START + i * 110}ms` }}
+                >
+                  {char}
+                </span>
+              ))}
+            </h1>
+          </div>
         </div>
 
-        {/* Thin decorative line */}
-        <div
-          className={`mt-8 mb-12 transition-all duration-[1600ms] ease-out ${
-            loaded ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
-          }`}
-          style={{ transitionDelay: `${POST_NAMES + 2000}ms` }}
-        >
-          <span className={`block w-10 h-[0.5px] mx-auto ${isNightMode ? 'bg-white/25' : 'bg-[#C4985B]/40'}`} />
-        </div>
-
-         {/* Confirmar asistencia — right below names */}
-         <div
-            className={`mt-6 transition-all duration-[1600ms] ease-out ${
+        {/* ── Bottom group: CTA + timer (below the people in the photo) ── */}
+        <div className="flex flex-col items-center gap-6 mb-8">
+          {/* Confirmar asistencia */}
+          <div
+            className={`transition-all duration-[1600ms] ease-out ${
               loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
             }`}
             style={{ transitionDelay: `${POST_NAMES + 2200}ms` }}
@@ -153,21 +170,22 @@ const HeroSection = () => {
                 document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth' });
               }}
             >
-              <span className={`hero-cta-text ${isNightMode ? 'text-white/90' : 'text-[#543c24]'}`}>
+              <span className="hero-cta-text text-[#F9F6EE]">
                 Confirma Tu Asistencia
               </span>
-              <span className={`hero-cta-underline ${loaded ? 'hero-cta-underline--drawn' : ''} ${isNightMode ? 'hero-cta-underline--night' : ''}`} />
+              <span className={`hero-cta-underline ${loaded ? 'hero-cta-underline--drawn' : ''}`} />
             </a>
           </div>
 
-        {/* Countdown timer */}
-        <div
-          className={`transition-all duration-[1800ms] ease-out ${
-            loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-          }`}
-          style={{ transitionDelay: `${POST_NAMES + 2400}ms` }}
-        >
-          <CountdownTimer targetDate={weddingDate.toISOString()} variant="light" />
+          {/* Countdown timer */}
+          <div
+            className={`transition-all duration-[1800ms] ease-out ${
+              loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`}
+            style={{ transitionDelay: `${POST_NAMES + 2400}ms` }}
+          >
+            <CountdownTimer targetDate={weddingDate.toISOString()} variant="dark" />
+          </div>
         </div>
 
       </div>
@@ -184,7 +202,7 @@ const HeroSection = () => {
           height="20"
           viewBox="0 0 24 24"
           fill="none"
-          stroke={isNightMode ? 'white' : '#8B7355'}
+          stroke="#F9F6EE"
           strokeWidth="1"
           className="animate-bounce opacity-30"
         >
@@ -193,7 +211,10 @@ const HeroSection = () => {
       </div>
 
       <style jsx>{`
-
+        .hero-media {
+          position: absolute;
+          inset: 0;
+        }
         /* ═══════════════════════════════════════════════════════════════
            FLORAL DRAWN ANIMATION (hand-drawn line effect)
            ─────────────────────────────────────────────────────────────
