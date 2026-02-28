@@ -2,19 +2,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { MdDirections } from 'react-icons/md';
 import Image from 'next/image';
+import churchImg from '../../../assets/church.png';
 import receptionImg from '../../../assets/museum.jpg';
 
-interface LocationData {
-  label: string;
-  venue: string;
-  address: string;
-  city: string;
-  mapsUrl: string;
-  image: string | typeof receptionImg;
-  imageAlt: string;
-}
-
-const locations: LocationData[] = [
+const locations = [
   {
     label: 'Ceremonia religiosa',
     venue: 'Iglesia Sagrado Corazón de Jesús',
@@ -22,8 +13,7 @@ const locations: LocationData[] = [
     city: '67500 Montemorelos, N.L.',
     mapsUrl:
       'https://www.google.com/maps/search/?api=1&query=Iglesia+Sagrado+Corazón+de+Jesús+Calle+Ignacio+Zaragoza+700+Montemorelos+N.L.',
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Templo_Parroquial_Sagrado_Coraz%C3%B3n_de_Jes%C3%B3s.jpg/330px-Templo_Parroquial_Sagrado_Coraz%C3%B3n_de_Jes%C3%B3s.jpg',
+    image: churchImg,
     imageAlt: 'Ceremonia religiosa - Iglesia Sagrado Corazón de Jesús',
   },
   {
@@ -36,62 +26,52 @@ const locations: LocationData[] = [
     image: receptionImg,
     imageAlt: "Recepción - Museo histórico Valle del Pilón",
   },
-];
+] as const;
 
 export default function LocationSection() {
   const headerRef = useRef<HTMLDivElement>(null);
+  const row0Ref = useRef<HTMLDivElement>(null);
+  const row1Ref = useRef<HTMLDivElement>(null);
   const [headerVisible, setHeaderVisible] = useState(false);
-  const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [row0Visible, setRow0Visible] = useState(false);
+  const [row1Visible, setRow1Visible] = useState(false);
 
-  // ── Header fade-in ──
+  // ── Header observer ──
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setHeaderVisible(true);
-        });
-      },
+    const obs = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) setHeaderVisible(true); },
       { threshold: 0.2, rootMargin: '-40px' }
     );
-
-    const ref = headerRef.current;
-    if (ref) observer.observe(ref);
-    return () => {
-      if (ref) observer.unobserve(ref);
-    };
+    const el = headerRef.current;
+    if (el) obs.observe(el);
+    return () => { if (el) obs.unobserve(el); };
   }, []);
 
-  // ── Staggered card reveals ──
+  // ── Row observers ──
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    const obs = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const idx = Number(entry.target.getAttribute('data-index'));
-            setTimeout(() => {
-              setVisibleCards((prev) => new Set([...prev, idx]));
-            }, idx * 250);
-          }
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          if (e.target === row0Ref.current) setRow0Visible(true);
+          if (e.target === row1Ref.current) setRow1Visible(true);
         });
       },
-      { threshold: 0.12, rootMargin: '-30px' }
+      { threshold: 0.15, rootMargin: '-20px' }
     );
-
-    const refs = cardRefs.current;
-    refs.forEach((ref) => {
-      if (ref) observer.observe(ref);
-    });
-    return () => {
-      refs.forEach((ref) => {
-        if (ref) observer.unobserve(ref);
-      });
-    };
+    const r0 = row0Ref.current;
+    const r1 = row1Ref.current;
+    if (r0) obs.observe(r0);
+    if (r1) obs.observe(r1);
+    return () => { if (r0) obs.unobserve(r0); if (r1) obs.unobserve(r1); };
   }, []);
+
+  const rowRefs = [row0Ref, row1Ref];
+  const rowVisibles = [row0Visible, row1Visible];
 
   return (
     <section
-      className="min-h-screen w-full py-24 md:py-32 px-4 md:px-8 relative overflow-hidden"
+      className="w-full py-12 md:py-16 px-4 md:px-8 relative overflow-hidden"
       style={{
         background:
           'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)',
@@ -109,37 +89,22 @@ export default function LocationSection() {
         />
       </div>
 
-      <div className="max-w-5xl mx-auto relative z-10">
+      <div className="relative z-10">
         {/* ═══ Header ═══ */}
         <div
           ref={headerRef}
-          className={`text-center mb-20 md:mb-24 transition-all duration-1000 ease-out ${
+          className={`text-center mb-6 md:mb-10 transition-all duration-1000 ease-out ${
             headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
-          {/* Location pin icon */}
-          <div className="flex justify-center mb-8">
-            <svg
-              className="w-8 h-8 text-[#8B7355]/35"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              strokeWidth={1}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-              />
+          <div className="flex justify-center mb-6">
+            <svg className="w-8 h-8 text-[#8B7355]/35" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
             </svg>
           </div>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.3em] uppercase text-[#5c5c5c] mb-6 garamond-300">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.3em] uppercase text-[#5c5c5c] mb-5 garamond-300">
             Ubicaciones
           </h2>
 
@@ -150,93 +115,300 @@ export default function LocationSection() {
           </div>
         </div>
 
-        {/* ═══ Location cards ═══ */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14">
-          {locations.map((loc, index) => (
-            <div
-              key={index}
-              ref={(el) => {
-                cardRefs.current[index] = el;
-              }}
-              data-index={index}
-              className={`group transition-all duration-800 ease-out ${
-                index === 1 ? 'md:mt-14' : ''
-              } ${
-                visibleCards.has(index)
-                  ? 'opacity-100 translate-y-0'
-                  : 'opacity-0 translate-y-10'
-              }`}
-            >
-              {/* Card container */}
+        {/* ═══ Location rows — rendered inline (not a child component) ═══ */}
+        <div className="flex flex-col gap-2 md:gap-4">
+          {locations.map((loc, index) => {
+            const reversed = index === 1;
+            const visible = rowVisibles[index];
+
+            // Row 1: image first → text  |  Row 2: text first → image
+            const imageDelay = reversed ? 500 : 0;
+            const textDelay  = reversed ? 0   : 500;
+            const btnDelay   = 900;
+
+            const venueLetters = loc.venue.split('');
+            const addrDelay = textDelay + 80 + venueLetters.length * 35 + 100;
+
+            const imageBlock = (
               <div
-                className="overflow-hidden transition-shadow duration-500 group-hover:shadow-lg"
-                style={{
-                  borderRadius: '3px',
-                  boxShadow: '0 4px 20px rgba(139,115,85,0.08)',
-                }}
+                className="loc-image-wrap"
+                style={{ '--img-delay': `${imageDelay}ms` } as React.CSSProperties}
               >
-                {/* ── Image area ── */}
-                <div className="relative overflow-hidden aspect-[4/3]">
+                <div className={`loc-image${visible ? ' loc-image--visible' : ''}`}>
                   <Image
                     src={loc.image}
                     alt={loc.imageAlt}
                     fill
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 55vw"
                   />
-                  {/* Bottom gradient — blends image into content area */}
-                  <div
-                    className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
-                    style={{
-                      background:
-                        'linear-gradient(to top, #f3ede6 0%, rgba(243,237,230,0.5) 40%, transparent 100%)',
-                    }}
-                  />
-                </div>
-
-                {/* ── Content area ── */}
-                <div
-                  className="px-6 py-8 md:px-8 md:py-10 text-center"
-                  style={{ backgroundColor: '#f3ede6' }}
-                >
-                  {/* Label */}
-                  <p className="text-[10px] tracking-[0.3em] uppercase text-[#8B7355]/40 mb-4 garamond-300">
-                    {loc.label.toUpperCase()}
-                  </p>
-
-                  {/* Venue name */}
-                  <h3 className="text-xl md:text-2xl font-light tracking-[0.06em] text-[#5c5c5c] mb-4 garamond-300">
-                    {loc.venue}
-                  </h3>
-
-                  {/* Address */}
-                  <p className="text-xs tracking-[0.04em] text-[#8B7355]/45 font-light mb-1">
-                    {loc.address}
-                  </p>
-                  <p className="text-xs tracking-[0.04em] text-[#8B7355]/40 font-light mb-7">
-                    {loc.city}
-                  </p>
-
-                  {/* Gold accent line */}
-                  <div className="w-8 h-[1px] bg-[#C4985B]/25 mx-auto mb-7" />
-
-                  {/* Maps button */}
-                  <a
-                    href={loc.mapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group/btn inline-flex items-center gap-2.5 px-6 py-2.5 border border-[#8B7355]/15 text-[#8B7355]/55 hover:text-[#8B7355] hover:border-[#8B7355]/35 transition-all duration-400"
-                  >
-                    <MdDirections className="text-base transition-transform duration-300 group-hover/btn:rotate-12" />
-                    <span className="text-[11px] tracking-[0.15em] uppercase font-light garamond-300">
-                      Ver en Maps
-                    </span>
-                  </a>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+
+            const textBlock = (
+              <div className={`loc-text-block ${reversed ? 'loc-text-block--right' : ''}`}>
+                {/* Label */}
+                <p
+                  className={`loc-label${visible ? ' loc-label--visible' : ''}`}
+                  style={{ '--label-delay': `${textDelay}ms` } as React.CSSProperties}
+                >
+                  {loc.label.toUpperCase()}
+                </p>
+
+                {/* Venue — letter by letter */}
+                <h3 className="loc-venue">
+                  {venueLetters.map((char, i) => (
+                    <span
+                      key={i}
+                      className={`loc-letter${visible ? ' loc-letter--animated' : ''}`}
+                      style={{ animationDelay: `${textDelay + 80 + i * 35}ms` }}
+                    >
+                      {char === ' ' ? '\u00A0' : char}
+                    </span>
+                  ))}
+                </h3>
+
+                {/* Address */}
+                <p
+                  className={`loc-addr${visible ? ' loc-addr--visible' : ''}`}
+                  style={{ '--addr-delay': `${addrDelay}ms` } as React.CSSProperties}
+                >
+                  {loc.address}<br />{loc.city}
+                </p>
+
+                {/* Gold line */}
+                <span
+                  className={`loc-line${visible ? ' loc-line--visible' : ''}`}
+                  style={{ '--line-delay': `${btnDelay - 100}ms` } as React.CSSProperties}
+                />
+
+                {/* Maps button */}
+                <a
+                  href={loc.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`loc-btn${visible ? ' loc-btn--visible' : ''}`}
+                  style={{ '--btn-delay': `${btnDelay}ms` } as React.CSSProperties}
+                >
+                  <MdDirections className="text-base" />
+                  <span className="loc-btn-label">Ver en Maps</span>
+                </a>
+              </div>
+            );
+
+            return (
+              <div key={index} ref={rowRefs[index]} className="loc-row">
+                <div className={`loc-grid ${reversed ? 'loc-grid--reversed' : ''}`}>
+                  {reversed ? <>{textBlock}{imageBlock}</> : <>{imageBlock}{textBlock}</>}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
+
+      {/* ═══ All styles in parent so styled-jsx scopes correctly ═══ */}
+      <style jsx>{`
+        /* ── Row layout ── */
+        .loc-row {
+          min-height: 60vh;
+          display: flex;
+          align-items: center;
+          width: 100%;
+        }
+
+        .loc-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 0.75rem;
+          width: 100%;
+          max-width: 72rem;
+          margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+          .loc-grid {
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2.5rem;
+          }
+          .loc-grid--reversed {
+            grid-template-columns: 0.8fr 1.2fr;
+          }
+        }
+
+        /* ── Image ── */
+        .loc-image-wrap {
+          position: relative;
+          overflow: hidden;
+          border-radius: 4px;
+          aspect-ratio: 4 / 3;
+        }
+
+        @media (min-width: 768px) {
+          .loc-image-wrap {
+            aspect-ratio: 16 / 11;
+          }
+        }
+
+        .loc-image {
+          position: absolute;
+          inset: 0;
+          opacity: 0;
+          transform: scale(1.06);
+        }
+
+        .loc-image--visible {
+          animation: locImgIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) var(--img-delay) forwards;
+        }
+
+        @keyframes locImgIn {
+          to { opacity: 1; transform: scale(1); }
+        }
+
+        /* ── Text block ── */
+        .loc-text-block {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: flex-start;
+          text-align: left;
+          padding: 1rem 0.5rem;
+        }
+
+        .loc-text-block--right {
+          align-items: flex-end;
+          text-align: right;
+        }
+
+        @media (min-width: 768px) {
+          .loc-text-block {
+            padding: 0 1.5rem;
+          }
+        }
+
+        /* ── Label ── */
+        .loc-label {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 10px;
+          letter-spacing: 0.35em;
+          color: rgba(139, 115, 85, 0.4);
+          margin-bottom: 0.75rem;
+          opacity: 0;
+        }
+
+        .loc-label--visible {
+          animation: locFade 0.4s ease-out var(--label-delay) forwards;
+        }
+
+        /* ── Venue name — Hero-style letter animation ── */
+        .loc-venue {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 1.25rem;
+          letter-spacing: 0.04em;
+          color: #5c5c5c;
+          margin-bottom: 0.5rem;
+          min-height: 1.8em;
+          line-height: 1.3;
+        }
+
+        @media (min-width: 640px)  { .loc-venue { font-size: 1.5rem; } }
+        @media (min-width: 768px)  { .loc-venue { font-size: 1.65rem; } }
+        @media (min-width: 1024px) { .loc-venue { font-size: 1.85rem; } }
+
+        .loc-letter {
+          display: inline-block;
+          opacity: 0;
+        }
+
+        .loc-letter--animated {
+          animation: letterWrite 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes letterWrite {
+          0%   { opacity: 0; transform: translateY(8px) scaleX(0.4); filter: blur(2px); }
+          55%  { opacity: 1; filter: blur(0); }
+          100% { opacity: 1; transform: translateY(0) scaleX(1); filter: blur(0); }
+        }
+
+        /* ── Address ── */
+        .loc-addr {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 0.75rem;
+          letter-spacing: 0.03em;
+          color: rgba(139, 115, 85, 0.5);
+          line-height: 1.6;
+          margin-bottom: 1.25rem;
+          opacity: 0;
+        }
+
+        @media (min-width: 640px) { .loc-addr { font-size: 0.85rem; } }
+
+        .loc-addr--visible {
+          animation: locFade 0.45s ease-out var(--addr-delay) forwards;
+        }
+
+        /* ── Gold accent ── */
+        .loc-line {
+          display: block;
+          height: 1px;
+          width: 0;
+          background: rgba(196, 152, 91, 0.25);
+          margin-bottom: 1.25rem;
+        }
+
+        .loc-line--visible {
+          animation: locLineGrow 0.5s ease-out var(--line-delay) forwards;
+        }
+
+        @keyframes locLineGrow {
+          to { width: 2.5rem; }
+        }
+
+        /* ── Button ── */
+        .loc-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.625rem;
+          padding: 0.625rem 1.5rem;
+          border: 1px solid rgba(139, 115, 85, 0.15);
+          color: rgba(139, 115, 85, 0.55);
+          border-radius: 2px;
+          text-decoration: none;
+          opacity: 0;
+          transform: translateY(8px);
+          transition: color 0.3s, border-color 0.3s;
+        }
+
+        .loc-btn:hover {
+          color: #8B7355;
+          border-color: rgba(139, 115, 85, 0.35);
+        }
+
+        .loc-btn--visible {
+          animation: locBtnIn 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) var(--btn-delay) forwards;
+        }
+
+        .loc-btn-label {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 11px;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+        }
+
+        @keyframes locBtnIn {
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Shared ── */
+        @keyframes locFade {
+          to { opacity: 1; }
+        }
+      `}</style>
     </section>
   );
 }

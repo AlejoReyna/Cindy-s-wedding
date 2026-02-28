@@ -56,7 +56,6 @@ export default function Gallery3D() {
   const [titleStarted, setTitleStarted] = useState(false);
   const [lineDrawn, setLineDrawn] = useState(false);
   const [subtitleStarted, setSubtitleStarted] = useState(false);
-  const [hintVisible, setHintVisible] = useState(false);
   const [cardsVisible, setCardsVisible] = useState(false);
 
   // ── 3D Carousel state ──
@@ -101,7 +100,7 @@ export default function Gallery3D() {
             after(400,  () => setTitleStarted(true));
             after(750,  () => setLineDrawn(true));
             after(850,  () => setSubtitleStarted(true));
-            after(1500, () => { setHintVisible(true); setCardsVisible(true); });
+            after(1500, () => setCardsVisible(true));
           }
         });
       },
@@ -116,16 +115,21 @@ export default function Gallery3D() {
     };
   }, []);
 
-  // ── Navigation ──
-  const goTo = useCallback((index: number) => {
-    if (isAnimating || index < 0 || index >= polaroids.length || index === currentIndex) return;
-    setIsAnimating(true);
-    setCurrentIndex(index);
-    setTimeout(() => setIsAnimating(false), 500);
-  }, [isAnimating, currentIndex]);
+  // ── Helper: wrap index for infinite loop ──
+  const wrap = useCallback((i: number) => ((i % polaroids.length) + polaroids.length) % polaroids.length, []);
 
-  const goPrev = useCallback(() => goTo(currentIndex - 1), [goTo, currentIndex]);
-  const goNext = useCallback(() => goTo(currentIndex + 1), [goTo, currentIndex]);
+  // ── Navigation (circular) ──
+  const goTo = useCallback((index: number) => {
+    if (isAnimating) return;
+    const wrapped = wrap(index);
+    if (wrapped === currentIndex) return;
+    setIsAnimating(true);
+    setCurrentIndex(wrapped);
+    setTimeout(() => setIsAnimating(false), 500);
+  }, [isAnimating, currentIndex, wrap]);
+
+  const goPrev = useCallback(() => goTo(wrap(currentIndex - 1)), [goTo, currentIndex, wrap]);
+  const goNext = useCallback(() => goTo(wrap(currentIndex + 1)), [goTo, currentIndex, wrap]);
 
   // ── Keyboard navigation ──
   useEffect(() => {
@@ -155,61 +159,69 @@ export default function Gallery3D() {
   const handleDragEnd = useCallback(() => {
     if (!isDragging) return;
     setIsDragging(false);
-    if (dragX > SWIPE_THRESHOLD && currentIndex > 0) {
-      goTo(currentIndex - 1);
-    } else if (dragX < -SWIPE_THRESHOLD && currentIndex < polaroids.length - 1) {
-      goTo(currentIndex + 1);
+    if (dragX > SWIPE_THRESHOLD) {
+      goPrev();
+    } else if (dragX < -SWIPE_THRESHOLD) {
+      goNext();
     }
     setDragX(0);
-  }, [isDragging, dragX, currentIndex, goTo]);
+  }, [isDragging, dragX, goPrev, goNext]);
 
-  // ── 3D Card positioning ──
+  // ── Compute shortest circular offset ──
+  const circularOffset = (index: number) => {
+    const n = polaroids.length;
+    let diff = index - currentIndex;
+    // Wrap to shortest path: if more than half the array away, go the other direction
+    if (diff > n / 2) diff -= n;
+    if (diff < -n / 2) diff += n;
+    return diff;
+  };
+
+  // ── Card positioning: 3-visible layout (left · center · right) ──
   const getCard3DStyle = (index: number): React.CSSProperties => {
-    const offset = index - currentIndex;
+    const offset = circularOffset(index);
     const dragInfluence = isDragging ? dragX * 0.3 : 0;
-
-    // How many cards away from center
     const absOffset = Math.abs(offset);
 
-    if (absOffset > 3) return { display: 'none' };
+    // Only show the 3 visible cards (center, left, right) + 1 buffer for smooth transition
+    if (absOffset > 2) return { display: 'none', opacity: 0 };
 
-    // Center card
+    const transition = isDragging ? 'none' : 'all 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+
+    // Center card — large and prominent
     if (offset === 0) {
       return {
-        transform: `
-          perspective(1200px)
-          translateX(${dragInfluence}px)
-          translateZ(0px)
-          rotateY(${isDragging ? dragX * -0.05 : 0}deg)
-          scale(1)
-        `,
+        transform: `translateX(${dragInfluence}px) scale(1)`,
         zIndex: 10,
         opacity: 1,
-        transition: isDragging ? 'none' : 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        transition,
         filter: 'brightness(1)',
       };
     }
 
-    // Side cards — 3D perspective with rotation
-    const direction = offset > 0 ? 1 : -1;
-    const translateX = direction * absOffset * 160 + dragInfluence;
-    const translateZ = -absOffset * 120;
-    const rotateY = direction * -45;
-    const scale = Math.max(0.65, 1 - absOffset * 0.12);
-    const opacity = Math.max(0.3, 1 - absOffset * 0.25);
+    // Immediate neighbors (offset ±1) — visible side cards
+    if (absOffset === 1) {
+      const direction = offset > 0 ? 1 : -1;
+      // Left card slightly smaller per the reference; right card a bit larger
+      const scale = direction === -1 ? 0.78 : 0.82;
+      const translateX = direction * 140 + dragInfluence;
+      return {
+        transform: `translateX(calc(${direction > 0 ? '68%' : '-68%'} + ${translateX}px)) scale(${scale})`,
+        zIndex: 5,
+        opacity: 0.88,
+        transition,
+        filter: 'brightness(0.92)',
+        cursor: 'pointer',
+      };
+    }
 
+    // Buffer cards (offset ±2) — hidden off-edge for smooth entrance
+    const direction = offset > 0 ? 1 : -1;
     return {
-      transform: `
-        perspective(1200px)
-        translateX(${translateX}px)
-        translateZ(${translateZ}px)
-        rotateY(${rotateY}deg)
-        scale(${scale})
-      `,
-      zIndex: 10 - absOffset,
-      opacity,
-      transition: isDragging ? 'none' : 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-      filter: `brightness(${1 - absOffset * 0.08})`,
+      transform: `translateX(${direction * 140}%) scale(0.65)`,
+      zIndex: 1,
+      opacity: 0,
+      transition,
       pointerEvents: 'none' as const,
     };
   };
@@ -258,10 +270,10 @@ export default function Gallery3D() {
 
       {/* ═══ Main Layout ═══ */}
       <div className="w-full max-w-[1400px] mx-auto relative z-10 px-6 md:px-10 lg:px-12 py-16">
-        <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
+        <div className="flex flex-col items-center gap-10 lg:gap-12">
 
-          {/* ── LEFT: Text Section (identical cascade) ── */}
-          <div className="w-full lg:w-[32%] flex flex-col items-center lg:items-start text-center lg:text-left shrink-0">
+          {/* ── TOP: Text Section (identical cascade) ── */}
+          <div className="w-full max-w-3xl flex flex-col items-center text-center shrink-0">
 
             {/* ① Decorative flowers */}
             <div
@@ -269,7 +281,7 @@ export default function Gallery3D() {
                 flowersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
               }`}
             >
-              <div className="w-56 h-20 relative mx-auto lg:mx-0 bg-[#ede9e2] rounded-sm flex items-center justify-center">
+              <div className="w-56 h-20 relative mx-auto bg-[#ede9e2] rounded-sm flex items-center justify-center">
                 <span className="text-xs uppercase tracking-[0.25em] text-[#8B7355]/40 garamond-300 select-none">
                   Flores decorativas
                 </span>
@@ -323,7 +335,7 @@ export default function Gallery3D() {
               }`}
               style={{ transformOrigin: 'center center' }}
             >
-              <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C4985B] to-transparent mb-6 mx-auto lg:mx-0" />
+              <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C4985B] to-transparent mb-6 mx-auto" />
             </div>
 
             {/* ⑤ Subtitle */}
@@ -343,25 +355,12 @@ export default function Gallery3D() {
               </p>
             </div>
 
-            {/* ⑥ Navigation hint */}
-            <div
-              className={`mt-8 flex items-center gap-2 transition-all duration-[800ms] ${
-                hintVisible ? 'opacity-60' : 'opacity-0'
-              }`}
-            >
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#8B7355]/50 garamond-300">
-                Explora las fotos
-              </span>
-              <svg className="w-4 h-4 text-[#8B7355]/40 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-            </div>
           </div>
 
-          {/* ── RIGHT: 3D Coverflow Carousel ── */}
+          {/* ── BOTTOM: 3D Coverflow Carousel ── */}
           <div
-            className={`w-full lg:w-[68%] flex flex-col items-center relative transition-all duration-1000 ease-out ${
-              cardsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'
+            className={`w-full flex flex-col items-center relative transition-all duration-1000 ease-out ${
+              cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
             }`}
           >
             {/* 3D Stage */}
@@ -386,7 +385,12 @@ export default function Gallery3D() {
                     className="gl3d-card"
                     style={getCard3DStyle(index)}
                     onClick={() => {
-                      if (index !== currentIndex && !isDragging) goTo(index);
+                      if (index !== currentIndex && !isDragging) {
+                        const offset = circularOffset(index);
+                        if (offset === -1) goPrev();
+                        else if (offset === 1) goNext();
+                        else goTo(index);
+                      }
                     }}
                   >
                     {viewMode === 'polaroid' ? (
@@ -430,7 +434,6 @@ export default function Gallery3D() {
               {/* ═══ Navigation Arrows ═══ */}
               <button
                 onClick={goPrev}
-                disabled={currentIndex === 0}
                 className="gl3d-nav-btn gl3d-nav-btn--left"
                 aria-label="Foto anterior"
               >
@@ -440,7 +443,6 @@ export default function Gallery3D() {
               </button>
               <button
                 onClick={goNext}
-                disabled={currentIndex === polaroids.length - 1}
                 className="gl3d-nav-btn gl3d-nav-btn--right"
                 aria-label="Foto siguiente"
               >
@@ -601,11 +603,11 @@ export default function Gallery3D() {
         /* ═══ 3D CAROUSEL STAGE ═══ */
         .gl3d-stage {
           width: 100%;
-          max-width: 700px;
-          height: clamp(420px, 58vw, 680px);
+          max-width: 1200px;
+          height: clamp(420px, 56vw, 650px);
           position: relative;
-          perspective: 1200px;
           cursor: grab;
+          overflow: hidden;
         }
         .gl3d-stage:active {
           cursor: grabbing;
@@ -631,19 +633,16 @@ export default function Gallery3D() {
           position: relative;
           width: 100%;
           height: 100%;
-          transform-style: preserve-3d;
         }
 
         .gl3d-card {
           position: absolute;
           top: 50%;
           left: 50%;
-          width: clamp(260px, 38vw, 420px);
-          height: clamp(340px, 50vw, 560px);
-          margin-left: calc(clamp(260px, 38vw, 420px) / -2);
-          margin-top: calc(clamp(340px, 50vw, 560px) / -2);
-          transform-style: preserve-3d;
-          backface-visibility: hidden;
+          width: clamp(280px, 38vw, 440px);
+          height: clamp(370px, 50vw, 560px);
+          margin-left: calc(clamp(280px, 38vw, 440px) / -2);
+          margin-top: calc(clamp(370px, 50vw, 560px) / -2);
         }
 
         /* ── Polaroid card inner ── */
@@ -756,24 +755,20 @@ export default function Gallery3D() {
           transition: all 0.3s ease;
           box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
         }
-        .gl3d-nav-btn:hover:not(:disabled) {
+        .gl3d-nav-btn:hover {
           background: rgba(255, 255, 255, 0.95);
           border-color: rgba(196, 152, 91, 0.6);
           box-shadow: 0 4px 20px rgba(196, 152, 91, 0.15);
           transform: translateY(-50%) scale(1.08);
         }
-        .gl3d-nav-btn:active:not(:disabled) {
+        .gl3d-nav-btn:active {
           transform: translateY(-50%) scale(0.95);
         }
-        .gl3d-nav-btn:disabled {
-          opacity: 0.25;
-          cursor: default;
-        }
         .gl3d-nav-btn--left {
-          left: -6px;
+          left: 4px;
         }
         .gl3d-nav-btn--right {
-          right: -6px;
+          right: 4px;
         }
 
         @media (min-width: 768px) {
@@ -781,8 +776,8 @@ export default function Gallery3D() {
             width: 50px;
             height: 50px;
           }
-          .gl3d-nav-btn--left { left: -12px; }
-          .gl3d-nav-btn--right { right: -12px; }
+          .gl3d-nav-btn--left { left: 8px; }
+          .gl3d-nav-btn--right { right: 8px; }
         }
 
         /* ═══ DOT INDICATORS ═══ */

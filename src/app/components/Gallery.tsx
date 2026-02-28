@@ -302,12 +302,12 @@ export default function Gallery() {
         />
       </div>
 
-      {/* ═══ Main Split Layout ═══ */}
+      {/* ═══ Main Vertical Layout ═══ */}
       <div className="w-full max-w-[1400px] mx-auto relative z-10 px-6 md:px-10 lg:px-12 py-16">
-        <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
+        <div className="flex flex-col items-center gap-10 lg:gap-12">
 
-          {/* ── LEFT: Elegant Text with Hero-style Letter Writing ── */}
-          <div className="w-full lg:w-[32%] flex flex-col items-center lg:items-start text-center lg:text-left shrink-0">
+          {/* ── TOP: Elegant Text with Hero-style Letter Writing ── */}
+          <div className="w-full max-w-3xl flex flex-col items-center text-center shrink-0">
 
             {/* ① Decorative flowers — fade in */}
             <div
@@ -315,7 +315,7 @@ export default function Gallery() {
                 flowersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
               }`}
             >
-              <div className="w-56 h-20 relative mx-auto lg:mx-0 bg-[#ede9e2] rounded-sm flex items-center justify-center">
+              <div className="w-56 h-20 relative mx-auto bg-[#ede9e2] rounded-sm flex items-center justify-center">
                 <span className="text-xs uppercase tracking-[0.25em] text-[#8B7355]/40 garamond-300 select-none">
                   Flores decorativas
                 </span>
@@ -371,7 +371,7 @@ export default function Gallery() {
               }`}
               style={{ transformOrigin: 'center center' }}
             >
-              <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C4985B] to-transparent mb-6 mx-auto lg:mx-0" />
+              <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C4985B] to-transparent mb-6 mx-auto" />
             </div>
 
             {/* ⑤ Subtitle — word by word writing animation */}
@@ -406,11 +406,11 @@ export default function Gallery() {
             </div>
           </div>
 
-          {/* ── RIGHT: Stacked Polaroid Carousel + Filmstrip ── */}
+          {/* ── BOTTOM: Stacked Polaroid Carousel + Filmstrip ── */}
           {/* ⑦ Cards slide in with the hint */}
           <div
-            className={`w-full lg:w-[68%] flex flex-col items-center lg:items-end relative transition-all duration-1000 ease-out ${
-              cardsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'
+            className={`w-full flex flex-col items-center relative transition-all duration-1000 ease-out ${
+              cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
             }`}
           >
             {/* Card stack container */}
