@@ -20,12 +20,27 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
     setIsPlaying(!isPlaying);
   };
 
+  // Listen for 'startMusic' event dispatched by SplashScreen
   useEffect(() => {
     const audio = audioRef.current;
 
+    const handleStartMusic = () => {
+      if (audio && !isPlaying) {
+        audio.play().then(() => {
+          setIsPlaying(true);
+        }).catch(() => {
+          // Autoplay blocked by browser — user will use the player
+        });
+      }
+    };
+
+    window.addEventListener('startMusic', handleStartMusic);
+
     return () => {
+      window.removeEventListener('startMusic', handleStartMusic);
       audio?.pause();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -106,10 +121,10 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
         ═══════════════════════════════════════════════════════════ */
 
         .song-player {
-          position: absolute;
+          position: fixed;
           bottom: 2rem;
           right: 1.5rem;
-          z-index: 20;
+          z-index: 9999;
         }
 
         .song-player-pill {
@@ -122,8 +137,8 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
           border: 1px solid rgba(249, 246, 238, 0.22);
           background: linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.10) 0%,
-            rgba(255, 255, 255, 0.04) 100%
+            rgba(44, 30, 26, 0.92) 0%,
+            rgba(70, 48, 42, 0.90) 100%
           );
           backdrop-filter: blur(20px) saturate(1.3);
           -webkit-backdrop-filter: blur(20px) saturate(1.3);
@@ -142,8 +157,8 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
         .song-player-pill:hover {
           background: linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.17) 0%,
-            rgba(255, 255, 255, 0.08) 100%
+            rgba(58, 40, 34, 0.96) 0%,
+            rgba(82, 58, 51, 0.94) 100%
           );
           border-color: rgba(249, 246, 238, 0.38);
           box-shadow:

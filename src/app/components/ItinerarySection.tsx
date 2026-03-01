@@ -29,8 +29,8 @@ interface EventData {
 }
 
 const EVENTS: EventData[] = [
-  { time: '3:30 PM',  title: 'Misa',           icon: church,        alt: 'Misa',           side: 'left'  },
-  { time: '6:30 PM',  title: 'Ceremonia Civil', icon: legalDocument, alt: 'Ceremonia Civil', side: 'right' },
+  { time: '4:30 PM',  title: 'Misa',           icon: church,        alt: 'Misa',           side: 'left'  },
+  { time: '7:00 PM',  title: 'Ceremonia Civil', icon: legalDocument, alt: 'Ceremonia Civil', side: 'right' },
   { time: '7:00 PM',  title: 'Recepción',       icon: nightClub,     alt: 'Recepción',      side: 'left'  },
 ]
 

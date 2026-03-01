@@ -31,19 +31,19 @@ const HeroSection = () => {
   });
 
   useEffect(() => {
-    const t = setTimeout(() => setLoaded(true), 150);
+    const t = setTimeout(() => setLoaded(true), 75);
     return () => clearTimeout(t);
   }, []);
 
-  // ── Animation timing constants (ms after `loaded` fires at 150ms) ─────────
-  // Names:    "Cindy" → pause → "&" → pause → "Jorge"  ≈ 0 – 1870ms
+  // ── Animation timing constants (ms after `loaded` fires at 75ms) ──────────
+  // Names:    "Cindy" → pause → "&" → pause → "Jorge"  ≈ 0 – 935ms
   // POST_NAMES: all other elements begin here
-  // Flower:   draws over ~3100ms starting at POST_NAMES
+  // Flower:   draws over ~1550ms starting at POST_NAMES
   // Text etc: staggered in while flower draws
   const CINDY_START = 0;
-  const AMP_START   = 700;
-  const JORGE_START = 1050;
-  const POST_NAMES  = 1900;
+  const AMP_START   = 350;
+  const JORGE_START = 525;
+  const POST_NAMES  = 950;
 
   // Misma fecha que el CountdownTimer (22 de agosto de 2026)
   const weddingDate = new Date('2026-08-22T00:00:00');
@@ -94,10 +94,10 @@ const HeroSection = () => {
         <div className="flex flex-col items-center flex-[0]">
           {/* Wedding date label */}
           <div
-            className={`flex items-center justify-center gap-4 mb-8 transition-all duration-[1400ms] ease-out ${
+            className={`flex items-center justify-center gap-4 mb-8 transition-all duration-[700ms] ease-out ${
               loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
-            style={{ transitionDelay: `${POST_NAMES + 1500}ms` }}
+            style={{ transitionDelay: `${POST_NAMES + 750}ms` }}
           >
             <span className="block w-14 md:w-20 h-[0.5px] bg-[#F9F6EE]/55" />
             <span className="hero-label-text text-[#F9F6EE]">
@@ -113,7 +113,7 @@ const HeroSection = () => {
                 <span
                   key={`c-${i}`}
                   className={`letter-span${loaded ? ' letter-animated' : ''}`}
-                  style={{ animationDelay: `${CINDY_START + i * 110}ms` }}
+                  style={{ animationDelay: `${CINDY_START + i * 55}ms` }}
                 >
                   {char}
                 </span>
@@ -134,7 +134,7 @@ const HeroSection = () => {
                 <span
                   key={`j-${i}`}
                   className={`letter-span${loaded ? ' letter-animated' : ''}`}
-                  style={{ animationDelay: `${JORGE_START + i * 110}ms` }}
+                  style={{ animationDelay: `${JORGE_START + i * 55}ms` }}
                 >
                   {char}
                 </span>
@@ -157,9 +157,9 @@ const HeroSection = () => {
               document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth' });
             }}
             style={{
-              '--btn-delay': `${POST_NAMES + 2000}ms`,
-              '--btn-draw-duration': '1.6s',
-              '--btn-fill-delay': `${POST_NAMES + 2000 + 1600}ms`,
+              '--btn-delay': `${POST_NAMES + 1000}ms`,
+              '--btn-draw-duration': '0.8s',
+              '--btn-fill-delay': `${POST_NAMES + 1000 + 800}ms`,
             } as React.CSSProperties}
           >
             {/* Border that draws itself via conic-gradient mask */}
@@ -174,20 +174,20 @@ const HeroSection = () => {
 
           {/* Separator line */}
           <div
-            className={`hero-separator mt-5 transition-all duration-[1600ms] ease-out ${
+            className={`hero-separator mt-5 transition-all duration-[800ms] ease-out ${
               loaded ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
             }`}
-            style={{ transitionDelay: `${POST_NAMES + 2300}ms` }}
+            style={{ transitionDelay: `${POST_NAMES + 1150}ms` }}
           >
             <span className="block w-16 md:w-24 h-[0.5px] mx-auto bg-[#F9F6EE]/40" />
           </div>
 
           {/* Countdown timer */}
           <div
-            className={`hero-timer-wrap mt-4 transition-all duration-[1800ms] ease-out ${
+            className={`hero-timer-wrap mt-4 transition-all duration-[900ms] ease-out ${
               loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             }`}
-            style={{ transitionDelay: `${POST_NAMES + 2400}ms` }}
+            style={{ transitionDelay: `${POST_NAMES + 1200}ms` }}
           >
             <CountdownTimer targetDate={weddingDate.toISOString()} variant="dark" />
           </div>
@@ -198,7 +198,7 @@ const HeroSection = () => {
       {/* ── Song Player — bottom-right corner ──────────────────────────── */}
       <SongPlayer
         loaded={loaded}
-        delay={POST_NAMES + 3000}
+        delay={POST_NAMES + 1500}
       />
 
       {/* @property must be global so the browser can interpolate the angle */}
@@ -257,7 +257,7 @@ const HeroSection = () => {
         }
 
         .letter-animated {
-          animation: letterWrite 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+          animation: letterWrite 0.19s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
         @keyframes letterWrite {
@@ -273,7 +273,7 @@ const HeroSection = () => {
         .ampersand-hidden { opacity: 0; }
 
         .ampersand-animated {
-          animation: ampersandSwirl 0.65s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+          animation: ampersandSwirl 0.325s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
           opacity: 0;
         }
 
@@ -397,7 +397,7 @@ const HeroSection = () => {
         }
 
         .hero-cta-bg--visible {
-          animation: ctaBgFill 0.9s ease-in-out var(--btn-fill-delay) forwards;
+          animation: ctaBgFill 0.45s ease-in-out var(--btn-fill-delay) forwards;
         }
 
         @keyframes ctaBgFill {
@@ -420,7 +420,7 @@ const HeroSection = () => {
         }
 
         .hero-cta-label--visible {
-          animation: ctaLabelIn 0.8s ease-out var(--btn-delay) forwards;
+          animation: ctaLabelIn 0.4s ease-out var(--btn-delay) forwards;
         }
 
         @keyframes ctaLabelIn {
