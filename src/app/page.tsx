@@ -15,14 +15,20 @@ import SplashScreen from './components/SplashScreen';
 
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
+  const [entered, setEntered] = useState(false);
+
+  const handleEnter = () => {
+    setEntered(true);
+    setShowSplash(false);
+  };
 
   return (
     <ThemeProvider>
       {showSplash && (
-        <SplashScreen onEnter={() => setShowSplash(false)} />
+        <SplashScreen onEnter={handleEnter} />
       )}
       <Navbar />
-      <HeroSection />
+      <HeroSection entered={entered} />
 
 
       <div id="galeria">

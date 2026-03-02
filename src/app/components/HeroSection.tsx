@@ -20,7 +20,11 @@ const HERO_PHOTO_ONE = '/assets/hero-0624.jpg';
 // - duration: how long the path takes to draw.
 // - isGold: true = main gold stroke; false = secondary brown.
 // ─────────────────────────────────────────────────────────────────────────────
-const HeroSection = () => {
+interface HeroSectionProps {
+  entered?: boolean;
+}
+
+const HeroSection = ({ entered = false }: HeroSectionProps) => {
   const { isNightMode } = useTheme();
   const [loaded, setLoaded] = useState(false);
   const heroSectionRef = useStatusBarSection({
@@ -30,10 +34,12 @@ const HeroSection = () => {
     isNightMode
   });
 
+  // Only start animations after the envelope has been opened
   useEffect(() => {
+    if (!entered) return;
     const t = setTimeout(() => setLoaded(true), 75);
     return () => clearTimeout(t);
-  }, []);
+  }, [entered]);
 
   // ── Animation timing constants (ms after `loaded` fires at 75ms) ──────────
   // Names:    "Cindy" → pause → "&" → pause → "Jorge"  ≈ 0 – 935ms

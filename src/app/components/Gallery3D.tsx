@@ -1,15 +1,15 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-// ── Polaroid data ──
-const polaroids = [
-  { label: 'FOTO 1', rotation: -3, caption: '' },
-  { label: 'FOTO 2', rotation: 4, caption: '' },
-  { label: 'FOTO 3', rotation: -2, caption: '' },
-  { label: 'FOTO 4', rotation: 5, caption: '' },
-  { label: 'FOTO 5', rotation: -4, caption: '' },
-  { label: 'FOTO 6', rotation: 2, caption: '' },
-  { label: 'FOTO 7', rotation: -5, caption: '' },
+// ── Photo data ──
+const photos = [
+  { label: 'FOTO 1', src: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&h=600&fit=crop' },
+  { label: 'FOTO 2', src: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=1200&h=600&fit=crop' },
+  { label: 'FOTO 3', src: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&h=600&fit=crop' },
+  { label: 'FOTO 4', src: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=1200&h=600&fit=crop' },
+  { label: 'FOTO 5', src: 'https://images.unsplash.com/photo-1529636798458-92182e662485?w=1200&h=600&fit=crop' },
+  { label: 'FOTO 6', src: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=1200&h=600&fit=crop' },
+  { label: 'FOTO 7', src: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1200&h=600&fit=crop' },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -65,19 +65,6 @@ export default function Gallery3D() {
   const [isDragging, setIsDragging] = useState(false);
   const dragStartX = useRef(0);
 
-  // ── View mode toggle ──
-  const [viewMode, setViewMode] = useState<'polaroid' | 'photo'>('polaroid');
-  const [isSwapping, setIsSwapping] = useState(false);
-
-  const handleSwap = useCallback(() => {
-    if (isSwapping) return;
-    setIsSwapping(true);
-    setTimeout(() => {
-      setViewMode(prev => prev === 'polaroid' ? 'photo' : 'polaroid');
-      setTimeout(() => setIsSwapping(false), 400);
-    }, 200);
-  }, [isSwapping]);
-
   // ── Text data ──
   const dateText = '22 · 08 · 2026';
   const titleLine1 = '¡Nos';
@@ -116,7 +103,7 @@ export default function Gallery3D() {
   }, []);
 
   // ── Helper: wrap index for infinite loop ──
-  const wrap = useCallback((i: number) => ((i % polaroids.length) + polaroids.length) % polaroids.length, []);
+  const wrap = useCallback((i: number) => ((i % photos.length) + photos.length) % photos.length, []);
 
   // ── Navigation (circular) ──
   const goTo = useCallback((index: number) => {
@@ -169,56 +156,38 @@ export default function Gallery3D() {
 
   // ── Compute shortest circular offset ──
   const circularOffset = (index: number) => {
-    const n = polaroids.length;
+    const n = photos.length;
     let diff = index - currentIndex;
-    // Wrap to shortest path: if more than half the array away, go the other direction
     if (diff > n / 2) diff -= n;
     if (diff < -n / 2) diff += n;
     return diff;
   };
 
-  // ── Card positioning: 3-visible layout (left · center · right) ──
+  // ── Card positioning: single-image layout ──
   const getCard3DStyle = (index: number): React.CSSProperties => {
     const offset = circularOffset(index);
     const dragInfluence = isDragging ? dragX * 0.3 : 0;
     const absOffset = Math.abs(offset);
 
-    // Only show the 3 visible cards (center, left, right) + 1 buffer for smooth transition
-    if (absOffset > 2) return { display: 'none', opacity: 0 };
+    // Only render the active card + 1 buffer on each side for smooth transitions
+    if (absOffset > 1) return { display: 'none', opacity: 0 };
 
     const transition = isDragging ? 'none' : 'all 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 
-    // Center card — large and prominent
+    // Active card — centered and fully visible
     if (offset === 0) {
       return {
         transform: `translateX(${dragInfluence}px) scale(1)`,
         zIndex: 10,
         opacity: 1,
         transition,
-        filter: 'brightness(1)',
       };
     }
 
-    // Immediate neighbors (offset ±1) — visible side cards
-    if (absOffset === 1) {
-      const direction = offset > 0 ? 1 : -1;
-      // Left card slightly smaller per the reference; right card a bit larger
-      const scale = direction === -1 ? 0.78 : 0.82;
-      const translateX = direction * 140 + dragInfluence;
-      return {
-        transform: `translateX(calc(${direction > 0 ? '68%' : '-68%'} + ${translateX}px)) scale(${scale})`,
-        zIndex: 5,
-        opacity: 0.88,
-        transition,
-        filter: 'brightness(0.92)',
-        cursor: 'pointer',
-      };
-    }
-
-    // Buffer cards (offset ±2) — hidden off-edge for smooth entrance
+    // Buffer cards (offset ±1) — hidden off-screen for slide-in transition
     const direction = offset > 0 ? 1 : -1;
     return {
-      transform: `translateX(${direction * 140}%) scale(0.65)`,
+      transform: `translateX(${direction * 110}%) scale(1)`,
       zIndex: 1,
       opacity: 0,
       transition,
@@ -269,8 +238,8 @@ export default function Gallery3D() {
       </div>
 
       {/* ═══ Main Layout ═══ */}
-      <div className="w-full max-w-[1400px] mx-auto relative z-10 px-6 md:px-10 lg:px-12 py-16">
-        <div className="flex flex-col items-center gap-10 lg:gap-12">
+      <div className="w-full max-w-[1600px] mx-auto relative z-10 px-4 md:px-6 lg:px-8 py-16">
+        <div className="flex flex-col items-center ">
 
           {/* ── TOP: Text Section (identical cascade) ── */}
           <div className="w-full max-w-3xl flex flex-col items-center text-center shrink-0">
@@ -306,23 +275,13 @@ export default function Gallery3D() {
             {/* ③ Title */}
             <div className="mb-6">
               <h2 className="gl3d-title-text">
-                {titleLine1.split('').map((char, i) => (
+                {`${titleLine1} ${titleLine2}`.split('').map((char, i) => (
                   <span
-                    key={`t1-${i}`}
+                    key={`t-${i}`}
                     className={`gl3d-letter${titleStarted ? ' gl3d-letter--animated' : ''}`}
                     style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
                   >
-                    {char}
-                  </span>
-                ))}
-                <br />
-                {titleLine2.split('').map((char, i) => (
-                  <span
-                    key={`t2-${i}`}
-                    className={`gl3d-letter${titleStarted ? ' gl3d-letter--animated' : ''}`}
-                    style={{ animationDelay: `${(titleLine1.length + i) * LETTER_SPEED}ms` }}
-                  >
-                    {char}
+                    {char === ' ' ? '\u00A0' : char}
                   </span>
                 ))}
               </h2>
@@ -378,55 +337,22 @@ export default function Gallery3D() {
               <div className="gl3d-reflection" aria-hidden="true" />
 
               {/* Cards */}
-              <div className={`gl3d-cards-container ${isSwapping ? 'gl3d-cards--swapping' : ''}`}>
-                {polaroids.map((polaroid, index) => (
+              <div className="gl3d-cards-container">
+                {photos.map((photo, index) => (
                   <div
                     key={index}
                     className="gl3d-card"
                     style={getCard3DStyle(index)}
-                    onClick={() => {
-                      if (index !== currentIndex && !isDragging) {
-                        const offset = circularOffset(index);
-                        if (offset === -1) goPrev();
-                        else if (offset === 1) goNext();
-                        else goTo(index);
-                      }
-                    }}
                   >
-                    {viewMode === 'polaroid' ? (
-                      /* ── Polaroid frame ── */
-                      <div className="gl3d-polaroid">
-                        <div className="gl3d-polaroid-image">
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-sm md:text-base uppercase tracking-[0.25em] text-[#8B7355]/30 garamond-300 select-none">
-                              {polaroid.label}
-                            </span>
-                          </div>
-                          <div
-                            className="absolute inset-0 pointer-events-none"
-                            style={{ boxShadow: 'inset 0 0 50px rgba(0,0,0,0.05)' }}
-                          />
-                        </div>
-                        <div className="gl3d-polaroid-caption">
-                          <p className="text-[10px] md:text-xs text-[#8B7355]/40 garamond-300 tracking-[0.2em] uppercase italic">
-                            {polaroid.caption || '\u00A0'}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      /* ── Clean photo (no frame) ── */
-                      <div className="gl3d-photo">
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-sm md:text-base uppercase tracking-[0.25em] text-white/40 garamond-300 select-none drop-shadow-sm">
-                            {polaroid.label}
-                          </span>
-                        </div>
-                        <div
-                          className="absolute inset-0 pointer-events-none rounded-lg"
-                          style={{ boxShadow: 'inset 0 0 80px rgba(0,0,0,0.08)' }}
-                        />
-                      </div>
-                    )}
+                    <div className="gl3d-photo">
+                      <img
+                        src={photo.src}
+                        alt={photo.label}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        draggable={false}
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -452,11 +378,10 @@ export default function Gallery3D() {
               </button>
             </div>
 
-            {/* ═══ Swap Button + Dot indicators row ═══ */}
-            <div className="flex items-center justify-center gap-6 mt-8">
-              {/* Dots */}
+            {/* ═══ Dot indicators ═══ */}
+            <div className="flex items-center justify-center mt-8">
               <div className="flex items-center gap-3">
-                {polaroids.map((_, i) => (
+                {photos.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => goTo(i)}
@@ -465,36 +390,11 @@ export default function Gallery3D() {
                   />
                 ))}
               </div>
-
-              {/* Swap button */}
-              <button
-                onClick={handleSwap}
-                className={`gl3d-swap-btn ${isSwapping ? 'gl3d-swap-btn--active' : ''}`}
-                aria-label={viewMode === 'polaroid' ? 'Cambiar a vista foto' : 'Cambiar a vista polaroid'}
-                title={viewMode === 'polaroid' ? 'Vista foto' : 'Vista polaroid'}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className={`transition-transform duration-300 ${isSwapping ? 'rotate-180' : ''}`}
-                >
-                  <path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
-                </svg>
-                <span className="gl3d-swap-label">
-                  {viewMode === 'polaroid' ? 'Foto' : 'Polaroid'}
-                </span>
-              </button>
             </div>
 
             {/* Counter */}
             <p className="text-center mt-3 text-[10px] tracking-[0.3em] uppercase text-[#8B7355]/40 garamond-300">
-              {currentIndex + 1}&thinsp;/&thinsp;{polaroids.length}
+              {currentIndex + 1}&thinsp;/&thinsp;{photos.length}
             </p>
           </div>
         </div>
@@ -603,8 +503,8 @@ export default function Gallery3D() {
         /* ═══ 3D CAROUSEL STAGE ═══ */
         .gl3d-stage {
           width: 100%;
-          max-width: 1200px;
-          height: clamp(420px, 56vw, 650px);
+          max-width: 1600px;
+          height: clamp(320px, 52vw, 620px);
           position: relative;
           cursor: grab;
           overflow: hidden;
@@ -639,42 +539,13 @@ export default function Gallery3D() {
           position: absolute;
           top: 50%;
           left: 50%;
-          width: clamp(280px, 38vw, 440px);
-          height: clamp(370px, 50vw, 560px);
-          margin-left: calc(clamp(280px, 38vw, 440px) / -2);
-          margin-top: calc(clamp(370px, 50vw, 560px) / -2);
+          width: clamp(300px, 94vw, 1500px);
+          height: clamp(280px, 46vw, 560px);
+          margin-left: calc(clamp(300px, 94vw, 1500px) / -2);
+          margin-top: calc(clamp(280px, 46vw, 560px) / -2);
         }
 
-        /* ── Polaroid card inner ── */
-        .gl3d-polaroid {
-          width: 100%;
-          height: 100%;
-          background: white;
-          border-radius: 3px;
-          padding: 8px 8px clamp(36px, 5.5vw, 56px) 8px;
-          box-shadow:
-            0 15px 50px rgba(0, 0, 0, 0.15),
-            0 5px 15px rgba(0, 0, 0, 0.08),
-            0 0 0 1px rgba(0, 0, 0, 0.02);
-          display: flex;
-          flex-direction: column;
-        }
-
-        .gl3d-polaroid-image {
-          position: relative;
-          flex: 1;
-          background: #ede9e2;
-          overflow: hidden;
-        }
-
-        .gl3d-polaroid-caption {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: clamp(28px, 4.5vw, 48px);
-        }
-
-        /* ── Clean photo card (no frame) ── */
+        /* ── Photo card ── */
         .gl3d-photo {
           width: 100%;
           height: 100%;
@@ -682,57 +553,6 @@ export default function Gallery3D() {
           background: #d5cfc6;
           border-radius: 8px;
           overflow: hidden;
-          box-shadow:
-            0 20px 60px rgba(0, 0, 0, 0.2),
-            0 8px 20px rgba(0, 0, 0, 0.1),
-            0 0 0 1px rgba(0, 0, 0, 0.04);
-        }
-
-        /* ── Swap transition ── */
-        .gl3d-cards--swapping {
-          animation: gl3dSwapPulse 0.6s ease;
-        }
-        @keyframes gl3dSwapPulse {
-          0%   { opacity: 1; transform: scale(1); }
-          30%  { opacity: 0.4; transform: scale(0.97); }
-          60%  { opacity: 0.4; transform: scale(0.97); }
-          100% { opacity: 1; transform: scale(1); }
-        }
-
-        /* ═══ SWAP BUTTON ═══ */
-        .gl3d-swap-btn {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 6px 14px;
-          border-radius: 20px;
-          border: 1px solid rgba(196, 152, 91, 0.3);
-          background: rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(8px);
-          color: #8B7355;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-        }
-        .gl3d-swap-btn:hover {
-          background: rgba(255, 255, 255, 0.95);
-          border-color: rgba(196, 152, 91, 0.55);
-          box-shadow: 0 4px 18px rgba(196, 152, 91, 0.12);
-          transform: scale(1.04);
-        }
-        .gl3d-swap-btn:active {
-          transform: scale(0.96);
-        }
-        .gl3d-swap-btn--active {
-          border-color: rgba(196, 152, 91, 0.6);
-          background: rgba(196, 152, 91, 0.08);
-        }
-        .gl3d-swap-label {
-          font-family: 'Cormorant Garamond', serif;
-          font-weight: 400;
-          font-size: 11px;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
         }
 
         /* ═══ NAVIGATION BUTTONS ═══ */
@@ -765,10 +585,10 @@ export default function Gallery3D() {
           transform: translateY(-50%) scale(0.95);
         }
         .gl3d-nav-btn--left {
-          left: 4px;
+          left: 8px;
         }
         .gl3d-nav-btn--right {
-          right: 4px;
+          right: 8px;
         }
 
         @media (min-width: 768px) {
@@ -776,8 +596,8 @@ export default function Gallery3D() {
             width: 50px;
             height: 50px;
           }
-          .gl3d-nav-btn--left { left: 8px; }
-          .gl3d-nav-btn--right { right: 8px; }
+          .gl3d-nav-btn--left { left: 16px; }
+          .gl3d-nav-btn--right { right: 16px; }
         }
 
         /* ═══ DOT INDICATORS ═══ */
