@@ -123,176 +123,202 @@ export default function ParentsSection() {
   return (
     <section
       ref={sectionRef}
-      className="min-h-[50vh] w-full py-24 px-4 md:px-8 relative overflow-hidden flex items-center justify-center"
-      style={{
-        background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)'
-      }}
+      className="w-full relative overflow-hidden"
     >
-      {/* Background texture */}
-      <div className="absolute inset-0 opacity-[0.02]">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(circle at 30% 20%, rgba(196, 152, 91, 0.15) 0%, transparent 60%),
-                              radial-gradient(circle at 70% 60%, rgba(139, 115, 85, 0.12) 0%, transparent 60%),
-                              radial-gradient(circle at 50% 90%, rgba(180, 147, 113, 0.1) 0%, transparent 60%)`
-          }}
-        />
-      </div>
-      <div className="absolute inset-0 opacity-20">
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <pattern id="galleryPattern" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
-              <path d="M20,20 Q40,30 60,20 Q80,10 100,25" stroke="#8B7355" strokeWidth="0.5" fill="none" opacity="0.3"/>
-              <circle cx="30" cy="25" r="1" fill="#C4985B" opacity="0.2"/>
-              <circle cx="70" cy="22" r="0.8" fill="#9B8366" opacity="0.3"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#galleryPattern)"/>
-        </svg>
-      </div>
+      {/* ═══ TWO-COLUMN LAYOUT: Image (left 50%) | Content (right 50%) ═══ */}
+      <div className="ps-two-col">
 
-      <div className="text-center z-10">
-
-        {/* ① Monogram — fades in */}
-        <div
-          className={`mx-10 flex justify-center items-center mb-8 transition-all duration-[1600ms] ease-out ${
-            monoVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
-          }`}
-        >
+        {/* ── LEFT COLUMN: Image ── */}
+        <div className="ps-col-image">
           <Image
-            src="/Diseño sin título.png"
-            alt="Monograma"
-            width={80}
-            height={80}
-            className="object-contain opacity-40"
+            src="/hands.JPG"
+            alt="Parents"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority
           />
-        </div>
-
-        {/* ② Quote — word by word writing */}
-        <div className="mx-10 flex justify-center items-center mb-12">
-          <p className="ps-quote-text">
-            {QUOTE_WORDS.map((word, i) => (
-              <span key={`q-${i}`}>
-                <span
-                  className={`ps-word${quoteStarted ? ' ps-word--animated' : ''}`}
-                  style={{ animationDelay: `${i * WORD_SPEED}ms` }}
-                >
-                  {word}
-                </span>
-                {/* Restore line breaks at the right positions */}
-                {word === 'amor,' ? <br /> : word === 'Dios,' ? <br /> : ' '}
-              </span>
-            ))}
-          </p>
-        </div>
-
-        {/* ③ Decorative divider — draws in */}
-        <div
-          className={`flex items-center justify-center gap-3 mb-10 transition-all duration-[1400ms] ease-out ${
-            dividerDrawn ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
-          }`}
-        >
-          <span className="block w-12 h-[0.5px] bg-[#C4985B]/40" />
-          <span className="block w-1.5 h-1.5 rounded-full bg-[#C4985B]/35" />
-          <span className="block w-12 h-[0.5px] bg-[#C4985B]/40" />
-        </div>
-
-        {/* ④ & ⑤ Parent cards */}
-        <div className="relative grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Vertical divider */}
+          {/* Soft overlay to blend with the right side */}
           <div
-            className={`absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#C4985B]/30 to-transparent transform -translate-x-1/2 hidden md:block transition-all duration-[1200ms] ease-out ${
-              brideStarted ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'
-            }`}
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(to right, transparent 60%, rgba(251,249,246,0.35) 100%)'
+            }}
           />
+        </div>
 
-          {/* ④ Bride's parents */}
-          <div className="text-center">
-            {/* Heading — letter by letter */}
-            <h3 className="ps-heading-text mb-4">
-              {BRIDE_HEADING.split('').map((char, i) => (
-                <span
-                  key={`bh-${i}`}
-                  className={`ps-letter${brideStarted ? ' ps-letter--animated' : ''}`}
-                  style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
-                >
-                  {char === ' ' ? '\u00A0' : char}
-                </span>
-              ))}
-            </h3>
-            {/* Name 1 — word by word */}
-            <p className="ps-name-text">
-              {BRIDE_NAMES[0].split(' ').map((word, i) => (
-                <span key={`bn0-${i}`}>
-                  <span
-                    className={`ps-word${brideStarted ? ' ps-word--animated' : ''}`}
-                    style={{ animationDelay: `${brideName0Delay + i * WORD_SPEED}ms` }}
-                  >
-                    {word}
-                  </span>
-                  {i < BRIDE_NAMES[0].split(' ').length - 1 && ' '}
-                </span>
-              ))}
-            </p>
-            {/* Name 2 — word by word */}
-            <p className="ps-name-text">
-              {BRIDE_NAMES[1].split(' ').map((word, i) => (
-                <span key={`bn1-${i}`}>
-                  <span
-                    className={`ps-word${brideStarted ? ' ps-word--animated' : ''}`}
-                    style={{ animationDelay: `${brideName1Delay + i * WORD_SPEED}ms` }}
-                  >
-                    {word}
-                  </span>
-                  {i < BRIDE_NAMES[1].split(' ').length - 1 && ' '}
-                </span>
-              ))}
-            </p>
+        {/* ── RIGHT COLUMN: Parents content ── */}
+        <div
+          className="ps-col-content"
+          style={{
+            background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)'
+          }}
+        >
+          {/* Background texture */}
+          <div className="absolute inset-0 opacity-[0.02]">
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `radial-gradient(circle at 30% 20%, rgba(196, 152, 91, 0.15) 0%, transparent 60%),
+                                  radial-gradient(circle at 70% 60%, rgba(139, 115, 85, 0.12) 0%, transparent 60%),
+                                  radial-gradient(circle at 50% 90%, rgba(180, 147, 113, 0.1) 0%, transparent 60%)`
+              }}
+            />
+          </div>
+          <div className="absolute inset-0 opacity-20">
+            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <pattern id="parentsPattern" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+                  <path d="M20,20 Q40,30 60,20 Q80,10 100,25" stroke="#8B7355" strokeWidth="0.5" fill="none" opacity="0.3"/>
+                  <circle cx="30" cy="25" r="1" fill="#C4985B" opacity="0.2"/>
+                  <circle cx="70" cy="22" r="0.8" fill="#9B8366" opacity="0.3"/>
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#parentsPattern)"/>
+            </svg>
           </div>
 
-          {/* ⑤ Groom's parents */}
-          <div className="text-center">
-            {/* Heading — letter by letter */}
-            <h3 className="ps-heading-text mb-4">
-              {GROOM_HEADING.split('').map((char, i) => (
-                <span
-                  key={`gh-${i}`}
-                  className={`ps-letter${groomStarted ? ' ps-letter--animated' : ''}`}
-                  style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
-                >
-                  {char === ' ' ? '\u00A0' : char}
-                </span>
-              ))}
-            </h3>
-            {/* Name 1 — word by word */}
-            <p className="ps-name-text">
-              {GROOM_NAMES[0].split(' ').map((word, i) => (
-                <span key={`gn0-${i}`}>
-                  <span
-                    className={`ps-word${groomStarted ? ' ps-word--animated' : ''}`}
-                    style={{ animationDelay: `${groomName0Delay + i * WORD_SPEED}ms` }}
-                  >
-                    {word}
+          <div className="relative z-10 text-center px-6 md:px-10 py-16 md:py-24 flex flex-col items-center justify-center h-full">
+
+            {/* ① Monogram — fades in */}
+            <div
+              className={`flex justify-center items-center mb-8 transition-all duration-[1600ms] ease-out ${
+                monoVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
+              }`}
+            >
+              <Image
+                src="/Diseño sin título.png"
+                alt="Monograma"
+                width={80}
+                height={80}
+                className="object-contain opacity-40"
+              />
+            </div>
+
+            {/* ② Quote — word by word writing */}
+            <div className="flex justify-center items-center mb-12">
+              <p className="ps-quote-text">
+                {QUOTE_WORDS.map((word, i) => (
+                  <span key={`q-${i}`}>
+                    <span
+                      className={`ps-word${quoteStarted ? ' ps-word--animated' : ''}`}
+                      style={{ animationDelay: `${i * WORD_SPEED}ms` }}
+                    >
+                      {word}
+                    </span>
+                    {word === 'amor,' ? <br /> : word === 'Dios,' ? <br /> : ' '}
                   </span>
-                  {i < GROOM_NAMES[0].split(' ').length - 1 && ' '}
-                </span>
-              ))}
-            </p>
-            {/* Name 2 — word by word */}
-            <p className="ps-name-text">
-              {GROOM_NAMES[1].split(' ').map((word, i) => (
-                <span key={`gn1-${i}`}>
-                  <span
-                    className={`ps-word${groomStarted ? ' ps-word--animated' : ''}`}
-                    style={{ animationDelay: `${groomName1Delay + i * WORD_SPEED}ms` }}
-                  >
-                    {word}
-                  </span>
-                  {i < GROOM_NAMES[1].split(' ').length - 1 && ' '}
-                </span>
-              ))}
-            </p>
+                ))}
+              </p>
+            </div>
+
+            {/* ③ Decorative divider — draws in */}
+            <div
+              className={`flex items-center justify-center gap-3 mb-10 transition-all duration-[1400ms] ease-out ${
+                dividerDrawn ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+              }`}
+            >
+              <span className="block w-12 h-[0.5px] bg-[#C4985B]/40" />
+              <span className="block w-1.5 h-1.5 rounded-full bg-[#C4985B]/35" />
+              <span className="block w-12 h-[0.5px] bg-[#C4985B]/40" />
+            </div>
+
+            {/* ④ & ⑤ Parent cards — stacked vertically in the right column */}
+            <div className="w-full max-w-md mx-auto space-y-10">
+
+              {/* ④ Bride's parents */}
+              <div className="text-center">
+                <h3 className="ps-heading-text mb-4">
+                  {BRIDE_HEADING.split('').map((char, i) => (
+                    <span
+                      key={`bh-${i}`}
+                      className={`ps-letter${brideStarted ? ' ps-letter--animated' : ''}`}
+                      style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
+                    >
+                      {char === ' ' ? '\u00A0' : char}
+                    </span>
+                  ))}
+                </h3>
+                <p className="ps-name-text">
+                  {BRIDE_NAMES[0].split(' ').map((word, i) => (
+                    <span key={`bn0-${i}`}>
+                      <span
+                        className={`ps-word${brideStarted ? ' ps-word--animated' : ''}`}
+                        style={{ animationDelay: `${brideName0Delay + i * WORD_SPEED}ms` }}
+                      >
+                        {word}
+                      </span>
+                      {i < BRIDE_NAMES[0].split(' ').length - 1 && ' '}
+                    </span>
+                  ))}
+                </p>
+                <p className="ps-name-text">
+                  {BRIDE_NAMES[1].split(' ').map((word, i) => (
+                    <span key={`bn1-${i}`}>
+                      <span
+                        className={`ps-word${brideStarted ? ' ps-word--animated' : ''}`}
+                        style={{ animationDelay: `${brideName1Delay + i * WORD_SPEED}ms` }}
+                      >
+                        {word}
+                      </span>
+                      {i < BRIDE_NAMES[1].split(' ').length - 1 && ' '}
+                    </span>
+                  ))}
+                </p>
+              </div>
+
+              {/* Small divider between parent groups */}
+              <div
+                className={`flex items-center justify-center gap-2 transition-all duration-[1000ms] ease-out ${
+                  groomStarted ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                <span className="block w-8 h-[0.5px] bg-[#C4985B]/30" />
+                <span className="block w-1 h-1 rounded-full bg-[#C4985B]/25" />
+                <span className="block w-8 h-[0.5px] bg-[#C4985B]/30" />
+              </div>
+
+              {/* ⑤ Groom's parents */}
+              <div className="text-center">
+                <h3 className="ps-heading-text mb-4">
+                  {GROOM_HEADING.split('').map((char, i) => (
+                    <span
+                      key={`gh-${i}`}
+                      className={`ps-letter${groomStarted ? ' ps-letter--animated' : ''}`}
+                      style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
+                    >
+                      {char === ' ' ? '\u00A0' : char}
+                    </span>
+                  ))}
+                </h3>
+                <p className="ps-name-text">
+                  {GROOM_NAMES[0].split(' ').map((word, i) => (
+                    <span key={`gn0-${i}`}>
+                      <span
+                        className={`ps-word${groomStarted ? ' ps-word--animated' : ''}`}
+                        style={{ animationDelay: `${groomName0Delay + i * WORD_SPEED}ms` }}
+                      >
+                        {word}
+                      </span>
+                      {i < GROOM_NAMES[0].split(' ').length - 1 && ' '}
+                    </span>
+                  ))}
+                </p>
+                <p className="ps-name-text">
+                  {GROOM_NAMES[1].split(' ').map((word, i) => (
+                    <span key={`gn1-${i}`}>
+                      <span
+                        className={`ps-word${groomStarted ? ' ps-word--animated' : ''}`}
+                        style={{ animationDelay: `${groomName1Delay + i * WORD_SPEED}ms` }}
+                      >
+                        {word}
+                      </span>
+                      {i < GROOM_NAMES[1].split(' ').length - 1 && ' '}
+                    </span>
+                  ))}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -302,6 +328,44 @@ export default function ParentsSection() {
            Same keyframe as HeroSection / Gallery
          ═══════════════════════════════════════════════════════════════ */}
       <style jsx>{`
+        /* ═══ TWO-COLUMN LAYOUT ═══ */
+        .ps-two-col {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          min-height: 80vh;
+        }
+        .ps-col-image {
+          position: relative;
+          width: 100%;
+          height: 45vh;
+          overflow: hidden;
+        }
+        .ps-col-content {
+          position: relative;
+          width: 100%;
+          min-height: 55vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        /* Desktop: side-by-side 50/50 */
+        @media (min-width: 768px) {
+          .ps-two-col {
+            flex-direction: row;
+            min-height: 90vh;
+          }
+          .ps-col-image {
+            width: 50%;
+            height: auto;
+            min-height: 90vh;
+          }
+          .ps-col-content {
+            width: 50%;
+            min-height: 90vh;
+          }
+        }
 
         /* ── Typography ── */
         .ps-quote-text {

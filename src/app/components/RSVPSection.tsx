@@ -1,12 +1,12 @@
 "use client"
 import { useEffect, useRef, useState } from 'react';
-import MessageSection from './MessageSection';
 import { useStatusBarSection } from '../../hooks/useStatusBarManager';
 import { useTheme } from '../context/ThemeContext';
 
 export default function RSVPSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [showMessagePrompt, setShowMessagePrompt] = useState(false);
 
   const { isNightMode } = useTheme();
 
@@ -44,31 +44,15 @@ export default function RSVPSection() {
     };
   }, []);
 
-  // WhatsApp icon
-  const WhatsAppIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" opacity="0.9">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-    </svg>
-  );
+  useEffect(() => {
+    if (!isVisible) return;
 
-  // Calendar icon
-  const CalendarIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.9">
-      <rect x="3" y="4" width="18" height="18" rx="2" />
-      <line x1="16" y1="2" x2="16" y2="6" />
-      <line x1="8" y1="2" x2="8" y2="6" />
-      <line x1="3" y1="10" x2="21" y2="10" />
-      <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
-    </svg>
-  );
+    const timeout = window.setTimeout(() => {
+      setShowMessagePrompt(true);
+    }, 3300);
 
-  const addToCalendar = () => {
-    const title = encodeURIComponent('Boda Cindy & Alexis');
-    const date = '20251004'; // Placeholder — adjust to real date
-    const details = encodeURIComponent('Celebración de boda');
-    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${date}T170000/${date}T235900&details=${details}`;
-    window.open(url, '_blank');
-  };
+    return () => window.clearTimeout(timeout);
+  }, [isVisible]);
 
   return (
     <section
@@ -86,7 +70,7 @@ export default function RSVPSection() {
         backgroundRepeat: 'no-repeat'
       }}
     >
-      {/* Overlay — slightly lighter to let the glass panels pop (figure-ground) */}
+      {/* Overlay */}
       <div className="absolute inset-0 bg-black/40" />
       <div
         className="absolute inset-0"
@@ -95,109 +79,171 @@ export default function RSVPSection() {
         }}
       />
 
-      {/* ═══════════════════════════════════════════════
-          Gestalt: single centered column — continuity & proximity
-          The eye flows naturally top → bottom through the glass panels
-          ═══════════════════════════════════════════════ */}
-      <div className="max-w-lg mx-auto relative z-10 px-5 w-full flex flex-col items-center gap-10 md:gap-14">
-
-        {/* ── Header ── */}
-        <div className="text-center">
-
-          {/* Top ornamental line */}
-          <div className={`flex items-center justify-center gap-3 mb-8 transition-all duration-[1800ms] ease-out ${
-            isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
-          }`} style={{ transitionDelay: '100ms' }}>
-            <span className="block w-16 h-[0.5px] bg-white/30" />
-            <span className="block w-1.5 h-1.5 rounded-full bg-white/25" />
-            <span className="block w-16 h-[0.5px] bg-white/30" />
-          </div>
-
-          {/* Script accent */}
-          <p className={`mrs-saint-delafield-regular text-3xl md:text-4xl text-white/80 mb-2 transition-all duration-[1600ms] ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-          }`} style={{ transitionDelay: '250ms' }}>
-            Confirma
-          </p>
-
-          {/* Section title */}
-          <h2 className={`garamond-300 text-xs md:text-sm tracking-[0.35em] uppercase text-white/90 mb-6 transition-all duration-[1600ms] ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-          }`} style={{ transitionDelay: '400ms' }}>
-            tu asistencia
-          </h2>
-
-          {/* Welcome message */}
-          <p className={`garamond-regular text-base md:text-lg text-white/85 leading-relaxed max-w-md mx-auto transition-all duration-[1800ms] ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`} style={{ transitionDelay: '550ms' }}>
-            Para nosotros es muy importante tu presencia, es por eso que te pedimos confirmar tu asistencia antes del 15 de septiembre.
-          </p>
-        </div>
-
-        {/* ── Glass Panel 1: RSVP Actions ──
-            Gestalt "common region" — buttons grouped inside a shared glass surface */}
-        <div className={`w-full transition-all duration-[1800ms] ease-out ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-        }`} style={{ transitionDelay: '750ms' }}>
-          <div className="liquid-glass px-6 py-8 md:px-8 md:py-10 text-center">
-
-            <p className="garamond-regular text-lg md:text-xl text-white/90 mb-8">
-              ¡Te esperamos!
+      <div className="max-w-2xl mx-auto relative z-10 px-5 w-full flex flex-col items-center gap-10 md:gap-14">
+        <div className={`text-center transition-all duration-[1600ms] ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}>
+          <div className="draw-wrap">
+            <p className={`draw-text rsvp-script-text ${
+              isVisible ? 'animate-draw' : ''
+            }`}>
+              Con amor, los esperamos
             </p>
-
-            {/* Gestalt "similarity" — both buttons share the same glass style */}
-            <div className="flex flex-col gap-4 max-w-xs mx-auto">
-              <button
-                className="liquid-glass-btn group inline-flex items-center justify-center gap-3 px-6 py-4 text-white garamond-300 tracking-[0.15em] uppercase text-xs"
-                onClick={() => {
-                  window.open('https://wa.me/0000000000?text=Confirmo%20mi%20asistencia%20a%20la%20boda%20de%20Cindy%20%26%20Alexis.%0ALos%20nombres%20confirmados%20en%20esta%20invitaci%C3%B3n%20son%3A%20____________', '_blank');
-                }}
-              >
-                <WhatsAppIcon />
-                <span>Confirmar por WhatsApp</span>
-              </button>
-
-              <button
-                className="liquid-glass-btn group inline-flex items-center justify-center gap-3 px-6 py-4 text-white garamond-300 tracking-[0.15em] uppercase text-xs"
-                onClick={addToCalendar}
-              >
-                <CalendarIcon />
-                <span>Agendar en Calendario</span>
-              </button>
-            </div>
           </div>
         </div>
 
-        {/* ── Ornamental divider — Gestalt "continuity" guides the eye downward ── */}
-        <div className={`flex items-center justify-center gap-4 transition-all duration-[1800ms] ease-out ${
-          isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
-        }`} style={{ transitionDelay: '900ms' }}>
-          <span className="block w-10 h-[0.5px] bg-white/20" />
-          <span className="garamond-300 text-[11px] tracking-[0.25em] text-white/25 uppercase">&</span>
-          <span className="block w-10 h-[0.5px] bg-white/20" />
-        </div>
+        <div className={`w-full max-w-xl transition-all duration-[900ms] ease-out ${
+          showMessagePrompt ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6 pointer-events-none'
+        }`}>
+          <p className="garamond-regular text-center text-base md:text-lg text-white/85 mb-5">
+            Si deseas dejarnos un mensaje para esta aventura...
+          </p>
 
-        {/* ── Glass Panel 2: Message Form ──
-            Second "common region" — form lives in its own glass surface */}
-        <div className={`w-full transition-all duration-[2000ms] ease-out ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-        }`} style={{ transitionDelay: '1000ms' }}>
-          <div className="liquid-glass px-6 py-8 md:px-8 md:py-10">
-            <MessageSection />
+          <div className={`message-box ${showMessagePrompt ? 'message-box--visible' : ''}`}>
+            <span className={`message-border ${showMessagePrompt ? 'message-border--draw' : ''}`} />
+            <span className={`message-bg ${showMessagePrompt ? 'message-bg--visible' : ''}`} />
+            <textarea
+              name="wedding-message"
+              rows={4}
+              placeholder="Escribe aqui tu mensaje..."
+              className={`message-input w-full px-5 py-4 bg-transparent text-white text-sm md:text-base garamond-regular placeholder-white/45 focus:outline-none resize-none ${
+                showMessagePrompt ? 'message-input--visible' : ''
+              }`}
+            />
           </div>
         </div>
-
-        {/* ── Bottom ornamental line ── */}
-        <div className={`flex items-center justify-center gap-3 transition-all duration-[1800ms] ease-out ${
-          isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
-        }`} style={{ transitionDelay: '1300ms' }}>
-          <span className="block w-16 h-[0.5px] bg-white/30" />
-          <span className="block w-1.5 h-1.5 rounded-full bg-white/25" />
-          <span className="block w-16 h-[0.5px] bg-white/30" />
-        </div>
-
       </div>
+
+      <style jsx>{`
+        .rsvp-script-text {
+          font-family: 'Mrs Saint Delafield', cursive;
+          font-weight: 400;
+          font-size: clamp(3rem, 8vw, 5.25rem);
+          line-height: 1;
+          color: rgba(249, 246, 238, 0.95);
+          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.38);
+        }
+
+        .draw-wrap {
+          display: inline-block;
+          overflow: hidden;
+          max-width: 100%;
+          min-height: clamp(3rem, 8vw, 5.25rem);
+        }
+
+        .draw-text {
+          width: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          color: rgba(255, 255, 255, 0.9);
+          border-right: 1px solid rgba(255, 255, 255, 0.75);
+          margin: 0 auto;
+        }
+
+        .animate-draw {
+          animation: draw-script 2.8s ease forwards, caret-blink 700ms steps(1, end) 5, caret-hide 0.1s linear 3.2s forwards;
+          animation-delay: 350ms;
+        }
+
+        @keyframes draw-script {
+          from {
+            width: 0;
+          }
+          to {
+            width: 100%;
+          }
+        }
+
+        @keyframes caret-blink {
+          0%, 49% {
+            border-right-color: rgba(255, 255, 255, 0.75);
+          }
+          50%, 100% {
+            border-right-color: transparent;
+          }
+        }
+
+        @keyframes caret-hide {
+          to {
+            border-right-color: transparent;
+            border-right-width: 0;
+          }
+        }
+
+        .message-box {
+          position: relative;
+          border-radius: 12px;
+          overflow: hidden;
+        }
+
+        .message-border {
+          position: absolute;
+          inset: 0;
+          border: 1px solid rgba(255, 255, 255, 0.25);
+          border-radius: 12px;
+          --msg-border-angle: 0deg;
+          -webkit-mask-image: conic-gradient(from -90deg at 50% 50%, #000 var(--msg-border-angle), transparent 0);
+          mask-image: conic-gradient(from -90deg at 50% 50%, #000 var(--msg-border-angle), transparent 0);
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .message-border--draw {
+          animation: msgBorderAppear 0.01s linear forwards, msgBorderDraw 0.9s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+        }
+
+        .message-bg {
+          position: absolute;
+          inset: 1px;
+          border-radius: 11px;
+          background: rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(3px);
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .message-bg--visible {
+          animation: msgBgIn 0.45s ease-out 0.75s forwards;
+        }
+
+        .message-input {
+          position: relative;
+          z-index: 2;
+          opacity: 0;
+          transform: translateY(12px) scale(0.98);
+          clip-path: inset(0 0 100% 0);
+        }
+
+        .message-input--visible {
+          animation: msgInputReveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
+        }
+
+        @keyframes msgBorderAppear {
+          to { opacity: 1; }
+        }
+
+        @keyframes msgBorderDraw {
+          from { --msg-border-angle: 0deg; }
+          to { --msg-border-angle: 360deg; }
+        }
+
+        @keyframes msgBgIn {
+          to { opacity: 1; }
+        }
+
+        @keyframes msgInputReveal {
+          0% {
+            opacity: 0;
+            transform: translateY(12px) scale(0.98);
+            clip-path: inset(0 0 100% 0);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            clip-path: inset(0 0 0 0);
+          }
+        }
+      `}</style>
     </section>
   );
 }

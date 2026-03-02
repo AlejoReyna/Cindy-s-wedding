@@ -6,16 +6,7 @@ import legalDocument from '../../../assets/legal-document.png';
 import nightClub     from '../../../assets/night-club.png';
 
 // ═══════════════════════════════════════════════════════════════════════
-// ITINERARY — vertical alternating timeline
-// ───────────────────────────────────────────────────────────────────────
-// Layout per event row (3-column grid: 1fr | 20px | 1fr):
-//
-//   side='left'  →  col-left: ICON   | ◆ center | col-right: TEXT
-//   side='right' →  col-left: TEXT   | ◆ center | col-right: ICON
-//
-// Text animation: same letter-by-letter keyframe as Hero / Gallery / Parents.
-// NOTE: All letter-span rendering is INLINE inside ItinerarySection's JSX
-// so styled-jsx scoped classes (.it-letter, .it-letter--on) apply correctly.
+// ITINERARY — left-aligned timeline with right-side cards
 // ═══════════════════════════════════════════════════════════════════════
 
 const LETTER_SPEED = 90   // ms per character
@@ -25,13 +16,12 @@ interface EventData {
   title: string
   icon:  StaticImageData
   alt:   string
-  side:  'left' | 'right'
 }
 
 const EVENTS: EventData[] = [
-  { time: '4:30 PM',  title: 'Misa',           icon: church,        alt: 'Misa',           side: 'left'  },
-  { time: '7:00 PM',  title: 'Ceremonia Civil', icon: legalDocument, alt: 'Ceremonia Civil', side: 'right' },
-  { time: '7:00 PM',  title: 'Recepción',       icon: nightClub,     alt: 'Recepción',      side: 'left'  },
+  { time: '4:30 PM',  title: 'Misa',           icon: church,        alt: 'Misa'           },
+  { time: '7:00 PM',  title: 'Ceremonia Civil', icon: legalDocument, alt: 'Ceremonia Civil' },
+  { time: '7:00 PM',  title: 'Recepción',       icon: nightClub,     alt: 'Recepción'      },
 ]
 
 const HEADER_TEXT = 'Itinerario'
@@ -118,7 +108,7 @@ export default function ItinerarySection() {
         />
       </div>
 
-      <div className="max-w-4xl mx-auto relative z-10">
+      <div className="max-w-3xl mx-auto relative z-10">
 
         {/* ═══ Section Header ═══ */}
         <div className="text-center mb-20 md:mb-28">
@@ -136,7 +126,7 @@ export default function ItinerarySection() {
             </div>
           </div>
 
-          {/* "Itinerario" — letter by letter (inline → styled-jsx applies) */}
+          {/* "Itinerario" — letter by letter */}
           <h2 className="it-header-text mb-6">
             {HEADER_TEXT.split('').map((char, i) => (
               <span
@@ -162,169 +152,132 @@ export default function ItinerarySection() {
           </div>
         </div>
 
-        {/* ═══ Vertical Timeline ═══ */}
-        <div className="relative">
+        {/* ═══ Left-aligned Timeline ═══ */}
+        <div className="it-timeline">
 
           {EVENTS.map((event, i) => {
-            const isLeft   = event.side === 'left'
             const started  = eventStarted[i]
             const segDrawn = lineDrawn[i]
 
             // Title starts partway through the time animation
             const titleDelay = Math.floor(event.time.length * LETTER_SPEED * 0.5)
 
-            // ── Icon block (reused in left or right column) ──
-            const iconBlock = (
-              <div
-                className={`transition-all duration-700 ease-out ${
-                  started ? 'opacity-60 scale-100' : 'opacity-0 scale-75'
-                }`}
-                style={{ transitionDelay: started ? '100ms' : '0ms' }}
-              >
-                <Image
-                  src={event.icon}
-                  alt={event.alt}
-                  width={34}
-                  height={34}
-                  className="object-contain"
-                  style={{ filter: 'sepia(1) saturate(0.5) brightness(0.45)' }}
-                />
-              </div>
-            )
-
-            // ── Text block (time + title, letter by letter) ──
-            // Uses inline styles so visibility is NOT dependent on styled-jsx scoping
-            const textBlock = (
-              <div className={`flex flex-col gap-[4px] ${isLeft ? 'items-start text-left' : 'items-end text-right'}`}>
-                {/* Time */}
-                <p style={{ margin: 0, lineHeight: 1 }}>
-                  {event.time.split('').map((char, ci) => (
-                    <span
-                      key={`time-${i}-${ci}`}
-                      className={`it-letter${started ? ' it-letter--on' : ''}`}
-                      style={{
-                        animationDelay: `${ci * LETTER_SPEED}ms`,
-                        fontFamily: "'Cormorant Garamond', 'EB Garamond', serif",
-                        fontWeight: 400,
-                        fontSize: 'clamp(2rem, 5vw, 3.2rem)',
-                        letterSpacing: '0.08em',
-                        color: '#2e1e14',
-                      }}
-                    >
-                      {char === ' ' ? '\u00A0' : char}
-                    </span>
-                  ))}
-                </p>
-                {/* Title */}
-                <p style={{ margin: 0 }}>
-                  {event.title.split('').map((char, ci) => (
-                    <span
-                      key={`ttl-${i}-${ci}`}
-                      className={`it-letter${started ? ' it-letter--on' : ''}`}
-                      style={{
-                        animationDelay: `${titleDelay + ci * LETTER_SPEED}ms`,
-                        fontFamily: "'Cormorant Garamond', 'EB Garamond', serif",
-                        fontWeight: 500,
-                        fontSize: 'clamp(0.8rem, 1.5vw, 1rem)',
-                        letterSpacing: '0.36em',
-                        textTransform: 'uppercase',
-                        color: '#4a3728',
-                      }}
-                    >
-                      {char === ' ' ? '\u00A0' : char}
-                    </span>
-                  ))}
-                </p>
-              </div>
-            )
-
             return (
-              <div key={i} className="relative">
+              <div key={i} className="it-event-row">
 
-                {/* ── Line segment above this marker ── */}
-                <div className="flex justify-center">
+                {/* ── Left: Timeline track (dot + line) ── */}
+                <div className="it-track">
+                  {/* Connecting line above dot */}
                   <div
+                    className="it-line-segment"
                     style={{
-                      width: '5px',
-                      height: i === 0 ? '48px' : '72px',
-                      backgroundImage: 'radial-gradient(circle at center, rgba(196,152,91,0.6) 1.5px, transparent 1.5px)',
-                      backgroundSize: '5px 9px',
-                      backgroundRepeat: 'repeat-y',
-                      backgroundPosition: 'center top',
-                      maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
-                      WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
                       opacity:         segDrawn ? 1 : 0,
                       transform:       segDrawn ? 'scaleY(1)' : 'scaleY(0)',
                       transformOrigin: 'top center',
                       transition: 'opacity 700ms ease-out, transform 700ms ease-out',
                     }}
                   />
-                </div>
 
-                {/* ── 3-col row: [left 1fr] | [◆ 20px] | [right 1fr] ── */}
-                <div className="it-grid items-center">
+                  {/* Dot marker */}
+                  <div
+                    className="it-dot"
+                    style={{
+                      opacity:   segDrawn ? 1 : 0,
+                      transform: segDrawn ? 'scale(1)' : 'scale(0)',
+                      transition: 'opacity 500ms ease-out 300ms, transform 500ms ease-out 300ms',
+                    }}
+                  />
 
-                  {/* ── Left column ── */}
-                  <div className="it-col-left">
-                    {isLeft
-                      ? /* left event → icon goes here */ iconBlock
-                      : /* right event → text goes here */ textBlock
-                    }
-                  </div>
-
-                  {/* ── Center: diamond marker ── */}
-                  <div className="flex justify-center z-10">
+                  {/* Connecting line below dot (or trailing fade on last) */}
+                  {i < EVENTS.length - 1 ? (
                     <div
-                      className="it-marker"
+                      className="it-line-segment it-line-segment--below"
                       style={{
-                        opacity:   segDrawn ? 0.6 : 0,
-                        transform: segDrawn ? 'rotate(45deg) scale(1)' : 'rotate(45deg) scale(0)',
-                        transition: 'opacity 500ms ease-out 300ms, transform 500ms ease-out 300ms',
+                        opacity:         started ? 1 : 0,
+                        transform:       started ? 'scaleY(1)' : 'scaleY(0)',
+                        transformOrigin: 'top center',
+                        transition: `opacity 700ms ease-out ${writeDur(event.title) + 100}ms, transform 700ms ease-out ${writeDur(event.title) + 100}ms`,
                       }}
                     />
-                  </div>
-
-                  {/* ── Right column ── */}
-                  <div className="it-col-right">
-                    {isLeft
-                      ? /* left event → text goes here */ textBlock
-                      : /* right event → icon goes here */ iconBlock
-                    }
-                  </div>
-
-                </div>
-
-                {/* Trailing dotted line after last event */}
-                {i === EVENTS.length - 1 && (
-                  <div className="flex justify-center mt-2">
+                  ) : (
                     <div
+                      className="it-line-segment it-line-segment--fade"
                       style={{
-                        width: '5px',
-                        height: '48px',
-                        backgroundImage: 'radial-gradient(circle at center, rgba(196,152,91,0.5) 1.5px, transparent 1.5px)',
-                        backgroundSize: '5px 9px',
-                        backgroundRepeat: 'repeat-y',
-                        backgroundPosition: 'center top',
-                        maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
-                        WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
                         opacity:         started ? 1 : 0,
                         transform:       started ? 'scaleY(1)' : 'scaleY(0)',
                         transformOrigin: 'top center',
                         transition: `opacity 700ms ease-out ${writeDur(event.title) + 200}ms, transform 700ms ease-out ${writeDur(event.title) + 200}ms`,
                       }}
                     />
+                  )}
+                </div>
+
+                {/* ── Right: Event card ── */}
+                <div
+                  className="it-card"
+                  style={{
+                    opacity:   started ? 1 : 0,
+                    transform: started ? 'translateX(0)' : 'translateX(20px)',
+                    transition: 'opacity 600ms ease-out, transform 600ms ease-out',
+                  }}
+                >
+                  {/* Icon */}
+                  <div className="it-card-icon">
+                    <Image
+                      src={event.icon}
+                      alt={event.alt}
+                      width={30}
+                      height={30}
+                      className="object-contain"
+                      style={{ filter: 'sepia(1) saturate(0.5) brightness(0.45)' }}
+                    />
                   </div>
-                )}
+
+                  {/* Text content */}
+                  <div className="it-card-content">
+                    {/* Time */}
+                    <p className="it-card-time">
+                      {event.time.split('').map((char, ci) => (
+                        <span
+                          key={`time-${i}-${ci}`}
+                          className={`it-letter${started ? ' it-letter--on' : ''}`}
+                          style={{
+                            animationDelay: `${ci * LETTER_SPEED}ms`,
+                          }}
+                        >
+                          {char === ' ' ? '\u00A0' : char}
+                        </span>
+                      ))}
+                    </p>
+                    {/* Title */}
+                    <p className="it-card-title">
+                      {event.title.split('').map((char, ci) => (
+                        <span
+                          key={`ttl-${i}-${ci}`}
+                          className={`it-letter${started ? ' it-letter--on' : ''}`}
+                          style={{
+                            animationDelay: `${titleDelay + ci * LETTER_SPEED}ms`,
+                          }}
+                        >
+                          {char === ' ' ? '\u00A0' : char}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                </div>
               </div>
             )
           })}
 
           {/* Trailing diamond ornament */}
           <div
-            className={`flex justify-center mt-1 transition-all duration-700 ease-out ${
+            className={`flex mt-2 transition-all duration-700 ease-out ${
               event2Started ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
             }`}
-            style={{ transitionDelay: `${writeDur(EVENTS[2].title) + 800}ms` }}
+            style={{
+              transitionDelay: `${writeDur(EVENTS[2].title) + 800}ms`,
+              paddingLeft: '6px',
+            }}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="rgba(196,152,91,0.35)">
               <polygon points="7,1 13,7 7,13 1,7"/>
@@ -335,31 +288,126 @@ export default function ItinerarySection() {
 
       {/* ═══════════════════════════════════════════════════════════════
            ITINERARY — SCOPED STYLES
-           NOTE: .it-letter / .it-letter--on are used on <span>s rendered
-           DIRECTLY inside this component's JSX — styled-jsx scoping applies.
          ═══════════════════════════════════════════════════════════════ */}
       <style jsx>{`
 
-        /* Grid: [left 1fr] [20px center] [right 1fr] */
-        .it-grid {
-          display: grid;
-          grid-template-columns: 1fr 20px 1fr;
-          gap: 0 2rem;
-          align-items: center;
-          margin-bottom: 0.5rem;
+        /* ── Timeline container ── */
+        .it-timeline {
+          position: relative;
+          padding-left: 0;
         }
-        @media (min-width: 768px) { .it-grid { gap: 0 3rem; } }
 
-        .it-col-left  { display: flex; justify-content: flex-end;  padding: 1.5rem 0; }
-        .it-col-right { display: flex; justify-content: flex-start; padding: 1.5rem 0; }
+        /* ── Each event row: track + card ── */
+        .it-event-row {
+          display: grid;
+          grid-template-columns: 26px 1fr;
+          gap: 0 clamp(1.2rem, 3vw, 2.5rem);
+          min-height: 100px;
+        }
 
-        /* Diamond marker */
-        .it-marker {
-          width:  11px;
-          height: 11px;
-          background: #C4985B;
-          border-radius: 1px;
-          box-shadow: 0 0 8px rgba(196,152,91,0.25);
+        /* ── Left track column ── */
+        .it-track {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          position: relative;
+        }
+
+        /* Line segments */
+        .it-line-segment {
+          width: 2px;
+          flex: 1;
+          background: linear-gradient(
+            to bottom,
+            rgba(196,152,91,0.15),
+            rgba(196,152,91,0.35),
+            rgba(196,152,91,0.15)
+          );
+        }
+        .it-line-segment--below {
+          flex: 1;
+        }
+        .it-line-segment--fade {
+          flex: 0.6;
+          background: linear-gradient(
+            to bottom,
+            rgba(196,152,91,0.3),
+            rgba(196,152,91,0.05)
+          );
+        }
+
+        /* Dot marker */
+        .it-dot {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: radial-gradient(circle at 40% 35%, #d4b078, #C4985B);
+          box-shadow: 0 0 0 4px rgba(196,152,91,0.12), 0 0 12px rgba(196,152,91,0.15);
+          flex-shrink: 0;
+          position: relative;
+          z-index: 2;
+        }
+
+        /* ── Event card ── */
+        .it-card {
+          display: flex;
+          align-items: center;
+          gap: clamp(0.8rem, 2vw, 1.5rem);
+          background: rgba(255,255,255,0.55);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          border: 1px solid rgba(196,152,91,0.12);
+          border-radius: 16px;
+          padding: clamp(1rem, 2.5vw, 1.5rem) clamp(1.2rem, 3vw, 2rem);
+          margin-top: 0.4rem;
+          margin-bottom: 1.8rem;
+          box-shadow:
+            0 2px 12px rgba(139,115,85,0.06),
+            0 1px 3px rgba(139,115,85,0.04);
+          transition: box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .it-card:hover {
+          box-shadow:
+            0 4px 20px rgba(139,115,85,0.1),
+            0 2px 6px rgba(139,115,85,0.06);
+          border-color: rgba(196,152,91,0.22);
+        }
+
+        /* Card icon container */
+        .it-card-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          background: rgba(237,233,226,0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        /* Card text */
+        .it-card-content {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .it-card-time {
+          margin: 0;
+          line-height: 1.1;
+          font-family: 'Cormorant Garamond', 'EB Garamond', serif;
+          font-weight: 400;
+          font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+          letter-spacing: 0.06em;
+          color: #2e1e14;
+        }
+        .it-card-title {
+          margin: 0;
+          font-family: 'Cormorant Garamond', 'EB Garamond', serif;
+          font-weight: 500;
+          font-size: clamp(0.72rem, 1.3vw, 0.88rem);
+          letter-spacing: 0.32em;
+          text-transform: uppercase;
+          color: #8b7355;
         }
 
         /* Section header */
@@ -374,7 +422,7 @@ export default function ItinerarySection() {
         @media (min-width: 640px) { .it-header-text { font-size: 3rem; } }
         @media (min-width: 768px) { .it-header-text { font-size: 3.5rem; } }
 
-        /* ═══ LETTER WRITING — same keyframe as Hero / Gallery / Parents ═══ */
+        /* ═══ LETTER WRITING animation ═══ */
         .it-letter {
           display: inline-block;
           opacity: 0;

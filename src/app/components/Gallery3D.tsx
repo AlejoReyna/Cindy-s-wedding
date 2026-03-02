@@ -201,7 +201,7 @@ export default function Gallery3D() {
       ref={sectionRef}
       className="min-h-screen w-full relative overflow-hidden flex items-center"
       style={{
-        background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)',
+        background: 'linear-gradient(135deg, #edeae3 0%, #eae6de 35%, #e7e2d9 70%, #eceae2 100%)',
       }}
     >
       {/* ═══ Border frame ═══ */}
@@ -225,96 +225,155 @@ export default function Gallery3D() {
         </svg>
       </div>
 
-      {/* Organic texture overlay */}
-      <div className="absolute inset-0 opacity-[0.03] z-[1] pointer-events-none">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(circle at 30% 20%, rgba(196, 152, 91, 0.15) 0%, transparent 60%),
-                              radial-gradient(circle at 70% 60%, rgba(139, 115, 85, 0.12) 0%, transparent 60%),
-                              radial-gradient(circle at 50% 90%, rgba(180, 147, 113, 0.1) 0%, transparent 60%)`,
-          }}
-        />
-      </div>
+      {/* Ambient vignette */}
+      <div
+        className="absolute inset-0 pointer-events-none z-[1]"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.07) 100%)'
+        }}
+      />
 
       {/* ═══ Main Layout ═══ */}
       <div className="w-full max-w-[1600px] mx-auto relative z-10 px-4 md:px-6 lg:px-8 py-16">
-        <div className="flex flex-col items-center ">
+        <div className="flex flex-col items-center">
 
-          {/* ── TOP: Text Section (identical cascade) ── */}
-          <div className="w-full max-w-3xl flex flex-col items-center text-center shrink-0">
+          {/* ── TOP: Paper Note ── */}
+          <div className={`relative w-full max-w-xl mx-auto mb-12 transition-all duration-[1300ms] ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}>
 
-            {/* ① Decorative flowers */}
+            {/* Sheet 3 — deepest */}
             <div
-              className={`mb-6 transition-all duration-500 ease-out ${
-                flowersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-              }`}
+              className="absolute inset-0"
+              style={{
+                background: '#e5e0d5',
+                transform: 'rotate(2.2deg) translateY(7px) scale(0.994)',
+                boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
+                borderRadius: '1px',
+              }}
+            />
+
+            {/* Sheet 2 */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background: '#ece8de',
+                transform: 'rotate(-1.1deg) translateY(3.5px) scale(0.997)',
+                boxShadow: '0 4px 18px rgba(0,0,0,0.09)',
+                borderRadius: '1px',
+              }}
+            />
+
+            {/* Main paper */}
+            <div
+              className="relative z-10 flex flex-col items-center text-center shrink-0"
+              style={{
+                background: 'linear-gradient(160deg, #fdfaf5 0%, #f9f5ee 60%, #f6f1e8 100%)',
+                boxShadow: `
+                  0 1px 2px rgba(0,0,0,0.04),
+                  0 3px 8px rgba(0,0,0,0.06),
+                  0 8px 20px rgba(0,0,0,0.07),
+                  0 20px 48px rgba(0,0,0,0.09),
+                  inset 0 1px 0 rgba(255,255,255,0.9),
+                  inset 0 0 80px rgba(196,152,91,0.025)
+                `,
+                border: '1px solid rgba(196,152,91,0.14)',
+                borderRadius: '1px',
+                padding: 'clamp(2.5rem, 6vw, 4rem) clamp(2rem, 5vw, 3.5rem)',
+              }}
             >
-              <div className="w-56 h-20 relative mx-auto bg-[#ede9e2] rounded-sm flex items-center justify-center">
-                <span className="text-xs uppercase tracking-[0.25em] text-[#8B7355]/40 garamond-300 select-none">
-                  Flores decorativas
-                </span>
+              {/* Paper grain */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'repeat',
+                  opacity: 0.6,
+                  mixBlendMode: 'multiply',
+                  borderRadius: '1px',
+                }}
+              />
+              {/* Left binding shadow */}
+              <div
+                className="absolute top-0 left-0 bottom-0 w-10 pointer-events-none"
+                style={{
+                  background: 'linear-gradient(to right, rgba(0,0,0,0.022) 0%, transparent 100%)',
+                  borderRadius: '1px 0 0 1px',
+                }}
+              />
+
+              {/* ① Decorative flowers */}
+              <div
+                className={`mb-7 transition-all duration-500 ease-out ${
+                  flowersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+                }`}
+              >
+                <div className="w-48 h-16 relative mx-auto bg-[#ede9e2]/60 rounded-sm flex items-center justify-center">
+                  <span className="text-[10px] uppercase tracking-[0.25em] text-[#8B7355]/35 garamond-300 select-none">
+                    Flores decorativas
+                  </span>
+                </div>
               </div>
-            </div>
 
-            {/* ② Date */}
-            <div className="mb-4">
-              <p className="gl3d-date-text">
-                {dateText.split('').map((char, i) => (
-                  <span
-                    key={`d-${i}`}
-                    className={`gl3d-letter${dateStarted ? ' gl3d-letter--animated' : ''}`}
-                    style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
-                  >
-                    {char === ' ' ? '\u00A0' : char}
-                  </span>
-                ))}
-              </p>
-            </div>
-
-            {/* ③ Title */}
-            <div className="mb-6">
-              <h2 className="gl3d-title-text">
-                {`${titleLine1} ${titleLine2}`.split('').map((char, i) => (
-                  <span
-                    key={`t-${i}`}
-                    className={`gl3d-letter${titleStarted ? ' gl3d-letter--animated' : ''}`}
-                    style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
-                  >
-                    {char === ' ' ? '\u00A0' : char}
-                  </span>
-                ))}
-              </h2>
-            </div>
-
-            {/* ④ Decorative line */}
-            <div
-              className={`transition-all duration-[900ms] ease-out ${
-                lineDrawn ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
-              }`}
-              style={{ transformOrigin: 'center center' }}
-            >
-              <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C4985B] to-transparent mb-6 mx-auto" />
-            </div>
-
-            {/* ⑤ Subtitle */}
-            <div className="max-w-sm">
-              <p className="gl3d-subtitle-text">
-                {subtitleWords.map((word, i) => (
-                  <span key={`w-${i}`}>
+              {/* ② Date */}
+              <div className="mb-4">
+                <p className="gl3d-date-text">
+                  {dateText.split('').map((char, i) => (
                     <span
-                      className={`gl3d-word${subtitleStarted ? ' gl3d-word--animated' : ''}`}
-                      style={{ animationDelay: `${i * WORD_SPEED}ms` }}
+                      key={`d-${i}`}
+                      className={`gl3d-letter${dateStarted ? ' gl3d-letter--animated' : ''}`}
+                      style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
                     >
-                      {word}
+                      {char === ' ' ? '\u00A0' : char}
                     </span>
-                    {i < subtitleWords.length - 1 && ' '}
-                  </span>
-                ))}
-              </p>
-            </div>
+                  ))}
+                </p>
+              </div>
 
-          </div>
+              {/* ③ Title */}
+              <div className="mb-6">
+                <h2 className="gl3d-title-text">
+                  {`${titleLine1} ${titleLine2}`.split('').map((char, i) => (
+                    <span
+                      key={`t-${i}`}
+                      className={`gl3d-letter${titleStarted ? ' gl3d-letter--animated' : ''}`}
+                      style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
+                    >
+                      {char === ' ' ? '\u00A0' : char}
+                    </span>
+                  ))}
+                </h2>
+              </div>
+
+              {/* ④ Decorative line */}
+              <div
+                className={`transition-all duration-[900ms] ease-out ${
+                  lineDrawn ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+                }`}
+                style={{ transformOrigin: 'center center' }}
+              >
+                <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C4985B] to-transparent mb-6 mx-auto" />
+              </div>
+
+              {/* ⑤ Subtitle */}
+              <div className="max-w-sm">
+                <p className="gl3d-subtitle-text">
+                  {subtitleWords.map((word, i) => (
+                    <span key={`w-${i}`}>
+                      <span
+                        className={`gl3d-word${subtitleStarted ? ' gl3d-word--animated' : ''}`}
+                        style={{ animationDelay: `${i * WORD_SPEED}ms` }}
+                      >
+                        {word}
+                      </span>
+                      {i < subtitleWords.length - 1 && ' '}
+                    </span>
+                  ))}
+                </p>
+              </div>
+
+            </div>{/* end main paper */}
+          </div>{/* end paper stack */}
 
           {/* ── BOTTOM: 3D Coverflow Carousel ── */}
           <div
