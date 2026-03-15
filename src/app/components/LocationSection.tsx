@@ -349,6 +349,7 @@ export default function LocationSection() {
           padding: 2.5rem 1.5rem;
           position: relative;
           min-height: 260px;
+          background-color: #ffffff;
         }
 
         .loc-text-block--right {

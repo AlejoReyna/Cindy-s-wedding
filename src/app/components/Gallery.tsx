@@ -309,19 +309,7 @@ export default function Gallery() {
           {/* ── TOP: Elegant Text with Hero-style Letter Writing ── */}
           <div className="w-full max-w-3xl flex flex-col items-center text-center shrink-0">
 
-            {/* ① Decorative flowers — fade in */}
-            <div
-              className={`mb-6 transition-all duration-500 ease-out ${
-                flowersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-              }`}
-            >
-              <div className="w-56 h-20 relative mx-auto bg-[#ede9e2] rounded-sm flex items-center justify-center">
-                <span className="text-xs uppercase tracking-[0.25em] text-[#8B7355]/40 garamond-300 select-none">
-                  Flores decorativas
-                </span>
-              </div>
-            </div>
-
+          
             {/* ② Date — letter by letter writing animation */}
             <div className="mb-4">
               <p className="gallery-date-text">

@@ -1,7 +1,7 @@
 "use client"
 import { useState } from 'react';
 import LocationSection from './components/LocationSection';
-import GiftSection from './components/GiftSection';
+// import GiftSection from './components/GiftSection'; // Hidden — merged into RSVPSection
 import RSVPSection from './components/RSVPSection';
 import MinimalistFooter from './components/Footer';
 import ItinerarySection from './components/ItinerarySection';
@@ -47,9 +47,8 @@ export default function Home() {
       </div>
 
 
-      <div id="regalos">
-        <GiftSection />
-      </div>
+      {/* GiftSection hidden — content merged into RSVPSection */}
+      {/* <div id="regalos"><GiftSection /></div> */}
       <div id="rsvp">
         <RSVPSection />
       </div>

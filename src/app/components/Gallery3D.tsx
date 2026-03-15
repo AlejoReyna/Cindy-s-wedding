@@ -244,18 +244,7 @@ export default function Gallery3D() {
           {/* ── TOP: Text Section (identical cascade) ── */}
           <div className="w-full max-w-3xl flex flex-col items-center text-center shrink-0">
 
-            {/* ① Decorative flowers */}
-            <div
-              className={`mb-6 transition-all duration-500 ease-out ${
-                flowersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-              }`}
-            >
-              <div className="w-56 h-20 relative mx-auto bg-[#ede9e2] rounded-sm flex items-center justify-center">
-                <span className="text-xs uppercase tracking-[0.25em] text-[#8B7355]/40 garamond-300 select-none">
-                  Flores decorativas
-                </span>
-              </div>
-            </div>
+          
 
             {/* ② Date */}
             <div className="mb-4">
@@ -287,15 +276,6 @@ export default function Gallery3D() {
               </h2>
             </div>
 
-            {/* ④ Decorative line */}
-            <div
-              className={`transition-all duration-[900ms] ease-out ${
-                lineDrawn ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
-              }`}
-              style={{ transformOrigin: 'center center' }}
-            >
-              <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C4985B] to-transparent mb-6 mx-auto" />
-            </div>
 
             {/* ⑤ Subtitle */}
             <div className="max-w-sm">
