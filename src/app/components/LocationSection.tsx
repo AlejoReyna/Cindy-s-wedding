@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { MdDirections } from 'react-icons/md';
 import Image from 'next/image';
-import churchImg from '../../../assets/church.png';
 import receptionImg from '../../../assets/museum.jpg';
 
 const locations = [
@@ -13,7 +12,7 @@ const locations = [
     city: '67500 Montemorelos, N.L.',
     mapsUrl:
       'https://www.google.com/maps/search/?api=1&query=Iglesia+Sagrado+Corazón+de+Jesús+Calle+Ignacio+Zaragoza+700+Montemorelos+N.L.',
-    image: churchImg,
+    image: '/assets/iglesia.jpg',
     imageAlt: 'Ceremonia religiosa - Iglesia Sagrado Corazón de Jesús',
   },
   {
@@ -93,30 +92,24 @@ export default function LocationSection() {
         {/* ═══ Header ═══ */}
         <div
           ref={headerRef}
-          className={`text-center mb-6 md:mb-10 transition-all duration-1000 ease-out ${
+          className={`mb-6 md:mb-10 transition-all duration-1000 ease-out ${
             headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
-          <div className="flex justify-center mb-6">
-            <svg className="w-8 h-8 text-[#8B7355]/35" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-            </svg>
-          </div>
-
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.3em] uppercase text-[#5c5c5c] mb-5 garamond-300">
-            Ubicaciones
-          </h2>
-
-          <div className="flex items-center justify-center gap-3">
-            <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-[#C4985B]/50" />
-            <div className="w-1.5 h-1.5 rounded-full bg-[#C4985B]/40" />
-            <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-[#C4985B]/50" />
+          {/* Same max-width container as the loc-grid rows */}
+          <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
+            <p className={`loc-section-eyebrow${headerVisible ? ' loc-section-eyebrow--visible' : ''}`}>
+              Lugares
+            </p>
+            <h2 className={`loc-section-title${headerVisible ? ' loc-section-title--visible' : ''}`}>
+              Ubicaciones
+            </h2>
+            <span className={`loc-section-rule${headerVisible ? ' loc-section-rule--visible' : ''}`} />
           </div>
         </div>
 
         {/* ═══ Location rows — rendered inline (not a child component) ═══ */}
-        <div className="flex flex-col gap-2 md:gap-4">
+        <div className="flex flex-col">
           {locations.map((loc, index) => {
             const reversed = index === 1;
             const visible = rowVisibles[index];
@@ -148,6 +141,17 @@ export default function LocationSection() {
 
             const textBlock = (
               <div className={`loc-text-block ${reversed ? 'loc-text-block--right' : ''}`}>
+                {/* Animated tracing border */}
+                <div
+                  className={`loc-border-trace${visible ? ' loc-border-trace--visible' : ''}`}
+                  style={{ '--border-start': `${textDelay + 300}ms` } as React.CSSProperties}
+                >
+                  <span className="loc-border-top" />
+                  <span className="loc-border-right" />
+                  <span className="loc-border-bottom" />
+                  <span className="loc-border-left" />
+                </div>
+
                 {/* Label */}
                 <p
                   className={`loc-label${visible ? ' loc-label--visible' : ''}`}
@@ -210,18 +214,85 @@ export default function LocationSection() {
 
       {/* ═══ All styles in parent so styled-jsx scopes correctly ═══ */}
       <style jsx>{`
+        /* ── Section header ── */
+        .loc-section-eyebrow {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 9px;
+          letter-spacing: 0.45em;
+          text-transform: uppercase;
+          color: rgba(160, 120, 70, 0.5);
+          margin-bottom: 0.6rem;
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        .loc-section-eyebrow--visible {
+          animation: locHeaderFadeUp 0.6s ease-out 0ms forwards;
+        }
+
+        .loc-section-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 2.4rem;
+          letter-spacing: 0.25em;
+          text-transform: uppercase;
+          color: #5c5c5c;
+          line-height: 1;
+          margin: 0 0 1.1rem 0;
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        @media (min-width: 640px)  { .loc-section-title { font-size: 3rem;   letter-spacing: 0.28em; } }
+        @media (min-width: 768px)  { .loc-section-title { font-size: 3.5rem; letter-spacing: 0.3em;  } }
+        @media (min-width: 1024px) { .loc-section-title { font-size: 4rem;   letter-spacing: 0.32em; } }
+
+        .loc-section-title--visible {
+          animation: locHeaderFadeUp 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) 120ms forwards;
+        }
+
+        .loc-section-rule {
+          display: block;
+          height: 1px;
+          width: 0;
+          background: linear-gradient(
+            90deg,
+            rgba(196, 152, 91, 0.6) 0%,
+            rgba(160, 115, 60, 0.35) 55%,
+            transparent 100%
+          );
+        }
+        .loc-section-rule--visible {
+          animation: locRuleGrow 0.9s cubic-bezier(0.4, 0, 0.2, 1) 500ms forwards;
+        }
+        @keyframes locRuleGrow { to { width: 100%; } }
+        @keyframes locHeaderFadeUp {
+          to { opacity: 1; transform: translateY(0); }
+        }
+
         /* ── Row layout ── */
         .loc-row {
-          min-height: 60vh;
           display: flex;
-          align-items: center;
+          align-items: stretch;
           width: 100%;
+        }
+
+        .loc-row + .loc-row {
+          margin-top: 3rem;
+          padding-top: 3rem;
+          border-top: 1px solid rgba(196, 152, 91, 0.12);
+        }
+
+        @media (min-width: 768px) {
+          .loc-row + .loc-row {
+            margin-top: 4rem;
+            padding-top: 4rem;
+          }
         }
 
         .loc-grid {
           display: grid;
           grid-template-columns: 1fr;
-          gap: 0.75rem;
+          gap: 0;
           width: 100%;
           max-width: 72rem;
           margin: 0 auto;
@@ -230,7 +301,7 @@ export default function LocationSection() {
         @media (min-width: 768px) {
           .loc-grid {
             grid-template-columns: 1.2fr 0.8fr;
-            gap: 2.5rem;
+            gap: 0;
           }
           .loc-grid--reversed {
             grid-template-columns: 0.8fr 1.2fr;
@@ -241,13 +312,15 @@ export default function LocationSection() {
         .loc-image-wrap {
           position: relative;
           overflow: hidden;
-          border-radius: 4px;
+          border-radius: 0;
           aspect-ratio: 4 / 3;
+          min-height: 260px;
         }
 
         @media (min-width: 768px) {
           .loc-image-wrap {
-            aspect-ratio: 16 / 11;
+            aspect-ratio: unset;
+            min-height: 420px;
           }
         }
 
@@ -271,32 +344,117 @@ export default function LocationSection() {
           display: flex;
           flex-direction: column;
           justify-content: center;
-          align-items: flex-start;
-          text-align: left;
-          padding: 1rem 0.5rem;
+          align-items: center;
+          text-align: center;
+          padding: 2.5rem 1.5rem;
+          position: relative;
+          min-height: 260px;
         }
 
         .loc-text-block--right {
-          align-items: flex-end;
-          text-align: right;
+          align-items: center;
+          text-align: center;
         }
 
         @media (min-width: 768px) {
           .loc-text-block {
-            padding: 0 1.5rem;
+            align-items: flex-start;
+            text-align: left;
+            padding: 3rem 2.5rem;
+            min-height: 420px;
+          }
+          .loc-text-block--right {
+            align-items: flex-end;
+            text-align: right;
           }
         }
+
+        /* ── Tracing border ── */
+        .loc-border-trace {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+        }
+
+        .loc-border-trace span {
+          position: absolute;
+          background: linear-gradient(
+            90deg,
+            rgba(139, 90, 43, 0.25),
+            rgba(196, 152, 91, 0.55),
+            rgba(160, 115, 60, 0.3)
+          );
+        }
+
+        /* Top: left → right */
+        .loc-border-top {
+          top: 0; left: 0;
+          height: 1px;
+          width: 0;
+        }
+        /* Right: top → bottom */
+        .loc-border-right {
+          top: 0; right: 0;
+          width: 1px;
+          height: 0;
+          background: linear-gradient(
+            180deg,
+            rgba(196, 152, 91, 0.55),
+            rgba(160, 115, 60, 0.3),
+            rgba(139, 90, 43, 0.2)
+          ) !important;
+        }
+        /* Bottom: right → left */
+        .loc-border-bottom {
+          bottom: 0; right: 0;
+          height: 1px;
+          width: 0;
+        }
+        /* Left: bottom → top */
+        .loc-border-left {
+          bottom: 0; left: 0;
+          width: 1px;
+          height: 0;
+          background: linear-gradient(
+            0deg,
+            rgba(196, 152, 91, 0.55),
+            rgba(160, 115, 60, 0.3),
+            rgba(139, 90, 43, 0.2)
+          ) !important;
+        }
+
+        .loc-border-trace--visible .loc-border-top {
+          animation: borderTop 0.65s cubic-bezier(0.4, 0, 0.2, 1) var(--border-start) forwards;
+        }
+        .loc-border-trace--visible .loc-border-right {
+          animation: borderRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) calc(var(--border-start) + 650ms) forwards;
+        }
+        .loc-border-trace--visible .loc-border-bottom {
+          animation: borderBottom 0.65s cubic-bezier(0.4, 0, 0.2, 1) calc(var(--border-start) + 1150ms) forwards;
+        }
+        .loc-border-trace--visible .loc-border-left {
+          animation: borderLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1) calc(var(--border-start) + 1800ms) forwards;
+        }
+
+        @keyframes borderTop    { to { width: 100%; } }
+        @keyframes borderRight  { to { height: 100%; } }
+        @keyframes borderBottom { to { width: 100%; } }
+        @keyframes borderLeft   { to { height: 100%; } }
 
         /* ── Label ── */
         .loc-label {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 10px;
-          letter-spacing: 0.35em;
-          color: rgba(139, 115, 85, 0.4);
-          margin-bottom: 0.75rem;
+          font-size: 9px;
+          letter-spacing: 0.4em;
+          color: rgba(139, 115, 85, 0.45);
+          margin-bottom: 0.65rem;
+          text-transform: uppercase;
           opacity: 0;
         }
+
+        @media (min-width: 640px) { .loc-label { font-size: 10px; letter-spacing: 0.38em; } }
+        @media (min-width: 768px) { .loc-label { font-size: 10.5px; letter-spacing: 0.35em; } }
 
         .loc-label--visible {
           animation: locFade 0.4s ease-out var(--label-delay) forwards;
@@ -306,17 +464,21 @@ export default function LocationSection() {
         .loc-venue {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 1.25rem;
-          letter-spacing: 0.04em;
+          font-size: 1.35rem;
+          letter-spacing: 0.03em;
           color: #5c5c5c;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.6rem;
           min-height: 1.8em;
-          line-height: 1.3;
+          line-height: 1.35;
+          word-break: break-word;
+          hyphens: auto;
+          max-width: 100%;
         }
 
-        @media (min-width: 640px)  { .loc-venue { font-size: 1.5rem; } }
-        @media (min-width: 768px)  { .loc-venue { font-size: 1.65rem; } }
-        @media (min-width: 1024px) { .loc-venue { font-size: 1.85rem; } }
+        @media (min-width: 480px)  { .loc-venue { font-size: 1.5rem; } }
+        @media (min-width: 640px)  { .loc-venue { font-size: 1.65rem; letter-spacing: 0.04em; } }
+        @media (min-width: 768px)  { .loc-venue { font-size: 1.75rem; } }
+        @media (min-width: 1024px) { .loc-venue { font-size: 1.95rem; } }
 
         .loc-letter {
           display: inline-block;
@@ -337,15 +499,18 @@ export default function LocationSection() {
         .loc-addr {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 0.75rem;
-          letter-spacing: 0.03em;
+          font-size: 0.78rem;
+          letter-spacing: 0.025em;
           color: rgba(139, 115, 85, 0.5);
-          line-height: 1.6;
-          margin-bottom: 1.25rem;
+          line-height: 1.7;
+          margin-bottom: 1.4rem;
           opacity: 0;
+          max-width: 100%;
         }
 
-        @media (min-width: 640px) { .loc-addr { font-size: 0.85rem; } }
+        @media (min-width: 480px) { .loc-addr { font-size: 0.82rem; } }
+        @media (min-width: 640px) { .loc-addr { font-size: 0.88rem; } }
+        @media (min-width: 768px) { .loc-addr { font-size: 0.9rem; letter-spacing: 0.03em; } }
 
         .loc-addr--visible {
           animation: locFade 0.45s ease-out var(--addr-delay) forwards;
@@ -356,8 +521,19 @@ export default function LocationSection() {
           display: block;
           height: 1px;
           width: 0;
-          background: rgba(196, 152, 91, 0.25);
-          margin-bottom: 1.25rem;
+          background: linear-gradient(90deg, rgba(196, 152, 91, 0.45), rgba(139, 90, 43, 0.2));
+          margin-bottom: 1.4rem;
+        }
+
+        .loc-text-block--right .loc-line {
+          align-self: flex-end;
+        }
+
+        @media (max-width: 767px) {
+          .loc-text-block .loc-line,
+          .loc-text-block--right .loc-line {
+            align-self: center;
+          }
         }
 
         .loc-line--visible {
@@ -365,7 +541,7 @@ export default function LocationSection() {
         }
 
         @keyframes locLineGrow {
-          to { width: 2.5rem; }
+          to { width: 2.75rem; }
         }
 
         /* ── Button ── */
@@ -373,19 +549,20 @@ export default function LocationSection() {
           display: inline-flex;
           align-items: center;
           gap: 0.625rem;
-          padding: 0.625rem 1.5rem;
-          border: 1px solid rgba(139, 115, 85, 0.15);
-          color: rgba(139, 115, 85, 0.55);
+          padding: 0.6rem 1.4rem;
+          border: 1px solid rgba(139, 115, 85, 0.18);
+          color: rgba(139, 115, 85, 0.6);
           border-radius: 2px;
           text-decoration: none;
           opacity: 0;
           transform: translateY(8px);
-          transition: color 0.3s, border-color 0.3s;
+          transition: color 0.3s, border-color 0.3s, background 0.3s;
         }
 
         .loc-btn:hover {
-          color: #8B7355;
-          border-color: rgba(139, 115, 85, 0.35);
+          color: #7a6245;
+          border-color: rgba(139, 115, 85, 0.4);
+          background: rgba(196, 152, 91, 0.04);
         }
 
         .loc-btn--visible {
@@ -395,10 +572,12 @@ export default function LocationSection() {
         .loc-btn-label {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 11px;
-          letter-spacing: 0.15em;
+          font-size: 10.5px;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
         }
+
+        @media (min-width: 640px) { .loc-btn-label { font-size: 11px; letter-spacing: 0.15em; } }
 
         @keyframes locBtnIn {
           to { opacity: 1; transform: translateY(0); }
