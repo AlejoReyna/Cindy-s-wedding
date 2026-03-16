@@ -9,6 +9,7 @@ interface SplashScreenProps {
 const SplashScreen = ({ onEnter }: SplashScreenProps) => {
   const [ready, setReady] = useState(false);
   const [exiting, setExiting] = useState(false);
+  const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 150);
@@ -17,12 +18,17 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
 
   const handleEnter = () => {
     window.dispatchEvent(new CustomEvent('startMusic'));
+    // Signal parent immediately so Home starts rendering visibly
+    onEnter();
     setExiting(true);
-    setTimeout(() => onEnter(), 1600);
+    // After fade-out completes (0.3s delay + 0.9s transition), unmount
+    setTimeout(() => setHidden(true), 1400);
   };
 
+  if (hidden) return null;
+
   return (
-    <div className="splash-root">
+    <div className={`splash-root ${exiting ? 'splash-root--exit' : ''}`}>
 
       {/* ── ENVELOPE PAPER BASE ── */}
       <div className="env-base" />
@@ -38,18 +44,6 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
 
       {/* ── Crease line where the two flaps meet ── */}
       <div className="env-crease" />
-
-      {/* ── STAMP — centered ── */}
-      <div className={`env-stamp ${exiting ? 'env-stamp--exit' : ''}`}>
-        <div className="env-stamp-border">
-          <div className="env-stamp-inner">
-            <span className="env-stamp-date">03</span>
-            <span className="env-stamp-divider" />
-            <span className="env-stamp-month">ABR</span>
-            <span className="env-stamp-year">2026</span>
-          </div>
-        </div>
-      </div>
 
       {/* ── SEAL + HINT ── */}
       <div className={`seal-wrapper ${exiting ? 'seal-wrapper--exit' : ''}`}>
@@ -77,9 +71,6 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
         </p>
       </div>
 
-      {/* ── EXIT CURTAINS ── */}
-      <div className={`curtain curtain-top ${exiting ? 'curtain--exit-up' : ''}`} />
-      <div className={`curtain curtain-bottom ${exiting ? 'curtain--exit-down' : ''}`} />
 
       <style jsx>{`
         /* ═══════════════════════════════════════════════════════════
@@ -91,9 +82,7 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
              3  env-flap--bottom  bottom triangle (points up)
              4  env-flap--top     top triangle / lid (points down)
              5  env-crease        horizontal fold line
-             6  env-stamp         centered stamp
              10 seal-wrapper      wax seal + hint
-             20 curtains          exit split
         ═══════════════════════════════════════════════════════════ */
 
         .splash-root {
@@ -101,6 +90,12 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
           inset: 0;
           z-index: 9999;
           overflow: hidden;
+          transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+        }
+
+        .splash-root--exit {
+          opacity: 0;
+          pointer-events: none;
         }
 
         /* ── 1. Base paper ── */
@@ -191,82 +186,6 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
             transparent 100%
           );
           pointer-events: none;
-        }
-
-        /* ═══════════════════════════════════════════════════════════
-           6. STAMP — centered
-        ═══════════════════════════════════════════════════════════ */
-
-        .env-stamp {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%) rotate(2.5deg);
-          /* Sit above the flaps but below the seal */
-          z-index: 6;
-          transition: opacity 0.3s ease;
-        }
-
-        .env-stamp--exit { opacity: 0; }
-
-        .env-stamp-border {
-          padding: 5px;
-          background: rgba(255, 255, 255, 0.85);
-          border: 1.5px dashed rgba(140, 100, 60, 0.3);
-          border-radius: 2px;
-          box-shadow:
-            0 1px 4px rgba(100, 70, 40, 0.10),
-            0 0 0 1px rgba(140, 100, 60, 0.05);
-        }
-
-        .env-stamp-inner {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          width: 56px;
-          height: 66px;
-          background: linear-gradient(
-            145deg,
-            #faf3e8 0%,
-            #f2e9d9 100%
-          );
-          border-radius: 1px;
-        }
-
-        .env-stamp-date {
-          font-family: 'EB Garamond', 'Cormorant Garamond', serif;
-          font-size: 24px;
-          font-weight: 600;
-          color: #8B7355;
-          line-height: 1;
-        }
-
-        .env-stamp-divider {
-          width: 20px;
-          height: 1px;
-          background: #c4a87a;
-          margin: 4px 0;
-        }
-
-        .env-stamp-month {
-          font-family: 'EB Garamond', 'Cormorant Garamond', serif;
-          font-size: 11px;
-          font-weight: 500;
-          letter-spacing: 0.15em;
-          color: #a38d6d;
-          text-transform: uppercase;
-          line-height: 1;
-        }
-
-        .env-stamp-year {
-          font-family: 'EB Garamond', 'Cormorant Garamond', serif;
-          font-size: 9px;
-          font-weight: 400;
-          letter-spacing: 0.1em;
-          color: #b8a080;
-          line-height: 1;
-          margin-top: 2px;
         }
 
         /* ═══════════════════════════════════════════════════════════
@@ -394,40 +313,6 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
         }
 
         /* ═══════════════════════════════════════════════════════════
-           20. EXIT CURTAINS
-        ═══════════════════════════════════════════════════════════ */
-
-        .curtain {
-          position: absolute;
-          left: 0;
-          right: 0;
-          z-index: 20;
-          pointer-events: none;
-          opacity: 0;
-        }
-
-        .curtain-top {
-          top: 0;
-          height: 50%;
-          background: linear-gradient(180deg, #efe8db 0%, #f0e9dc 100%);
-          box-shadow: 0 2px 24px rgba(84, 60, 36, 0.08);
-          transition: transform 1.05s cubic-bezier(0.76, 0, 0.24, 1) 0.35s,
-                      opacity 0.01s linear 0.35s;
-        }
-
-        .curtain-bottom {
-          bottom: 0;
-          height: 50%;
-          background: linear-gradient(0deg, #efe8db 0%, #f0e9dc 100%);
-          box-shadow: 0 -2px 24px rgba(84, 60, 36, 0.08);
-          transition: transform 1.05s cubic-bezier(0.76, 0, 0.24, 1) 0.35s,
-                      opacity 0.01s linear 0.35s;
-        }
-
-        .curtain--exit-up { opacity: 1; transform: translateY(-100%); }
-        .curtain--exit-down { opacity: 1; transform: translateY(100%); }
-
-        /* ═══════════════════════════════════════════════════════════
            KEYFRAMES
         ═══════════════════════════════════════════════════════════ */
 
@@ -470,10 +355,6 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
           .seal-ring { inset: 12px; }
           .seal :global(.seal-monogram) { width: 82px; height: 82px; }
           .hint { font-size: 14px; }
-          .env-stamp-inner { width: 62px; height: 72px; }
-          .env-stamp-date { font-size: 26px; }
-          .env-stamp-month { font-size: 12px; }
-          .env-stamp-year { font-size: 10px; }
         }
 
         @media (min-width: 768px) {
@@ -482,11 +363,6 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
           .seal-glow { inset: -14px; }
           .seal-ring { inset: 14px; }
           .seal :global(.seal-monogram) { width: 92px; height: 92px; }
-          .env-stamp-inner { width: 68px; height: 80px; }
-          .env-stamp-date { font-size: 30px; }
-          .env-stamp-month { font-size: 13px; }
-          .env-stamp-year { font-size: 11px; }
-          .env-stamp-divider { width: 24px; margin: 5px 0; }
         }
 
         @media (min-width: 1024px) {

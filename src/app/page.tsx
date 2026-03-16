@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import LocationSection from './components/LocationSection';
 // import GiftSection from './components/GiftSection'; // Hidden — merged into RSVPSection
 import RSVPSection from './components/RSVPSection';
@@ -14,19 +14,29 @@ import HeroSection from './components/HeroSection';
 import SplashScreen from './components/SplashScreen';
 
 export default function Home() {
-  const [showSplash, setShowSplash] = useState(true);
   const [entered, setEntered] = useState(false);
+
+  // Lock body scroll while splash is visible
+  useEffect(() => {
+    if (!entered) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Scroll to top before revealing content
+      window.scrollTo(0, 0);
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [entered]);
 
   const handleEnter = () => {
     setEntered(true);
-    setShowSplash(false);
   };
 
   return (
     <ThemeProvider>
-      {showSplash && (
-        <SplashScreen onEnter={handleEnter} />
-      )}
+      <SplashScreen onEnter={handleEnter} />
       <Navbar />
       <HeroSection entered={entered} />
 

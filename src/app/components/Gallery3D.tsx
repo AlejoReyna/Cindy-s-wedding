@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 
 // ── Photo data ──
 const photos = [
@@ -51,10 +52,10 @@ export default function Gallery3D() {
   }, []);
 
   // ── Sequential animation chain flags ──
-  const [flowersVisible, setFlowersVisible] = useState(false);
+  const [, setFlowersVisible] = useState(false);
   const [dateStarted, setDateStarted] = useState(false);
   const [titleStarted, setTitleStarted] = useState(false);
-  const [lineDrawn, setLineDrawn] = useState(false);
+  const [, setLineDrawn] = useState(false);
   const [subtitleStarted, setSubtitleStarted] = useState(false);
   const [cardsVisible, setCardsVisible] = useState(false);
 
@@ -324,13 +325,15 @@ export default function Gallery3D() {
                     className="gl3d-card"
                     style={getCard3DStyle(index)}
                   >
-                    <div className="gl3d-photo">
-                      <img
+                    <div className="gl3d-photo relative">
+                      <Image
                         src={photo.src}
                         alt={photo.label}
-                        className="absolute inset-0 w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                         draggable={false}
                         loading={index === 0 ? 'eager' : 'lazy'}
+                        sizes="(max-width: 768px) 100vw, 50vw"
                       />
                     </div>
                   </div>

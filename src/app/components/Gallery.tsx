@@ -56,7 +56,7 @@ export default function Gallery() {
   }, []);
 
   // ── Sequential animation chain flags ──
-  const [flowersVisible, setFlowersVisible] = useState(false);
+  const [, setFlowersVisible] = useState(false);
   const [dateStarted, setDateStarted] = useState(false);
   const [titleStarted, setTitleStarted] = useState(false);
   const [lineDrawn, setLineDrawn] = useState(false);
