@@ -169,23 +169,38 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
           opacity: 0;
         }
 
-        /* ── 5. Horizontal crease where flaps overlap ── */
+        /* ── 5. Crease line — hidden everywhere ── */
         .env-crease {
-          position: absolute;
-          top: 50%;
-          left: 0;
-          right: 0;
-          height: 1px;
-          z-index: 5;
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(100, 70, 40, 0.06) 15%,
-            rgba(100, 70, 40, 0.10) 50%,
-            rgba(100, 70, 40, 0.06) 85%,
-            transparent 100%
-          );
-          pointer-events: none;
+          display: none;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           PORTRAIT MOBILE — realistic envelope front view
+           On tall portrait screens the percentage-based triangles
+           stretch unnaturally. On mobile we show the envelope as
+           you'd actually see it: a flat body with just a triangular
+           top flap (lid) whose depth is proportional to the width.
+           The bottom flap is hidden — it's tucked inside on a real
+           envelope. A subtle horizontal shadow suggests the fold.
+        ═══════════════════════════════════════════════════════════ */
+
+        @media (orientation: portrait) and (max-width: 639px) {
+          /* Top flap — realistic lid, depth proportional to width */
+          .env-flap--top {
+            clip-path: polygon(0 0, 100% 0, 50% 55vw);
+          }
+
+          /* Hide the bottom flap — on a real envelope you only see the top lid */
+          .env-flap--bottom {
+            clip-path: none;
+            background: none;
+            filter: none;
+          }
+
+          /* Hide the crease line on mobile — not needed without bottom flap */
+          .env-crease {
+            display: none;
+          }
         }
 
         /* ═══════════════════════════════════════════════════════════

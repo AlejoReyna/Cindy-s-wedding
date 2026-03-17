@@ -1,15 +1,14 @@
 "use client"
-import { useRef, useEffect, useState } from 'react';
-import Image, { StaticImageData } from 'next/image';
-import church        from '../../../assets/church.png';
-import legalDocument from '../../../assets/legal-document.png';
-import nightClub     from '../../../assets/night-club.png';
+import { useRef, useEffect, useState, useCallback } from 'react'
+import Image, { StaticImageData } from 'next/image'
+import church        from '../../../assets/church.png'
+import legalDocument from '../../../assets/legal-document.png'
+import nightClub     from '../../../assets/night-club.png'
 
 // ═══════════════════════════════════════════════════════════════════════
-// ITINERARY — left-aligned timeline with right-side cards
+// ITINERARY — sticky scroll-driven full-viewport panels
+// Each event fills the screen. Normal page scroll drives transitions.
 // ═══════════════════════════════════════════════════════════════════════
-
-const LETTER_SPEED = 90   // ms per character
 
 interface EventData {
   time:  string
@@ -24,418 +23,406 @@ const EVENTS: EventData[] = [
   { time: '7:00 PM',  title: 'Recepción',       icon: nightClub,     alt: 'Recepción'      },
 ]
 
-const HEADER_TEXT = 'Itinerario'
+const LETTER_SPEED = 80
 
-// ms until the last character of a string has fully appeared
-const writeDur = (s: string) => s.length * LETTER_SPEED + 380
-
+// ═══════════════════════════════════════════════════════════════════════
 
 export default function ItinerarySection() {
-  const sectionRef = useRef<HTMLElement>(null)
+  const outerRef  = useRef<HTMLDivElement>(null)
+  const stickyRef = useRef<HTMLDivElement>(null)
+  const [activeIndex, setActiveIndex] = useState(-1) // -1 = not yet entered
+  const [hasEntered, setHasEntered]   = useState(false)
+  // Track which events have been "seen" so their animations persist
+  const [seen, setSeen] = useState<boolean[]>(EVENTS.map(() => false))
 
-  // ── Sequential flags ──
-  const [headerStarted, setHeaderStarted] = useState(false)
-  const [line0Drawn,    setLine0Drawn]    = useState(false)
-  const [event0Started, setEvent0Started] = useState(false)
-  const [line1Drawn,    setLine1Drawn]    = useState(false)
-  const [event1Started, setEvent1Started] = useState(false)
-  const [line2Drawn,    setLine2Drawn]    = useState(false)
-  const [event2Started, setEvent2Started] = useState(false)
-
-  // ── Intersection → kick off chain ──
+  // ── Scroll listener: compute which event to show ──
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setHeaderStarted(true)
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.15, rootMargin: '-40px' }
-    )
-    if (sectionRef.current) observer.observe(sectionRef.current)
-    return () => observer.disconnect()
-  }, [])
+    const handleScroll = () => {
+      const outer = outerRef.current
+      if (!outer) return
 
-  // ① header done → first segment + event 0
-  useEffect(() => {
-    if (!headerStarted) return
-    const headerDur = writeDur(HEADER_TEXT)
-    const t1 = setTimeout(() => setLine0Drawn(true),    headerDur + 200)
-    const t2 = setTimeout(() => setEvent0Started(true), headerDur + 650)
-    return () => { clearTimeout(t1); clearTimeout(t2) }
-  }, [headerStarted])
+      const rect = outer.getBoundingClientRect()
+      const sectionTop    = -rect.top               // how far we've scrolled into the section
+      const sectionHeight = outer.offsetHeight
+      const viewportH     = window.innerHeight
 
-  // event 0 done → segment + event 1
-  useEffect(() => {
-    if (!event0Started) return
-    const dur = Math.max(writeDur(EVENTS[0].time), writeDur(EVENTS[0].title)) + 300
-    const t1 = setTimeout(() => setLine1Drawn(true),    dur)
-    const t2 = setTimeout(() => setEvent1Started(true), dur + 450)
-    return () => { clearTimeout(t1); clearTimeout(t2) }
-  }, [event0Started])
+      // Total scrollable distance within the section
+      const scrollable = sectionHeight - viewportH
+      if (scrollable <= 0) return
 
-  // event 1 done → segment + event 2
-  useEffect(() => {
-    if (!event1Started) return
-    const dur = Math.max(writeDur(EVENTS[1].time), writeDur(EVENTS[1].title)) + 300
-    const t1 = setTimeout(() => setLine2Drawn(true),    dur)
-    const t2 = setTimeout(() => setEvent2Started(true), dur + 450)
-    return () => { clearTimeout(t1); clearTimeout(t2) }
-  }, [event1Started])
+      // Progress 0→1 through the section
+      const progress = Math.max(0, Math.min(1, sectionTop / scrollable))
 
-  const eventStarted = [event0Started, event1Started, event2Started]
-  const lineDrawn    = [line0Drawn,    line1Drawn,    line2Drawn]
+      // Map progress to event index
+      const idx = Math.min(
+        EVENTS.length - 1,
+        Math.floor(progress * EVENTS.length)
+      )
+
+      // Only activate once sticky is actually in view
+      if (rect.top <= 0 && rect.bottom >= viewportH) {
+        if (!hasEntered) setHasEntered(true)
+        setActiveIndex(idx)
+        setSeen(prev => {
+          if (prev[idx]) return prev
+          const next = [...prev]
+          next[idx] = true
+          return next
+        })
+      } else if (rect.top > 0) {
+        // Haven't reached the section yet
+        setActiveIndex(-1)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll() // initial check
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [hasEntered])
 
   return (
-    <section
-      ref={sectionRef}
-      className="min-h-screen w-full py-24 md:py-32 px-4 md:px-8 relative overflow-hidden"
-      style={{
-        background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)',
-      }}
-    >
-      {/* Organic texture */}
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `
-              radial-gradient(circle at 25% 20%, rgba(196,152,91,0.15) 0%, transparent 60%),
-              radial-gradient(circle at 75% 60%, rgba(139,115,85,0.12) 0%, transparent 60%),
-              radial-gradient(circle at 50% 90%, rgba(180,147,113,0.1) 0%, transparent 60%)`,
-          }}
-        />
-      </div>
+    <>
+      {/* Outer wrapper: tall enough for scroll distance */}
+      <div
+        ref={outerRef}
+        className="it-outer"
+        style={{ height: `${EVENTS.length * 100}vh` }}
+      >
+        {/* Sticky viewport-filling container */}
+        <div ref={stickyRef} className="it-sticky">
 
-      <div className="max-w-3xl mx-auto relative z-10">
+          {/* Background */}
+          <div className="it-bg" />
 
-        {/* ═══ Section Header ═══ */}
-        <div className="text-center mb-20 md:mb-28">
-          {/* Clock ornament */}
-          <div
-            className={`flex justify-center mb-10 transition-all duration-[1200ms] ease-out ${
-              headerStarted ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
-            }`}
-          >
-            <div className="w-16 h-16 bg-[#ede9e2] rounded-full flex items-center justify-center">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(139,115,85,0.4)" strokeWidth="1">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 6v6l4 2"/>
-              </svg>
+          {/* ── "Itinerario" header — always visible ── */}
+          <div className="it-header">
+            <h2 className="it-header-text">
+              {'Itinerario'.split('').map((char, i) => (
+                <span
+                  key={i}
+                  className={`it-letter${hasEntered ? ' it-letter--on' : ''}`}
+                  style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
+                >
+                  {char}
+                </span>
+              ))}
+            </h2>
+
+            {/* Divider */}
+            <div
+              className={`it-divider ${hasEntered ? 'it-divider--on' : ''}`}
+            >
+              <div className="it-divider-line it-divider-line--left" />
+              <div className="it-divider-diamond" />
+              <div className="it-divider-line it-divider-line--right" />
             </div>
           </div>
 
-          {/* "Itinerario" — letter by letter */}
-          <h2 className="it-header-text mb-6">
-            {HEADER_TEXT.split('').map((char, i) => (
-              <span
-                key={i}
-                className={`it-letter${headerStarted ? ' it-letter--on' : ''}`}
-                style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
-              >
-                {char}
-              </span>
-            ))}
-          </h2>
-
-          {/* Decorative divider */}
-          <div
-            className={`flex items-center justify-center gap-3 transition-all duration-[900ms] ease-out ${
-              headerStarted ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
-            }`}
-            style={{ transitionDelay: `${writeDur(HEADER_TEXT)}ms` }}
-          >
-            <div className="w-10 h-[0.5px] bg-gradient-to-r from-transparent to-[#C4985B]/50" />
-            <div className="w-1 h-1 rounded-full bg-[#C4985B]/40" />
-            <div className="w-10 h-[0.5px] bg-gradient-to-l from-transparent to-[#C4985B]/50" />
-          </div>
-        </div>
-
-        {/* ═══ Left-aligned Timeline ═══ */}
-        <div className="it-timeline">
-
+          {/* ── Event panels — stacked, only active one visible ── */}
           {EVENTS.map((event, i) => {
-            const started  = eventStarted[i]
-            const segDrawn = lineDrawn[i]
-
-            // Title starts partway through the time animation
-            const titleDelay = Math.floor(event.time.length * LETTER_SPEED * 0.5)
+            const isActive  = activeIndex === i
+            const wasSeen   = seen[i]
+            const showPanel = isActive || wasSeen
 
             return (
-              <div key={i} className="it-event-row">
+              <div
+                key={i}
+                className="it-event-panel"
+                style={{
+                  opacity:        isActive ? 1 : 0,
+                  pointerEvents:  isActive ? 'auto' : 'none',
+                  zIndex:         isActive ? 3 : 1,
+                }}
+              >
+                <div className="it-event-content">
+                  {/* Step dots */}
+                  <div className="it-step-dots">
+                    {EVENTS.map((_, di) => (
+                      <div
+                        key={di}
+                        className={`it-step-dot ${di === i ? 'it-step-dot--active' : ''} ${
+                          di < i ? 'it-step-dot--done' : ''
+                        }`}
+                      />
+                    ))}
+                  </div>
 
-                {/* ── Left: Timeline track (dot + line) ── */}
-                <div className="it-track">
-                  {/* Connecting line above dot */}
-                  <div
-                    className="it-line-segment"
-                    style={{
-                      opacity:         segDrawn ? 1 : 0,
-                      transform:       segDrawn ? 'scaleY(1)' : 'scaleY(0)',
-                      transformOrigin: 'top center',
-                      transition: 'opacity 700ms ease-out, transform 700ms ease-out',
-                    }}
-                  />
-
-                  {/* Dot marker */}
-                  <div
-                    className="it-dot"
-                    style={{
-                      opacity:   segDrawn ? 1 : 0,
-                      transform: segDrawn ? 'scale(1)' : 'scale(0)',
-                      transition: 'opacity 500ms ease-out 300ms, transform 500ms ease-out 300ms',
-                    }}
-                  />
-
-                  {/* Connecting line below dot (or trailing fade on last) */}
-                  {i < EVENTS.length - 1 ? (
-                    <div
-                      className="it-line-segment it-line-segment--below"
-                      style={{
-                        opacity:         started ? 1 : 0,
-                        transform:       started ? 'scaleY(1)' : 'scaleY(0)',
-                        transformOrigin: 'top center',
-                        transition: `opacity 700ms ease-out ${writeDur(event.title) + 100}ms, transform 700ms ease-out ${writeDur(event.title) + 100}ms`,
-                      }}
-                    />
-                  ) : (
-                    <div
-                      className="it-line-segment it-line-segment--fade"
-                      style={{
-                        opacity:         started ? 1 : 0,
-                        transform:       started ? 'scaleY(1)' : 'scaleY(0)',
-                        transformOrigin: 'top center',
-                        transition: `opacity 700ms ease-out ${writeDur(event.title) + 200}ms, transform 700ms ease-out ${writeDur(event.title) + 200}ms`,
-                      }}
-                    />
-                  )}
-                </div>
-
-                {/* ── Right: Event card ── */}
-                <div
-                  className="it-card"
-                  style={{
-                    opacity:   started ? 1 : 0,
-                    transform: started ? 'translateX(0)' : 'translateX(20px)',
-                    transition: 'opacity 600ms ease-out, transform 600ms ease-out',
-                  }}
-                >
                   {/* Icon */}
-                  <div className="it-card-icon">
+                  <div
+                    className={`it-icon-circle ${showPanel ? 'it-icon-circle--in' : ''}`}
+                  >
                     <Image
                       src={event.icon}
                       alt={event.alt}
-                      width={30}
-                      height={30}
+                      width={40}
+                      height={40}
                       className="object-contain"
                       style={{ filter: 'sepia(1) saturate(0.5) brightness(0.45)' }}
                     />
                   </div>
 
-                  {/* Text content */}
-                  <div className="it-card-content">
-                    {/* Time */}
-                    <p className="it-card-time">
-                      {event.time.split('').map((char, ci) => (
-                        <span
-                          key={`time-${i}-${ci}`}
-                          className={`it-letter${started ? ' it-letter--on' : ''}`}
-                          style={{
-                            animationDelay: `${ci * LETTER_SPEED}ms`,
-                          }}
-                        >
-                          {char === ' ' ? '\u00A0' : char}
-                        </span>
-                      ))}
-                    </p>
-                    {/* Title */}
-                    <p className="it-card-title">
-                      {event.title.split('').map((char, ci) => (
-                        <span
-                          key={`ttl-${i}-${ci}`}
-                          className={`it-letter${started ? ' it-letter--on' : ''}`}
-                          style={{
-                            animationDelay: `${titleDelay + ci * LETTER_SPEED}ms`,
-                          }}
-                        >
-                          {char === ' ' ? '\u00A0' : char}
-                        </span>
-                      ))}
-                    </p>
-                  </div>
+                  {/* Time */}
+                  <p className="it-time">
+                    {event.time.split('').map((char, ci) => (
+                      <span
+                        key={`t-${ci}`}
+                        className={`it-letter${showPanel ? ' it-letter--on' : ''}`}
+                        style={{ animationDelay: `${300 + ci * LETTER_SPEED}ms` }}
+                      >
+                        {char === ' ' ? '\u00A0' : char}
+                      </span>
+                    ))}
+                  </p>
+
+                  {/* Accent line */}
+                  <div className={`it-accent-line ${showPanel ? 'it-accent-line--on' : ''}`} />
+
+                  {/* Title */}
+                  <p className="it-title">
+                    {event.title.split('').map((char, ci) => (
+                      <span
+                        key={`n-${ci}`}
+                        className={`it-letter${showPanel ? ' it-letter--on' : ''}`}
+                        style={{ animationDelay: `${600 + ci * LETTER_SPEED}ms` }}
+                      >
+                        {char === ' ' ? '\u00A0' : char}
+                      </span>
+                    ))}
+                  </p>
                 </div>
               </div>
             )
           })}
 
-          {/* Trailing diamond ornament */}
-          <div
-            className={`flex mt-2 transition-all duration-700 ease-out ${
-              event2Started ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
-            }`}
-            style={{
-              transitionDelay: `${writeDur(EVENTS[2].title) + 800}ms`,
-              paddingLeft: '6px',
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="rgba(196,152,91,0.35)">
-              <polygon points="7,1 13,7 7,13 1,7"/>
-            </svg>
+          {/* ── Progress bar at bottom ── */}
+          <div className="it-progress-track">
+            <div
+              className="it-progress-fill"
+              style={{
+                transform: `scaleX(${activeIndex >= 0
+                  ? (activeIndex + 1) / EVENTS.length
+                  : 0
+                })`,
+              }}
+            />
           </div>
+
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════════
-           ITINERARY — SCOPED STYLES
-         ═══════════════════════════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════════
+           SCOPED STYLES
+         ══════════════════════════════════════════════ */}
       <style jsx>{`
 
-        /* ── Timeline container ── */
-        .it-timeline {
+        /* ── Outer tall wrapper ── */
+        .it-outer {
           position: relative;
-          padding-left: 0;
+          width: 100%;
         }
 
-        /* ── Each event row: track + card ── */
-        .it-event-row {
-          display: grid;
-          grid-template-columns: 26px 1fr;
-          gap: 0 clamp(1.2rem, 3vw, 2.5rem);
-          min-height: 100px;
+        /* ── Sticky viewport panel ── */
+        .it-sticky {
+          position: sticky;
+          top: 0;
+          height: 100vh;
+          height: 100svh;
+          width: 100%;
+          overflow: hidden;
         }
 
-        /* ── Left track column ── */
-        .it-track {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          position: relative;
-        }
-
-        /* Line segments */
-        .it-line-segment {
-          width: 2px;
-          flex: 1;
+        /* ── Background ── */
+        .it-bg {
+          position: absolute;
+          inset: 0;
           background: linear-gradient(
-            to bottom,
-            rgba(196,152,91,0.15),
-            rgba(196,152,91,0.35),
-            rgba(196,152,91,0.15)
+            160deg,
+            #fbf9f6 0%, #f5f2ee 40%, #f0ece6 70%, #f8f6f3 100%
           );
+          z-index: 0;
         }
-        .it-line-segment--below {
-          flex: 1;
-        }
-        .it-line-segment--fade {
-          flex: 0.6;
-          background: linear-gradient(
-            to bottom,
-            rgba(196,152,91,0.3),
-            rgba(196,152,91,0.05)
-          );
-        }
-
-        /* Dot marker */
-        .it-dot {
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          background: radial-gradient(circle at 40% 35%, #d4b078, #C4985B);
-          box-shadow: 0 0 0 4px rgba(196,152,91,0.12), 0 0 12px rgba(196,152,91,0.15);
-          flex-shrink: 0;
-          position: relative;
-          z-index: 2;
+        .it-bg::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          opacity: 0.025;
+          background-image:
+            radial-gradient(circle at 25% 20%, rgba(196,152,91,0.2) 0%, transparent 55%),
+            radial-gradient(circle at 75% 65%, rgba(139,115,85,0.15) 0%, transparent 55%);
         }
 
-        /* ── Event card ── */
-        .it-card {
-          display: flex;
-          align-items: center;
-          gap: clamp(0.8rem, 2vw, 1.5rem);
-          background: rgba(255,255,255,0.55);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-          border: 1px solid rgba(196,152,91,0.12);
-          border-radius: 16px;
-          padding: clamp(1rem, 2.5vw, 1.5rem) clamp(1.2rem, 3vw, 2rem);
-          margin-top: 0.4rem;
-          margin-bottom: 1.8rem;
-          box-shadow:
-            0 2px 12px rgba(139,115,85,0.06),
-            0 1px 3px rgba(139,115,85,0.04);
-          transition: box-shadow 0.3s ease, border-color 0.3s ease;
+        /* ── Header — top area ── */
+        .it-header {
+          position: absolute;
+          top: clamp(2.5rem, 8vh, 5rem);
+          left: 0;
+          right: 0;
+          text-align: center;
+          z-index: 5;
         }
-        .it-card:hover {
-          box-shadow:
-            0 4px 20px rgba(139,115,85,0.1),
-            0 2px 6px rgba(139,115,85,0.06);
-          border-color: rgba(196,152,91,0.22);
-        }
-
-        /* Card icon container */
-        .it-card-icon {
-          width: 48px;
-          height: 48px;
-          border-radius: 12px;
-          background: rgba(237,233,226,0.6);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        /* Card text */
-        .it-card-content {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-        }
-        .it-card-time {
-          margin: 0;
-          line-height: 1.1;
-          font-family: 'Cormorant Garamond', 'EB Garamond', serif;
-          font-weight: 400;
-          font-size: clamp(1.6rem, 3.5vw, 2.2rem);
-          letter-spacing: 0.06em;
-          color: #2e1e14;
-        }
-        .it-card-title {
-          margin: 0;
-          font-family: 'Cormorant Garamond', 'EB Garamond', serif;
-          font-weight: 500;
-          font-size: clamp(0.72rem, 1.3vw, 0.88rem);
-          letter-spacing: 0.32em;
-          text-transform: uppercase;
-          color: #8b7355;
-        }
-
-        /* Section header */
         .it-header-text {
+          margin: 0 0 1rem;
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
           font-weight: 300;
-          font-size: 2.5rem;
+          font-size: clamp(1.6rem, 4vw, 2.4rem);
           letter-spacing: 0.35em;
           text-transform: uppercase;
           color: #2e1e14;
         }
-        @media (min-width: 640px) { .it-header-text { font-size: 3rem; } }
-        @media (min-width: 768px) { .it-header-text { font-size: 3.5rem; } }
 
-        /* ═══ LETTER WRITING animation ═══ */
+        /* ── Divider ── */
+        .it-divider {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+        .it-divider-line {
+          width: 0;
+          height: 1px;
+          background: rgba(196,152,91,0.35);
+          transition: width 0.8s ease-out 1.2s;
+        }
+        .it-divider--on .it-divider-line { width: 28px; }
+        .it-divider-diamond {
+          width: 5px;
+          height: 5px;
+          background: rgba(196,152,91,0.4);
+          transform: rotate(45deg) scale(0);
+          transition: transform 0.5s ease-out 1.4s;
+        }
+        .it-divider--on .it-divider-diamond {
+          transform: rotate(45deg) scale(1);
+        }
+
+        /* ── Event panel (one per event, stacked absolute) ── */
+        .it-event-panel {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: opacity 0.5s ease-out;
+        }
+
+        .it-event-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 0 1.5rem;
+          margin-top: 2rem;
+        }
+
+        /* ── Step dots ── */
+        .it-step-dots {
+          display: flex;
+          gap: 10px;
+          margin-bottom: clamp(2rem, 5vh, 3.5rem);
+        }
+        .it-step-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          border: 1.5px solid rgba(196,152,91,0.3);
+          background: transparent;
+          transition: all 0.4s ease;
+        }
+        .it-step-dot--active {
+          background: rgba(196,152,91,0.7);
+          border-color: rgba(196,152,91,0.7);
+          box-shadow: 0 0 0 3px rgba(196,152,91,0.12);
+          transform: scale(1.3);
+        }
+        .it-step-dot--done {
+          background: rgba(196,152,91,0.35);
+          border-color: rgba(196,152,91,0.35);
+        }
+
+        /* ── Icon ── */
+        .it-icon-circle {
+          width: clamp(5rem, 14vw, 7rem);
+          height: clamp(5rem, 14vw, 7rem);
+          border-radius: 50%;
+          background: rgba(237,233,226,0.6);
+          border: 1px solid rgba(196,152,91,0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
+          opacity: 0;
+          transform: scale(0.6);
+          transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .it-icon-circle--in {
+          opacity: 1;
+          transform: scale(1);
+        }
+
+        /* ── Time ── */
+        .it-time {
+          margin: 0 0 clamp(0.8rem, 2vh, 1.5rem);
+          font-family: 'Cormorant Garamond', 'EB Garamond', serif;
+          font-weight: 300;
+          font-size: clamp(3rem, 9vw, 5.5rem);
+          letter-spacing: 0.06em;
+          color: #2e1e14;
+          line-height: 1;
+        }
+
+        /* ── Accent line ── */
+        .it-accent-line {
+          width: 0;
+          height: 1px;
+          background: rgba(196,152,91,0.35);
+          margin-bottom: clamp(0.8rem, 2vh, 1.5rem);
+          transition: width 0.7s ease-out 0.7s;
+        }
+        .it-accent-line--on {
+          width: clamp(2.5rem, 8vw, 4rem);
+        }
+
+        /* ── Event title ── */
+        .it-title {
+          margin: 0;
+          font-family: 'Cormorant Garamond', 'EB Garamond', serif;
+          font-weight: 500;
+          font-size: clamp(0.7rem, 1.4vw, 0.9rem);
+          letter-spacing: 0.35em;
+          text-transform: uppercase;
+          color: #8b7355;
+        }
+
+        /* ── Letter animation ── */
         .it-letter {
           display: inline-block;
           opacity: 0;
         }
         .it-letter--on {
-          animation: itLetterWrite 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+          animation: itWrite 0.38s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
         }
-        @keyframes itLetterWrite {
-          0%   { opacity: 0; transform: translateY(10px) scaleX(0.4); filter: blur(2px); }
+        @keyframes itWrite {
+          0%   { opacity: 0; transform: translateY(8px) scaleX(0.4); filter: blur(2px); }
           55%  { opacity: 1; filter: blur(0); }
-          100% { opacity: 1; transform: translateY(0) scaleX(1);  filter: blur(0); }
+          100% { opacity: 1; transform: translateY(0) scaleX(1); filter: blur(0); }
+        }
+
+        /* ── Progress bar ── */
+        .it-progress-track {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: rgba(196,152,91,0.1);
+          z-index: 10;
+        }
+        .it-progress-fill {
+          height: 100%;
+          background: rgba(196,152,91,0.45);
+          transform-origin: left center;
+          transition: transform 0.4s ease-out;
         }
       `}</style>
-    </section>
+    </>
   )
 }

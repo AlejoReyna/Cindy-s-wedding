@@ -339,6 +339,7 @@ export default function Gallery3D() {
                   </div>
                 ))}
               </div>
+              <div className="gl3d-vignette" aria-hidden="true" />
 
               {/* ═══ Navigation Arrows ═══ */}
               <button
@@ -510,12 +511,24 @@ export default function Gallery3D() {
           border-radius: 50%;
           filter: blur(20px);
           pointer-events: none;
+          z-index: 0;
         }
 
         .gl3d-cards-container {
           position: relative;
           width: 100%;
           height: 100%;
+          z-index: 1;
+        }
+
+        .gl3d-vignette {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          z-index: 12;
+          background:
+            radial-gradient(ellipse at center, transparent 42%, rgba(0, 0, 0, 0.18) 100%),
+            linear-gradient(to top, rgba(0, 0, 0, 0.12), transparent 45%);
         }
 
         .gl3d-card {
