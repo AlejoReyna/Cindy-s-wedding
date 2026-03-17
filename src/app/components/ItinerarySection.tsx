@@ -364,6 +364,12 @@ export default function ItinerarySection() {
           justify-content: center;
           gap: 8px;
         }
+        /* Only visible on sm+ */
+        @media (max-width: 640px) {
+          .it-divider-wrap {
+            display: none;
+          }
+        }
         .it-divider-line {
           height: 1px;
           background: rgba(196,152,91,0.35);
@@ -534,6 +540,41 @@ export default function ItinerarySection() {
           text-transform: uppercase;
           color: #8b7355;
           text-align: center;
+        }
+
+        /* ── Mobile: summary cards stack vertically ── */
+        @media (max-width: 640px) {
+          .it-summary {
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            padding: 6rem 1.25rem 2rem;
+          }
+
+          .it-card-wrapper {
+            flex-direction: column;
+            width: 100%;
+            max-width: 420px;
+          }
+
+          .it-card {
+            width: 100%;
+            height: auto;
+            padding: 1.6rem 1.25rem;
+          }
+
+          .it-card-sep {
+            width: min(260px, 70vw);
+            height: 1px;
+            margin: 2px 0 2px;
+            background: linear-gradient(
+              to right,
+              transparent,
+              rgba(196,152,91,0.25),
+              transparent
+            );
+          }
         }
 
         /* ══════════════ SCROLL CUE ══════════════ */
