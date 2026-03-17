@@ -1,13 +1,14 @@
 "use client"
-import { useRef, useEffect, useState, useCallback } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import Image, { StaticImageData } from 'next/image'
 import church        from '../../../assets/church.png'
 import legalDocument from '../../../assets/legal-document.png'
 import nightClub     from '../../../assets/night-club.png'
 
 // ═══════════════════════════════════════════════════════════════════════
-// ITINERARY — sticky scroll-driven full-viewport panels
-// Each event fills the screen. Normal page scroll drives transitions.
+// ITINERARY — stacked full-viewport panels in normal document flow.
+// Each event is 100svh. Animations fire via IntersectionObserver.
+// No scroll tricks — everyone sees everything just by scrolling.
 // ═══════════════════════════════════════════════════════════════════════
 
 interface EventData {
@@ -24,215 +25,215 @@ const EVENTS: EventData[] = [
 ]
 
 const LETTER_SPEED = 80
+const HEADER_TEXT  = 'Itinerario'
+
+// ─── Hook: trigger once when element enters viewport ──────────────────
+function useInView(threshold = 0.3) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) { setVisible(true); obs.disconnect() }
+      },
+      { threshold }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [threshold])
+
+  return { ref, visible }
+}
 
 // ═══════════════════════════════════════════════════════════════════════
 
 export default function ItinerarySection() {
-  const outerRef  = useRef<HTMLDivElement>(null)
-  const stickyRef = useRef<HTMLDivElement>(null)
-  const [activeIndex, setActiveIndex] = useState(-1) // -1 = not yet entered
-  const [hasEntered, setHasEntered]   = useState(false)
-  // Track which events have been "seen" so their animations persist
-  const [seen, setSeen] = useState<boolean[]>(EVENTS.map(() => false))
-
-  // ── Scroll listener: compute which event to show ──
-  useEffect(() => {
-    const handleScroll = () => {
-      const outer = outerRef.current
-      if (!outer) return
-
-      const rect = outer.getBoundingClientRect()
-      const sectionTop    = -rect.top               // how far we've scrolled into the section
-      const sectionHeight = outer.offsetHeight
-      const viewportH     = window.innerHeight
-
-      // Total scrollable distance within the section
-      const scrollable = sectionHeight - viewportH
-      if (scrollable <= 0) return
-
-      // Progress 0→1 through the section
-      const progress = Math.max(0, Math.min(1, sectionTop / scrollable))
-
-      // Map progress to event index
-      const idx = Math.min(
-        EVENTS.length - 1,
-        Math.floor(progress * EVENTS.length)
-      )
-
-      // Only activate once sticky is actually in view
-      if (rect.top <= 0 && rect.bottom >= viewportH) {
-        if (!hasEntered) setHasEntered(true)
-        setActiveIndex(idx)
-        setSeen(prev => {
-          if (prev[idx]) return prev
-          const next = [...prev]
-          next[idx] = true
-          return next
-        })
-      } else if (rect.top > 0) {
-        // Haven't reached the section yet
-        setActiveIndex(-1)
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll() // initial check
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [hasEntered])
+  // One observer per panel (header + 3 events = 4)
+  const h  = useInView(0.3)
+  const e0 = useInView(0.3)
+  const e1 = useInView(0.3)
+  const e2 = useInView(0.3)
+  const eventVis = [e0, e1, e2]
 
   return (
-    <>
-      {/* Outer wrapper: tall enough for scroll distance */}
-      <div
-        ref={outerRef}
-        className="it-outer"
-        style={{ height: `${EVENTS.length * 100}vh` }}
-      >
-        {/* Sticky viewport-filling container */}
-        <div ref={stickyRef} className="it-sticky">
+    <section className="it-section">
 
-          {/* Background */}
-          <div className="it-bg" />
-
-          {/* ── "Itinerario" header — always visible ── */}
-          <div className="it-header">
-            <h2 className="it-header-text">
-              {'Itinerario'.split('').map((char, i) => (
-                <span
-                  key={i}
-                  className={`it-letter${hasEntered ? ' it-letter--on' : ''}`}
-                  style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
-                >
-                  {char}
-                </span>
-              ))}
-            </h2>
-
-            {/* Divider */}
-            <div
-              className={`it-divider ${hasEntered ? 'it-divider--on' : ''}`}
-            >
-              <div className="it-divider-line it-divider-line--left" />
-              <div className="it-divider-diamond" />
-              <div className="it-divider-line it-divider-line--right" />
-            </div>
+      {/* ════════════════ HEADER PANEL ════════════════ */}
+      <div ref={h.ref} className="it-panel">
+        <div className="it-panel-bg" />
+        <div className="it-inner">
+          {/* Clock ornament */}
+          <div
+            className="it-clock"
+            style={{
+              opacity:   h.visible ? 1 : 0,
+              transform: h.visible ? 'scale(1)' : 'scale(0.8)',
+            }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="rgba(139,115,85,0.4)" strokeWidth="1">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
           </div>
 
-          {/* ── Event panels — stacked, only active one visible ── */}
-          {EVENTS.map((event, i) => {
-            const isActive  = activeIndex === i
-            const wasSeen   = seen[i]
-            const showPanel = isActive || wasSeen
-
-            return (
-              <div
+          {/* "Itinerario" letter by letter */}
+          <h2 className="it-header-text">
+            {HEADER_TEXT.split('').map((char, i) => (
+              <span
                 key={i}
-                className="it-event-panel"
-                style={{
-                  opacity:        isActive ? 1 : 0,
-                  pointerEvents:  isActive ? 'auto' : 'none',
-                  zIndex:         isActive ? 3 : 1,
-                }}
+                className={`it-letter${h.visible ? ' it-letter--on' : ''}`}
+                style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
               >
-                <div className="it-event-content">
-                  {/* Step dots */}
-                  <div className="it-step-dots">
-                    {EVENTS.map((_, di) => (
-                      <div
-                        key={di}
-                        className={`it-step-dot ${di === i ? 'it-step-dot--active' : ''} ${
-                          di < i ? 'it-step-dot--done' : ''
-                        }`}
-                      />
-                    ))}
-                  </div>
+                {char}
+              </span>
+            ))}
+          </h2>
 
-                  {/* Icon */}
-                  <div
-                    className={`it-icon-circle ${showPanel ? 'it-icon-circle--in' : ''}`}
-                  >
-                    <Image
-                      src={event.icon}
-                      alt={event.alt}
-                      width={40}
-                      height={40}
-                      className="object-contain"
-                      style={{ filter: 'sepia(1) saturate(0.5) brightness(0.45)' }}
-                    />
-                  </div>
-
-                  {/* Time */}
-                  <p className="it-time">
-                    {event.time.split('').map((char, ci) => (
-                      <span
-                        key={`t-${ci}`}
-                        className={`it-letter${showPanel ? ' it-letter--on' : ''}`}
-                        style={{ animationDelay: `${300 + ci * LETTER_SPEED}ms` }}
-                      >
-                        {char === ' ' ? '\u00A0' : char}
-                      </span>
-                    ))}
-                  </p>
-
-                  {/* Accent line */}
-                  <div className={`it-accent-line ${showPanel ? 'it-accent-line--on' : ''}`} />
-
-                  {/* Title */}
-                  <p className="it-title">
-                    {event.title.split('').map((char, ci) => (
-                      <span
-                        key={`n-${ci}`}
-                        className={`it-letter${showPanel ? ' it-letter--on' : ''}`}
-                        style={{ animationDelay: `${600 + ci * LETTER_SPEED}ms` }}
-                      >
-                        {char === ' ' ? '\u00A0' : char}
-                      </span>
-                    ))}
-                  </p>
-                </div>
-              </div>
-            )
-          })}
-
-          {/* ── Progress bar at bottom ── */}
-          <div className="it-progress-track">
+          {/* Decorative divider */}
+          <div className="it-divider-wrap">
             <div
-              className="it-progress-fill"
+              className="it-divider-line"
               style={{
-                transform: `scaleX(${activeIndex >= 0
-                  ? (activeIndex + 1) / EVENTS.length
-                  : 0
-                })`,
+                width: h.visible ? 32 : 0,
+                transitionDelay: '1.1s',
+              }}
+            />
+            <div
+              className="it-divider-diamond"
+              style={{
+                transform: h.visible
+                  ? 'rotate(45deg) scale(1)'
+                  : 'rotate(45deg) scale(0)',
+                transitionDelay: '1.3s',
+              }}
+            />
+            <div
+              className="it-divider-line"
+              style={{
+                width: h.visible ? 32 : 0,
+                transitionDelay: '1.1s',
               }}
             />
           </div>
 
+          {/* Scroll cue */}
+          <div
+            className="it-scroll-cue"
+            style={{
+              opacity: h.visible ? 0.5 : 0,
+              transitionDelay: '1.8s',
+            }}
+          >
+            <svg className="it-bounce-arrow" width="16" height="24"
+              viewBox="0 0 16 24" fill="none"
+              stroke="rgba(139,115,85,0.45)" strokeWidth="1.2">
+              <path d="M8 4v14M3 14l5 5 5-5"/>
+            </svg>
+          </div>
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════════
-           SCOPED STYLES
-         ══════════════════════════════════════════════ */}
-      <style jsx>{`
+      {/* ════════════════ EVENT PANELS ════════════════ */}
+      {EVENTS.map((event, i) => {
+        const { ref, visible } = eventVis[i]
 
-        /* ── Outer tall wrapper ── */
-        .it-outer {
-          position: relative;
+        return (
+          <div key={i} ref={ref} className="it-panel">
+            <div className="it-panel-bg" />
+            <div className="it-inner">
+
+              {/* Step dots */}
+              <div className="it-step-dots">
+                {EVENTS.map((_, di) => (
+                  <div
+                    key={di}
+                    className={`it-step-dot${
+                      di === i ? ' it-step-dot--active' : ''
+                    }${di < i ? ' it-step-dot--done' : ''}`}
+                  />
+                ))}
+              </div>
+
+              {/* Icon */}
+              <div
+                className="it-icon"
+                style={{
+                  opacity:   visible ? 1 : 0,
+                  transform: visible ? 'scale(1)' : 'scale(0.55)',
+                }}
+              >
+                <Image
+                  src={event.icon}
+                  alt={event.alt}
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                  style={{ filter: 'sepia(1) saturate(0.5) brightness(0.45)' }}
+                />
+              </div>
+
+              {/* Time */}
+              <p className="it-time">
+                {event.time.split('').map((char, ci) => (
+                  <span
+                    key={`t-${ci}`}
+                    className={`it-letter${visible ? ' it-letter--on' : ''}`}
+                    style={{ animationDelay: `${250 + ci * LETTER_SPEED}ms` }}
+                  >
+                    {char === ' ' ? '\u00A0' : char}
+                  </span>
+                ))}
+              </p>
+
+              {/* Accent line */}
+              <div
+                className="it-accent"
+                style={{
+                  width: visible ? 'clamp(2.5rem, 8vw, 4rem)' : '0',
+                  transitionDelay: '0.65s',
+                }}
+              />
+
+              {/* Title */}
+              <p className="it-title">
+                {event.title.split('').map((char, ci) => (
+                  <span
+                    key={`n-${ci}`}
+                    className={`it-letter${visible ? ' it-letter--on' : ''}`}
+                    style={{ animationDelay: `${550 + ci * LETTER_SPEED}ms` }}
+                  >
+                    {char === ' ' ? '\u00A0' : char}
+                  </span>
+                ))}
+              </p>
+            </div>
+          </div>
+        )
+      })}
+
+      {/* ═══ SCOPED STYLES ═══ */}
+      <style jsx>{`
+        .it-section {
           width: 100%;
         }
 
-        /* ── Sticky viewport panel ── */
-        .it-sticky {
-          position: sticky;
-          top: 0;
-          height: 100vh;
-          height: 100svh;
+        /* ── Each panel fills viewport ── */
+        .it-panel {
           width: 100%;
+          min-height: 100svh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
           overflow: hidden;
         }
 
-        /* ── Background ── */
-        .it-bg {
+        /* Background layer */
+        .it-panel-bg {
           position: absolute;
           inset: 0;
           background: linear-gradient(
@@ -241,79 +242,86 @@ export default function ItinerarySection() {
           );
           z-index: 0;
         }
-        .it-bg::after {
+        .it-panel-bg::after {
           content: '';
           position: absolute;
           inset: 0;
           opacity: 0.025;
           background-image:
-            radial-gradient(circle at 25% 20%, rgba(196,152,91,0.2) 0%, transparent 55%),
-            radial-gradient(circle at 75% 65%, rgba(139,115,85,0.15) 0%, transparent 55%);
+            radial-gradient(circle at 30% 25%, rgba(196,152,91,0.2) 0%, transparent 55%),
+            radial-gradient(circle at 70% 70%, rgba(139,115,85,0.15) 0%, transparent 55%);
         }
 
-        /* ── Header — top area ── */
-        .it-header {
-          position: absolute;
-          top: clamp(2.5rem, 8vh, 5rem);
-          left: 0;
-          right: 0;
-          text-align: center;
-          z-index: 5;
+        .it-inner {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 2rem 1.5rem;
         }
+
+        /* ══════════════ HEADER ══════════════ */
+
+        .it-clock {
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          background: rgba(237,233,226,0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 2.5rem;
+          transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
         .it-header-text {
-          margin: 0 0 1rem;
+          margin: 0 0 1.2rem;
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
           font-weight: 300;
-          font-size: clamp(1.6rem, 4vw, 2.4rem);
+          font-size: clamp(2.2rem, 6vw, 3.2rem);
           letter-spacing: 0.35em;
           text-transform: uppercase;
           color: #2e1e14;
+          text-align: center;
         }
 
-        /* ── Divider ── */
-        .it-divider {
+        .it-divider-wrap {
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
+          margin-bottom: 2rem;
         }
         .it-divider-line {
-          width: 0;
           height: 1px;
           background: rgba(196,152,91,0.35);
-          transition: width 0.8s ease-out 1.2s;
+          transition: width 0.8s ease-out;
         }
-        .it-divider--on .it-divider-line { width: 28px; }
         .it-divider-diamond {
           width: 5px;
           height: 5px;
           background: rgba(196,152,91,0.4);
-          transform: rotate(45deg) scale(0);
-          transition: transform 0.5s ease-out 1.4s;
-        }
-        .it-divider--on .it-divider-diamond {
-          transform: rotate(45deg) scale(1);
+          transition: transform 0.5s ease-out;
         }
 
-        /* ── Event panel (one per event, stacked absolute) ── */
-        .it-event-panel {
+        .it-scroll-cue {
           position: absolute;
-          inset: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: opacity 0.5s ease-out;
+          bottom: clamp(2rem, 6vh, 4rem);
+          left: 50%;
+          transform: translateX(-50%);
+          transition: opacity 0.6s ease-out;
+        }
+        .it-bounce-arrow {
+          animation: itBounce 2s ease-in-out infinite;
+        }
+        @keyframes itBounce {
+          0%, 100% { transform: translateY(0); }
+          50%      { transform: translateY(6px); }
         }
 
-        .it-event-content {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 0 1.5rem;
-          margin-top: 2rem;
-        }
+        /* ══════════════ EVENT PANELS ══════════════ */
 
-        /* ── Step dots ── */
         .it-step-dots {
           display: flex;
           gap: 10px;
@@ -323,9 +331,9 @@ export default function ItinerarySection() {
           width: 7px;
           height: 7px;
           border-radius: 50%;
-          border: 1.5px solid rgba(196,152,91,0.3);
+          border: 1.5px solid rgba(196,152,91,0.25);
           background: transparent;
-          transition: all 0.4s ease;
+          transition: all 0.35s ease;
         }
         .it-step-dot--active {
           background: rgba(196,152,91,0.7);
@@ -334,65 +342,52 @@ export default function ItinerarySection() {
           transform: scale(1.3);
         }
         .it-step-dot--done {
-          background: rgba(196,152,91,0.35);
-          border-color: rgba(196,152,91,0.35);
+          background: rgba(196,152,91,0.3);
+          border-color: rgba(196,152,91,0.3);
         }
 
-        /* ── Icon ── */
-        .it-icon-circle {
+        .it-icon {
           width: clamp(5rem, 14vw, 7rem);
           height: clamp(5rem, 14vw, 7rem);
           border-radius: 50%;
-          background: rgba(237,233,226,0.6);
+          background: rgba(237,233,226,0.55);
           border: 1px solid rgba(196,152,91,0.1);
           display: flex;
           align-items: center;
           justify-content: center;
           margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
-          opacity: 0;
-          transform: scale(0.6);
-          transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.34,1.56,0.64,1);
-        }
-        .it-icon-circle--in {
-          opacity: 1;
-          transform: scale(1);
+          transition: opacity 0.6s ease, transform 0.65s cubic-bezier(0.34,1.56,0.64,1);
         }
 
-        /* ── Time ── */
         .it-time {
           margin: 0 0 clamp(0.8rem, 2vh, 1.5rem);
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
           font-weight: 300;
-          font-size: clamp(3rem, 9vw, 5.5rem);
+          font-size: clamp(3.2rem, 10vw, 6rem);
           letter-spacing: 0.06em;
           color: #2e1e14;
           line-height: 1;
         }
 
-        /* ── Accent line ── */
-        .it-accent-line {
-          width: 0;
+        .it-accent {
           height: 1px;
           background: rgba(196,152,91,0.35);
           margin-bottom: clamp(0.8rem, 2vh, 1.5rem);
-          transition: width 0.7s ease-out 0.7s;
-        }
-        .it-accent-line--on {
-          width: clamp(2.5rem, 8vw, 4rem);
+          transition: width 0.7s ease-out;
         }
 
-        /* ── Event title ── */
         .it-title {
           margin: 0;
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
           font-weight: 500;
-          font-size: clamp(0.7rem, 1.4vw, 0.9rem);
+          font-size: clamp(0.75rem, 1.5vw, 0.95rem);
           letter-spacing: 0.35em;
           text-transform: uppercase;
           color: #8b7355;
         }
 
-        /* ── Letter animation ── */
+        /* ══════════════ LETTER ANIMATION ══════════════ */
+
         .it-letter {
           display: inline-block;
           opacity: 0;
@@ -405,24 +400,7 @@ export default function ItinerarySection() {
           55%  { opacity: 1; filter: blur(0); }
           100% { opacity: 1; transform: translateY(0) scaleX(1); filter: blur(0); }
         }
-
-        /* ── Progress bar ── */
-        .it-progress-track {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: rgba(196,152,91,0.1);
-          z-index: 10;
-        }
-        .it-progress-fill {
-          height: 100%;
-          background: rgba(196,152,91,0.45);
-          transform-origin: left center;
-          transition: transform 0.4s ease-out;
-        }
       `}</style>
-    </>
+    </section>
   )
 }
