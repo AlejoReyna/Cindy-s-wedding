@@ -98,9 +98,7 @@ export default function LocationSection() {
         >
           {/* Same max-width container as the loc-grid rows */}
           <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
-            <p className={`loc-section-eyebrow${headerVisible ? ' loc-section-eyebrow--visible' : ''}`}>
-              Lugares
-            </p>
+            
             <h2 className={`loc-section-title${headerVisible ? ' loc-section-title--visible' : ''}`}>
               Ubicaciones
             </h2>

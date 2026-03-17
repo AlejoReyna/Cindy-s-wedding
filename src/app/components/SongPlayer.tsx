@@ -8,6 +8,7 @@ interface SongPlayerProps {
 
 const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [forceVisible, setForceVisible] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const togglePlay = () => {
@@ -43,13 +44,23 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Fallback visibility: if parent animation flag never flips in some flows,
+  // keep the player accessible instead of leaving it hidden forever.
+  useEffect(() => {
+    if (loaded) return;
+    const t = setTimeout(() => setForceVisible(true), 1800);
+    return () => clearTimeout(t);
+  }, [loaded]);
+
+  const isVisible = loaded || forceVisible;
+
   return (
     <>
       <audio ref={audioRef} src="/snow-on-the-beach.mp3" loop />
 
       <div
         className={`song-player transition-all ease-out ${
-          loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
         }`}
         style={{
           transitionDuration: '1200ms',
@@ -122,9 +133,11 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
 
         .song-player {
           position: fixed;
-          bottom: 2rem;
-          right: 1.5rem;
+          bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
+          right: calc(env(safe-area-inset-right, 0px) + 1rem);
           z-index: 9999;
+          width: fit-content;
+          max-width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 2rem);
         }
 
         .song-player-pill {
@@ -152,6 +165,8 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
           -webkit-appearance: none;
           color: #F9F6EE;
           text-align: left;
+          width: fit-content;
+          max-width: 100%;
         }
 
         .song-player-pill:hover {
@@ -217,6 +232,7 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
           flex-direction: column;
           gap: 1px;
           min-width: 0;
+          overflow: hidden;
         }
 
         .song-player-title {
@@ -226,6 +242,8 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
           letter-spacing: 0.06em;
           color: rgba(249, 246, 238, 0.95);
           white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
           text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
           line-height: 1.2;
         }
@@ -238,6 +256,8 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
           text-transform: uppercase;
           color: rgba(249, 246, 238, 0.50);
           white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
           line-height: 1.2;
         }
 
@@ -269,18 +289,50 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
         /* ── Responsive tweaks ───────────────────────────────────── */
         @media (max-width: 640px) {
           .song-player {
-            bottom: 1.5rem;
-            right: 1rem;
+            left: auto;
+            right: calc(env(safe-area-inset-right, 0px) + 0.75rem);
+            width: fit-content;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
+            max-width: min(92vw, 370px);
           }
 
           .song-player-pill {
-            padding: 9px 12px 9px 10px;
+            width: fit-content;
+            max-width: min(92vw, 370px);
+            padding: 8px 11px 8px 10px;
             gap: 8px;
+            border-radius: 18px;
+            border-color: rgba(249, 246, 238, 0.28);
+            background: linear-gradient(
+              135deg,
+              rgba(36, 24, 20, 0.95) 0%,
+              rgba(58, 40, 34, 0.93) 100%
+            );
+            box-shadow:
+              0 8px 22px rgba(0, 0, 0, 0.34),
+              inset 0 1px 0 rgba(255, 255, 255, 0.12),
+              inset 0 -1px 0 rgba(255, 255, 255, 0.05);
           }
 
-          .song-player-title { font-size: 11px; }
-          .song-player-artist { font-size: 9px; }
-          .song-player-control { width: 24px; height: 24px; }
+          .song-player-icon-area {
+            width: 16px;
+            height: 16px;
+          }
+
+          .song-player-title {
+            font-size: 10.5px;
+            letter-spacing: 0.04em;
+          }
+
+          .song-player-artist {
+            font-size: 8.5px;
+            letter-spacing: 0.08em;
+          }
+
+          .song-player-control {
+            width: 23px;
+            height: 23px;
+          }
         }
       `}</style>
     </>

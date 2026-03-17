@@ -113,15 +113,18 @@ const Navbar = () => {
   // ── Derived visual values ──
   const t = scrollProgress;
   const isDark = isNightMode || isInHeroSection || isInRSVPSection || isInFooterSection;
-  const isSpecialSection = isInRSVPSection || isInFooterSection;
+  const isSpecialSection = isInFooterSection;
 
-  const logoDesktop = lerp(100, 48, t);
-  const logoMobile = lerp(88, 42, t);
+  const heroLikeNav = isInHeroSection || isInRSVPSection;
+  const logoProgress = heroLikeNav ? 0 : t;
+  const logoDesktop = lerp(130, 62, logoProgress);
+  const logoMobile = lerp(104, 50, logoProgress);
   const padY = lerp(14, 4, t);
-  const bgAlpha = isSpecialSection ? 0 : lerp(0, 0.97, t);
-  const blur = isSpecialSection ? 0 : lerp(0, 16, t);
-  const lineAlpha = isSpecialSection ? 0 : t;
-  const shadowAlpha = isSpecialSection ? 0 : lerp(0, 0.06, t);
+  const navProgress = heroLikeNav ? 0 : t;
+  const bgAlpha = isSpecialSection ? 0 : lerp(0, 0.97, navProgress);
+  const blur = isSpecialSection ? 0 : lerp(0, 16, navProgress);
+  const lineAlpha = isSpecialSection ? 0 : navProgress;
+  const shadowAlpha = isSpecialSection ? 0 : lerp(0, 0.06, navProgress);
 
   const textCls = isDark
     ? 'text-white hover:text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.4)]'

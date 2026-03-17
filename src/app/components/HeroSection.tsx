@@ -151,7 +151,7 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
         </div>
 
         {/* ── Bottom group: CTA + timer (positioned independently) ───────── */}
-        <div className="hero-bottom-group absolute inset-x-0 bottom-4 sm:bottom-5 md:bottom-1 flex flex-col items-center gap-3">
+        <div className="hero-bottom-group absolute inset-x-0 bottom-12 sm:bottom-5 md:bottom-1 flex flex-col items-center gap-3">
           <a
             href="#rsvp"
             className={`hero-cta-btn ${immediate ? 'hero-cta-btn--immediate' : loaded ? 'hero-cta-btn--animate' : ''}`}
@@ -187,7 +187,7 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
       {/* ── Song Player — bottom-right corner ──────────────────────────── */}
       <SongPlayer
         loaded={loaded}
-        delay={POST_NAMES + 1500}
+        delay={immediate ? 0 : POST_NAMES + 1500}
       />
 
       {/* @property must be global so the browser can interpolate the angle */}

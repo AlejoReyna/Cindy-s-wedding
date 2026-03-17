@@ -53,7 +53,7 @@ export default function Gallery3D() {
 
   // ── Sequential animation chain flags ──
   const [, setFlowersVisible] = useState(false);
-  const [dateStarted, setDateStarted] = useState(false);
+  const [, setDateStarted] = useState(false);
   const [titleStarted, setTitleStarted] = useState(false);
   const [, setLineDrawn] = useState(false);
   const [subtitleStarted, setSubtitleStarted] = useState(false);
@@ -67,7 +67,6 @@ export default function Gallery3D() {
   const dragStartX = useRef(0);
 
   // ── Text data ──
-  const dateText = '22 · 08 · 2026';
   const titleLine1 = '¡Nos';
   const titleLine2 = 'Casamos!';
   const subtitleWords = 'Con inmensa alegría en nuestros corazones, queremos invitarte a celebrar el día en que uniremos nuestras vidas para siempre.'.split(' ');
@@ -509,6 +508,15 @@ export default function Gallery3D() {
           margin-top: calc((clamp(280px, 76vw, 1100px) / (3 / 2)) / -2);
           transform-style: preserve-3d;
           will-change: transform, opacity, filter;
+        }
+
+        @media (max-width: 767px) {
+          .gl3d-card {
+            width: clamp(280px, 84vw, 520px);
+            aspect-ratio: 6 / 5;
+            margin-left: calc(clamp(280px, 84vw, 520px) / -2);
+            margin-top: calc((clamp(280px, 84vw, 520px) / (6 / 5)) / -2);
+          }
         }
 
         /* ── Photo card ── */

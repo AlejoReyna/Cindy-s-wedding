@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useLayoutEffect } from 'react';
+import { useState, useLayoutEffect } from 'react';
 import LocationSection from './components/LocationSection';
 // import GiftSection from './components/GiftSection'; // Hidden — merged into RSVPSection
 import RSVPSection from './components/RSVPSection';
@@ -9,6 +9,7 @@ import Navbar from './components/Navbar';
 import Gallery3D from './components/Gallery3D';
 import ParentsSection from './components/ParentsSection';
 import DressCodeSection from './components/DressCodeSection';
+import GiftEnvelopeBannerSection from './components/GiftEnvelopeBannerSection';
 import { ThemeProvider } from './context/ThemeContext';
 import HeroSection from './components/HeroSection';
 import SplashScreen from './components/SplashScreen';
@@ -66,13 +67,13 @@ export default function Home() {
         <LocationSection />
       </div>
 
+      <div id="regalos">
+        <GiftEnvelopeBannerSection />
+      </div>
+
       <div id="dresscode">
         <DressCodeSection />
       </div>
-
-
-      {/* GiftSection hidden — content merged into RSVPSection */}
-      {/* <div id="regalos"><GiftSection /></div> */}
       <div id="rsvp">
         <RSVPSection />
       </div>
