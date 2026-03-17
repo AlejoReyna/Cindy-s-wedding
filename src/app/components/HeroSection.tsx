@@ -91,30 +91,16 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
         />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center justify-between text-center px-6 w-full min-h-screen py-16">
+      <div className="relative z-10 flex flex-col items-center justify-start text-center px-6 w-full min-h-screen py-16">
 
-        {/* Top spacer — small so names sit in the upper-center */}
-        <div className="flex-[0.4]" />
+        {/* Top spacer — reduced so title/date sit closer to top */}
+        <div className="h-[8vh] min-h-[36px] hero-top-spacer" />
 
         {/* ── Center group: date + names ───────────────────────────────── */}
         <div className="flex flex-col items-center flex-[0]">
-          {/* Wedding date label */}
-          <div
-            className={`flex items-center justify-center gap-4 mb-8 transition-all duration-[700ms] ease-out ${
-              loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}
-            style={{ transitionDelay: `${POST_NAMES + 750}ms` }}
-          >
-            <span className="block w-14 md:w-20 h-[0.5px] bg-[#F9F6EE]/55" />
-            <span className="hero-label-text text-[#F9F6EE]">
-              {weddingDateLabel}
-            </span>
-            <span className="block w-14 md:w-20 h-[0.5px] bg-[#F9F6EE]/55" />
-          </div>
-
           {/* ── Names — letter-by-letter writing ───────────── */}
           <div>
-            <h1 className="hero-names-text text-[#F9F6EE]">
+            <h1 className="hero-names-text text-white">
               {'Cindy'.split('').map((char, i) => (
                 <span
                   key={`c-${i}`}
@@ -127,7 +113,7 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
             </h1>
 
             <p
-              className={`hero-ampersand text-[#F9F6EE]${
+              className={`hero-ampersand text-white${
                 loaded ? ' ampersand-animated' : ' ampersand-hidden'
               }`}
               style={{ animationDelay: `${AMP_START}ms` }}
@@ -135,7 +121,7 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
               &amp;
             </p>
 
-            <h1 className="hero-names-text text-[#F9F6EE]">
+            <h1 className="hero-names-text text-white">
               {'Jorge'.split('').map((char, i) => (
                 <span
                   key={`j-${i}`}
@@ -147,14 +133,22 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
               ))}
             </h1>
           </div>
+
+          {/* Wedding date label */}
+          <div
+            className={`hero-date-wrap flex items-center justify-center gap-4 mt-3 transition-all duration-[700ms] ease-out ${
+              loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
+            style={{ transitionDelay: `${POST_NAMES + 750}ms` }}
+          >
+            <span className="hero-label-text text-white">
+              {weddingDateLabel}
+            </span>
+          </div>
         </div>
 
-        {/* Bottom flexible space */}
-        <div className="flex-[1.6]" />
-
-        {/* ── Bottom group: CTA + separator + timer ── */}
-        <div className="hero-bottom-group flex flex-col items-center gap-5 mb-0">
-          {/* Confirmar asistencia — rectangular button with drawn border */}
+        {/* ── Bottom group: CTA + timer (positioned independently) ───────── */}
+        <div className="hero-bottom-group absolute inset-x-0 bottom-4 sm:bottom-5 md:bottom-1 flex flex-col items-center gap-3">
           <a
             href="#rsvp"
             className={`hero-cta-btn ${loaded ? 'hero-cta-btn--animate' : ''}`}
@@ -168,29 +162,15 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
               '--btn-fill-delay': `${POST_NAMES + 1000 + 800}ms`,
             } as React.CSSProperties}
           >
-            {/* Border that draws itself via conic-gradient mask */}
             <span className={`hero-cta-border-el ${loaded ? 'hero-cta-border-el--draw' : ''}`} />
-            {/* Background fill (fades in after border is drawn) */}
             <span className={`hero-cta-bg ${loaded ? 'hero-cta-bg--visible' : ''}`} />
-            {/* Text */}
             <span className={`hero-cta-label ${loaded ? 'hero-cta-label--visible' : ''}`}>
               Confirma Tu Asistencia
             </span>
           </a>
 
-          {/* Separator line */}
           <div
-            className={`hero-separator mt-5 transition-all duration-[800ms] ease-out ${
-              loaded ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
-            }`}
-            style={{ transitionDelay: `${POST_NAMES + 1150}ms` }}
-          >
-            <span className="block w-16 md:w-24 h-[0.5px] mx-auto bg-[#F9F6EE]/40" />
-          </div>
-
-          {/* Countdown timer */}
-          <div
-            className={`hero-timer-wrap mt-4 transition-all duration-[900ms] ease-out ${
+            className={`hero-timer-wrap transition-all duration-[900ms] ease-out ${
               loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             }`}
             style={{ transitionDelay: `${POST_NAMES + 1200}ms` }}
@@ -350,10 +330,10 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 14px 32px;
+          padding: 16px 40px;
           cursor: pointer;
           text-decoration: none;
-          min-width: 220px;
+          min-width: 280px;
         }
 
         /* ── CSS-only drawn border ──────────────────────────────────
@@ -365,7 +345,7 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
         .hero-cta-border-el {
           position: absolute;
           inset: 0;
-          border: 1px solid rgba(249, 246, 238, 0.7);
+          border: 1px solid rgba(255, 255, 255, 0.7);
           border-radius: 8px;
           pointer-events: none;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.2);
@@ -416,10 +396,10 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
           z-index: 1;
           font-family: 'EB Garamond', 'Cormorant Garamond', serif;
           font-weight: 400;
-          font-size: 13px;
-          letter-spacing: 0.3em;
+          font-size: 14px;
+          letter-spacing: 0.34em;
           text-transform: uppercase;
-          color: #F9F6EE;
+          color: #ffffff;
           opacity: 0;
           text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5), 0 0 2px rgba(0, 0, 0, 0.3);
           transition: color 0.3s ease;
@@ -438,19 +418,19 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
           background: rgba(101, 67, 33, 0.5);
         }
         .hero-cta-btn:hover .hero-cta-border-el {
-          border-color: rgba(249, 246, 238, 1);
+          border-color: rgba(255, 255, 255, 1);
         }
 
         @media (min-width: 640px) {
-          .hero-cta-btn { padding: 15px 38px; min-width: 250px; }
-          .hero-cta-label { font-size: 14px; letter-spacing: 0.35em; }
+          .hero-cta-btn { padding: 17px 46px; min-width: 320px; }
+          .hero-cta-label { font-size: 15px; letter-spacing: 0.36em; }
         }
         @media (min-width: 768px) {
-          .hero-cta-btn { padding: 16px 44px; min-width: 280px; }
-          .hero-cta-label { font-size: 15px; }
+          .hero-cta-btn { padding: 18px 52px; min-width: 350px; }
+          .hero-cta-label { font-size: 16px; }
         }
         @media (min-width: 1024px) {
-          .hero-cta-label { font-size: 16px; }
+          .hero-cta-label { font-size: 17px; }
         }
 
         /* ── 13" MacBook / short viewport fix ──────────────────────────
@@ -478,6 +458,7 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
             margin-top: 4px;
           }
         }
+
       `}</style>
     </section>
   );

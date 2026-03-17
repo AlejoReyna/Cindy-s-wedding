@@ -122,7 +122,7 @@ const Navbar = () => {
   const shadowAlpha = isSpecialSection ? 0 : lerp(0, 0.06, t);
 
   const textCls = isDark
-    ? 'text-[#F9F6EE]/60 hover:text-[#F9F6EE] [text-shadow:0_1px_4px_rgba(0,0,0,0.4)]'
+    ? 'text-white hover:text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.4)]'
     : 'text-[#543c24]/55 hover:text-[#543c24]';
 
   const lineColor = isDark ? '#ffffff' : '#543c24';
