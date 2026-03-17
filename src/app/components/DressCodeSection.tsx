@@ -116,25 +116,23 @@ export default function DressCodeSection() {
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`} style={{ transitionDelay: '1100ms' }}>
 
-              <p className="garamond-300 tracking-[0.32em] text-[11px] md:text-xs uppercase text-[#8B7355]/80 mb-5">
-                Celebración
-              </p>
-
               <p className="garamond-regular text-base md:text-[17px] text-[#543c24] leading-relaxed max-w-xs mx-auto mb-6">
                 Con mucho cariño hemos planeado una velada íntima entre adultos.
-              </p>
-
-              <p className="garamond-regular text-base md:text-[17px] text-[#543c24]/75 leading-relaxed max-w-xs mx-auto mb-10">
                 Les pedimos amablemente que este día tan especial sea solo para los grandes.
               </p>
 
-              {/* No children badge */}
-              <div className="inline-flex items-center gap-3">
-                <span className="block w-8 h-[0.5px] bg-[#C4985B]/30" />
-                <span className="garamond-300 tracking-[0.28em] text-[11px] md:text-xs uppercase text-[#C4985B]/65">
+              {/* No children badge (renders last) */}
+              <div
+                className={`inline-flex items-center gap-4 transition-all duration-[900ms] ease-out ${
+                  isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-3 scale-95'
+                }`}
+                style={{ transitionDelay: '2100ms' }}
+              >
+                <span className="block w-14 h-[1px] bg-[#C4985B]/55" />
+                <span className="garamond-regular tracking-[0.3em] text-[15px] md:text-[18px] uppercase text-[#9a6e34] font-semibold drop-shadow-[0_1px_0_rgba(84,60,36,0.18)]">
                   NO NIÑOS
                 </span>
-                <span className="block w-8 h-[0.5px] bg-[#C4985B]/30" />
+                <span className="block w-14 h-[1px] bg-[#C4985B]/55" />
               </div>
             </div>
 

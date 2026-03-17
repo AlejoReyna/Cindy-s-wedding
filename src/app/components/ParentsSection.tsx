@@ -18,8 +18,8 @@ import { useEffect, useState, useRef } from 'react'
 //   ⑤ "Padres del novio" + names — letter/word        (after ④ ends)
 // ═══════════════════════════════════════════════════════════════════════
 
-const LETTER_SPEED = 90   // ms per character (headings)
-const WORD_SPEED   = 72   // ms per word (paragraphs / names)
+const TOTAL_TEXT_RENDER_MS = 2000
+const ITEM_ANIMATION_MS = 220
 
 // Quote split into words for word-by-word animation
 const QUOTE_LINES = [
@@ -43,29 +43,43 @@ const GROOM_NAMES   = [
   'Jorge Alberto González Rodriguez',
 ]
 
-// Compute duration of a letter-by-letter block (ms)
-const lettersDuration = (text: string) => text.length * LETTER_SPEED + 380
-
-// Compute duration of a word-by-word block (ms)
-const wordsDuration = (text: string) => text.split(' ').length * WORD_SPEED + 400
-
-
 export default function ParentsSection() {
   const sectionRef = useRef<HTMLElement>(null)
 
-  // ── Sequential flags ──
+  // ── Trigger flags ──
   const [monoVisible,      setMonoVisible]      = useState(false)
-  const [quoteStarted,     setQuoteStarted]     = useState(false)
-  const [dividerDrawn,     setDividerDrawn]     = useState(false)
-  const [brideStarted,     setBrideStarted]     = useState(false)
-  const [groomStarted,     setGroomStarted]     = useState(false)
+  const [textStarted,      setTextStarted]      = useState(false)
 
-  // Compute chain durations up front
-  const quoteDuration    = wordsDuration(QUOTE_WORDS.join(' '))
-  const brideHDuration   = lettersDuration(BRIDE_HEADING)
-  const brideName0Dur    = wordsDuration(BRIDE_NAMES[0])
-  const brideName1Dur    = wordsDuration(BRIDE_NAMES[1])
-  const brideBlockDur    = brideHDuration + 200 + brideName0Dur + 100 + brideName1Dur + 380
+  // Single timeline: all text should finish in <= 1 second.
+  const quoteWords = QUOTE_WORDS
+  const brideHeadingChars = BRIDE_HEADING.split('')
+  const groomHeadingChars = GROOM_HEADING.split('')
+  const brideName0Words = BRIDE_NAMES[0].split(' ')
+  const brideName1Words = BRIDE_NAMES[1].split(' ')
+  const groomName0Words = GROOM_NAMES[0].split(' ')
+  const groomName1Words = GROOM_NAMES[1].split(' ')
+
+  let timelineCursor = 0
+  const quoteStart = timelineCursor
+  timelineCursor += quoteWords.length
+  const brideHeadingStart = timelineCursor
+  timelineCursor += brideHeadingChars.length
+  const brideName0Start = timelineCursor
+  timelineCursor += brideName0Words.length
+  const brideName1Start = timelineCursor
+  timelineCursor += brideName1Words.length
+  const groomHeadingStart = timelineCursor
+  timelineCursor += groomHeadingChars.length
+  const groomName0Start = timelineCursor
+  timelineCursor += groomName0Words.length
+  const groomName1Start = timelineCursor
+  timelineCursor += groomName1Words.length
+
+  const totalUnits = timelineCursor
+  const unitDelay =
+    totalUnits > 1
+      ? Math.max(0, Math.floor((TOTAL_TEXT_RENDER_MS - ITEM_ANIMATION_MS) / (totalUnits - 1)))
+      : 0
 
   // ── Section observer → kick off chain ──
   useEffect(() => {
@@ -73,6 +87,7 @@ export default function ParentsSection() {
       ([entry]) => {
         if (entry.isIntersecting) {
           setMonoVisible(true)
+          setTextStarted(true)
           observer.disconnect()
         }
       },
@@ -81,44 +96,6 @@ export default function ParentsSection() {
     if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
   }, [])
-
-  // ② Quote starts after monogram settles
-  useEffect(() => {
-    if (!monoVisible) return
-    const t = setTimeout(() => setQuoteStarted(true), 700)
-    return () => clearTimeout(t)
-  }, [monoVisible])
-
-  // ③ Divider draws after quote finishes
-  useEffect(() => {
-    if (!quoteStarted) return
-    const t = setTimeout(() => setDividerDrawn(true), quoteDuration + 200)
-    return () => clearTimeout(t)
-  }, [quoteStarted, quoteDuration])
-
-  // ④ Bride parents start after divider
-  useEffect(() => {
-    if (!dividerDrawn) return
-    const t = setTimeout(() => setBrideStarted(true), 600)
-    return () => clearTimeout(t)
-  }, [dividerDrawn])
-
-  // ⑤ Groom parents start after bride block finishes
-  useEffect(() => {
-    if (!brideStarted) return
-    const t = setTimeout(() => setGroomStarted(true), brideBlockDur + 200)
-    return () => clearTimeout(t)
-  }, [brideStarted, brideBlockDur])
-
-  // ── Helper: bride name delays (relative to brideStarted) ──
-  const brideName0Delay = brideHDuration + 200         // after heading finishes
-  const brideName1Delay = brideName0Delay + brideName0Dur + 100
-
-  // ── Helper: groom name delays (relative to groomStarted) ──
-  const groomHDuration  = lettersDuration(GROOM_HEADING)
-  const groomName0Delay = groomHDuration + 200
-  const groomName0Dur   = wordsDuration(GROOM_NAMES[0])
-  const groomName1Delay = groomName0Delay + groomName0Dur + 100
 
   return (
     <section
@@ -201,8 +178,8 @@ export default function ParentsSection() {
                 {QUOTE_WORDS.map((word, i) => (
                   <span key={`q-${i}`}>
                     <span
-                      className={`ps-word${quoteStarted ? ' ps-word--animated' : ''}`}
-                      style={{ animationDelay: `${i * WORD_SPEED}ms` }}
+                      className={`ps-word${textStarted ? ' ps-word--animated' : ''}`}
+                      style={{ animationDelay: `${(quoteStart + i) * unitDelay}ms` }}
                     >
                       {word}
                     </span>
@@ -214,8 +191,8 @@ export default function ParentsSection() {
 
             {/* ③ Decorative divider — draws in */}
             <div
-              className={`flex items-center justify-center gap-3 mb-10 transition-all duration-[1400ms] ease-out ${
-                dividerDrawn ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+              className={`flex items-center justify-center gap-3 mb-10 transition-all duration-[350ms] ease-out ${
+                textStarted ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
               }`}
             >
               <span className="block w-12 h-[0.5px] bg-[#C4985B]/40" />
@@ -229,39 +206,39 @@ export default function ParentsSection() {
               {/* ④ Bride's parents */}
               <div className="text-center">
                 <h3 className="ps-heading-text mb-4">
-                  {BRIDE_HEADING.split('').map((char, i) => (
+                  {brideHeadingChars.map((char, i) => (
                     <span
                       key={`bh-${i}`}
-                      className={`ps-letter${brideStarted ? ' ps-letter--animated' : ''}`}
-                      style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
+                      className={`ps-letter${textStarted ? ' ps-letter--animated' : ''}`}
+                      style={{ animationDelay: `${(brideHeadingStart + i) * unitDelay}ms` }}
                     >
                       {char === ' ' ? '\u00A0' : char}
                     </span>
                   ))}
                 </h3>
                 <p className="ps-name-text">
-                  {BRIDE_NAMES[0].split(' ').map((word, i) => (
+                  {brideName0Words.map((word, i) => (
                     <span key={`bn0-${i}`}>
                       <span
-                        className={`ps-word${brideStarted ? ' ps-word--animated' : ''}`}
-                        style={{ animationDelay: `${brideName0Delay + i * WORD_SPEED}ms` }}
+                        className={`ps-word${textStarted ? ' ps-word--animated' : ''}`}
+                        style={{ animationDelay: `${(brideName0Start + i) * unitDelay}ms` }}
                       >
                         {word}
                       </span>
-                      {i < BRIDE_NAMES[0].split(' ').length - 1 && ' '}
+                      {i < brideName0Words.length - 1 && ' '}
                     </span>
                   ))}
                 </p>
                 <p className="ps-name-text">
-                  {BRIDE_NAMES[1].split(' ').map((word, i) => (
+                  {brideName1Words.map((word, i) => (
                     <span key={`bn1-${i}`}>
                       <span
-                        className={`ps-word${brideStarted ? ' ps-word--animated' : ''}`}
-                        style={{ animationDelay: `${brideName1Delay + i * WORD_SPEED}ms` }}
+                        className={`ps-word${textStarted ? ' ps-word--animated' : ''}`}
+                        style={{ animationDelay: `${(brideName1Start + i) * unitDelay}ms` }}
                       >
                         {word}
                       </span>
-                      {i < BRIDE_NAMES[1].split(' ').length - 1 && ' '}
+                      {i < brideName1Words.length - 1 && ' '}
                     </span>
                   ))}
                 </p>
@@ -269,8 +246,8 @@ export default function ParentsSection() {
 
               {/* Small divider between parent groups */}
               <div
-                className={`flex items-center justify-center gap-2 transition-all duration-[1000ms] ease-out ${
-                  groomStarted ? 'opacity-100' : 'opacity-0'
+                className={`flex items-center justify-center gap-2 transition-all duration-[350ms] ease-out ${
+                  textStarted ? 'opacity-100' : 'opacity-0'
                 }`}
               >
                 <span className="block w-8 h-[0.5px] bg-[#C4985B]/30" />
@@ -281,39 +258,39 @@ export default function ParentsSection() {
               {/* ⑤ Groom's parents */}
               <div className="text-center">
                 <h3 className="ps-heading-text mb-4">
-                  {GROOM_HEADING.split('').map((char, i) => (
+                  {groomHeadingChars.map((char, i) => (
                     <span
                       key={`gh-${i}`}
-                      className={`ps-letter${groomStarted ? ' ps-letter--animated' : ''}`}
-                      style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
+                      className={`ps-letter${textStarted ? ' ps-letter--animated' : ''}`}
+                      style={{ animationDelay: `${(groomHeadingStart + i) * unitDelay}ms` }}
                     >
                       {char === ' ' ? '\u00A0' : char}
                     </span>
                   ))}
                 </h3>
                 <p className="ps-name-text">
-                  {GROOM_NAMES[0].split(' ').map((word, i) => (
+                  {groomName0Words.map((word, i) => (
                     <span key={`gn0-${i}`}>
                       <span
-                        className={`ps-word${groomStarted ? ' ps-word--animated' : ''}`}
-                        style={{ animationDelay: `${groomName0Delay + i * WORD_SPEED}ms` }}
+                        className={`ps-word${textStarted ? ' ps-word--animated' : ''}`}
+                        style={{ animationDelay: `${(groomName0Start + i) * unitDelay}ms` }}
                       >
                         {word}
                       </span>
-                      {i < GROOM_NAMES[0].split(' ').length - 1 && ' '}
+                      {i < groomName0Words.length - 1 && ' '}
                     </span>
                   ))}
                 </p>
                 <p className="ps-name-text">
-                  {GROOM_NAMES[1].split(' ').map((word, i) => (
+                  {groomName1Words.map((word, i) => (
                     <span key={`gn1-${i}`}>
                       <span
-                        className={`ps-word${groomStarted ? ' ps-word--animated' : ''}`}
-                        style={{ animationDelay: `${groomName1Delay + i * WORD_SPEED}ms` }}
+                        className={`ps-word${textStarted ? ' ps-word--animated' : ''}`}
+                        style={{ animationDelay: `${(groomName1Start + i) * unitDelay}ms` }}
                       >
                         {word}
                       </span>
-                      {i < GROOM_NAMES[1].split(' ').length - 1 && ' '}
+                      {i < groomName1Words.length - 1 && ' '}
                     </span>
                   ))}
                 </p>
@@ -407,7 +384,7 @@ export default function ParentsSection() {
           opacity: 0;
         }
         .ps-letter--animated {
-          animation: psLetterWrite 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+          animation: psLetterWrite ${ITEM_ANIMATION_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
         @keyframes psLetterWrite {
           0%   { opacity: 0; transform: translateY(10px) scaleX(0.4); filter: blur(2px); }
@@ -421,7 +398,7 @@ export default function ParentsSection() {
           opacity: 0;
         }
         .ps-word--animated {
-          animation: psWordWrite 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+          animation: psWordWrite ${ITEM_ANIMATION_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
         @keyframes psWordWrite {
           0%   { opacity: 0; transform: translateY(8px) scaleX(0.6); filter: blur(1.5px); }

@@ -4,13 +4,13 @@ import Image from 'next/image';
 
 // ── Photo data ──
 const photos = [
-  { label: 'FOTO 1', src: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&h=600&fit=crop' },
-  { label: 'FOTO 2', src: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=1200&h=600&fit=crop' },
-  { label: 'FOTO 3', src: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&h=600&fit=crop' },
-  { label: 'FOTO 4', src: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=1200&h=600&fit=crop' },
-  { label: 'FOTO 5', src: 'https://images.unsplash.com/photo-1529636798458-92182e662485?w=1200&h=600&fit=crop' },
-  { label: 'FOTO 6', src: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=1200&h=600&fit=crop' },
-  { label: 'FOTO 7', src: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1200&h=600&fit=crop' },
+  { label: 'FOTO 1', src: '/assets/hero-0682.jpg' },
+  { label: 'FOTO 2', src: '/assets/hero-0682.jpg' },
+  { label: 'FOTO 3', src: '/assets/hero-0682.jpg' },
+  { label: 'FOTO 4', src: '/assets/hero-0682.jpg' },
+  { label: 'FOTO 5', src: '/assets/hero-0682.jpg' },
+  { label: 'FOTO 6', src: '/assets/hero-0682.jpg' },
+  { label: 'FOTO 7', src: '/assets/hero-0682.jpg' },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -30,8 +30,8 @@ const photos = [
 //   ⑦ 3D carousel slides in                          (with ⑥)
 // ═══════════════════════════════════════════════════════════════════════
 
-const LETTER_SPEED = 35;
-const WORD_SPEED   = 30;
+const LETTER_SPEED = 12;
+const WORD_SPEED   = 18;
 
 export default function Gallery3D() {
   const [isVisible, setIsVisible] = useState(false);
@@ -84,11 +84,11 @@ export default function Gallery3D() {
             hasTriggered.current = true;
             setIsVisible(true);
             setFlowersVisible(true);
-            after(150,  () => setDateStarted(true));
-            after(400,  () => setTitleStarted(true));
-            after(750,  () => setLineDrawn(true));
-            after(850,  () => setSubtitleStarted(true));
-            after(1500, () => setCardsVisible(true));
+            after(0,    () => setDateStarted(true));
+            after(120,  () => setTitleStarted(true));
+            after(180,  () => setLineDrawn(true));
+            after(300,  () => setSubtitleStarted(true));
+            after(900,  () => setCardsVisible(true));
           }
         });
       },
@@ -103,21 +103,19 @@ export default function Gallery3D() {
     };
   }, []);
 
-  // ── Helper: wrap index for infinite loop ──
-  const wrap = useCallback((i: number) => ((i % photos.length) + photos.length) % photos.length, []);
-
-  // ── Navigation (circular) ──
+  // ── Navigation (finite, no wrap) ──
   const goTo = useCallback((index: number) => {
     if (isAnimating) return;
-    const wrapped = wrap(index);
-    if (wrapped === currentIndex) return;
+    if (index < 0 || index >= photos.length || index === currentIndex) return;
     setIsAnimating(true);
-    setCurrentIndex(wrapped);
+    setCurrentIndex(index);
     setTimeout(() => setIsAnimating(false), 500);
-  }, [isAnimating, currentIndex, wrap]);
+  }, [isAnimating, currentIndex]);
 
-  const goPrev = useCallback(() => goTo(wrap(currentIndex - 1)), [goTo, currentIndex, wrap]);
-  const goNext = useCallback(() => goTo(wrap(currentIndex + 1)), [goTo, currentIndex, wrap]);
+  const goPrev = useCallback(() => goTo(currentIndex - 1), [goTo, currentIndex]);
+  const goNext = useCallback(() => goTo(currentIndex + 1), [goTo, currentIndex]);
+  const canGoPrev = currentIndex > 0;
+  const canGoNext = currentIndex < photos.length - 1;
 
   // ── Keyboard navigation ──
   useEffect(() => {
@@ -155,18 +153,9 @@ export default function Gallery3D() {
     setDragX(0);
   }, [isDragging, dragX, goPrev, goNext]);
 
-  // ── Compute shortest circular offset ──
-  const circularOffset = (index: number) => {
-    const n = photos.length;
-    let diff = index - currentIndex;
-    if (diff > n / 2) diff -= n;
-    if (diff < -n / 2) diff += n;
-    return diff;
-  };
-
-  // ── Card positioning: single-image layout ──
+  // ── Card positioning: active card + side previews ──
   const getCard3DStyle = (index: number): React.CSSProperties => {
-    const offset = circularOffset(index);
+    const offset = index - currentIndex;
     const dragInfluence = isDragging ? dragX * 0.3 : 0;
     const absOffset = Math.abs(offset);
 
@@ -178,19 +167,21 @@ export default function Gallery3D() {
     // Active card — centered and fully visible
     if (offset === 0) {
       return {
-        transform: `translateX(${dragInfluence}px) scale(1)`,
-        zIndex: 10,
+        transform: `translateX(${dragInfluence}px) translateZ(90px) scale(1.03)`,
+        zIndex: 12,
         opacity: 1,
+        filter: 'brightness(1.02)',
         transition,
       };
     }
 
-    // Buffer cards (offset ±1) — hidden off-screen for slide-in transition
+    // Adjacent cards (offset ±1) — semi-preview on the sides
     const direction = offset > 0 ? 1 : -1;
     return {
-      transform: `translateX(${direction * 110}%) scale(1)`,
-      zIndex: 1,
-      opacity: 0,
+      transform: `translateX(${direction * 59}%) translateZ(-40px) rotateY(${direction * -24}deg) scale(0.82)`,
+      zIndex: 4,
+      opacity: 0.58,
+      filter: 'brightness(0.86) saturate(0.9)',
       transition,
       pointerEvents: 'none' as const,
     };
@@ -245,25 +236,9 @@ export default function Gallery3D() {
           {/* ── TOP: Text Section (identical cascade) ── */}
           <div className="w-full max-w-3xl flex flex-col items-center text-center shrink-0">
 
-          
-
-            {/* ② Date */}
-            <div className="mb-4">
-              <p className="gl3d-date-text">
-                {dateText.split('').map((char, i) => (
-                  <span
-                    key={`d-${i}`}
-                    className={`gl3d-letter${dateStarted ? ' gl3d-letter--animated' : ''}`}
-                    style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
-                  >
-                    {char === ' ' ? '\u00A0' : char}
-                  </span>
-                ))}
-              </p>
-            </div>
 
             {/* ③ Title */}
-            <div className="mb-6">
+            <div className="mb-6 mt-8">
               <h2 className="gl3d-title-text">
                 {`${titleLine1} ${titleLine2}`.split('').map((char, i) => (
                   <span
@@ -279,7 +254,7 @@ export default function Gallery3D() {
 
 
             {/* ⑤ Subtitle */}
-            <div className="max-w-sm">
+            <div className="max-w-sm mb-8">
               <p className="gl3d-subtitle-text">
                 {subtitleWords.map((word, i) => (
                   <span key={`w-${i}`}>
@@ -339,13 +314,12 @@ export default function Gallery3D() {
                   </div>
                 ))}
               </div>
-              <div className="gl3d-vignette" aria-hidden="true" />
-
               {/* ═══ Navigation Arrows ═══ */}
               <button
                 onClick={goPrev}
                 className="gl3d-nav-btn gl3d-nav-btn--left"
                 aria-label="Foto anterior"
+                disabled={!canGoPrev}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M15 19l-7-7 7-7" />
@@ -355,6 +329,7 @@ export default function Gallery3D() {
                 onClick={goNext}
                 className="gl3d-nav-btn gl3d-nav-btn--right"
                 aria-label="Foto siguiente"
+                disabled={!canGoNext}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 5l7 7-7 7" />
@@ -432,7 +407,7 @@ export default function Gallery3D() {
           opacity: 0;
         }
         .gl3d-letter--animated {
-          animation: gl3dLetterWrite 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+          animation: gl3dLetterWrite 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
         @keyframes gl3dLetterWrite {
           0%   { opacity: 0; transform: translateY(10px) scaleX(0.4); filter: blur(2px); }
@@ -445,7 +420,7 @@ export default function Gallery3D() {
           opacity: 0;
         }
         .gl3d-word--animated {
-          animation: gl3dWordWrite 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+          animation: gl3dWordWrite 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
         @keyframes gl3dWordWrite {
           0%   { opacity: 0; transform: translateY(8px) scaleX(0.6); filter: blur(1.5px); }
@@ -492,6 +467,8 @@ export default function Gallery3D() {
           position: relative;
           cursor: grab;
           overflow: hidden;
+          perspective: 1400px;
+          perspective-origin: center center;
         }
         .gl3d-stage:active {
           cursor: grabbing;
@@ -519,26 +496,19 @@ export default function Gallery3D() {
           width: 100%;
           height: 100%;
           z-index: 1;
-        }
-
-        .gl3d-vignette {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          z-index: 12;
-          background:
-            radial-gradient(ellipse at center, transparent 42%, rgba(0, 0, 0, 0.18) 100%),
-            linear-gradient(to top, rgba(0, 0, 0, 0.12), transparent 45%);
+          transform-style: preserve-3d;
         }
 
         .gl3d-card {
           position: absolute;
           top: 50%;
           left: 50%;
-          width: clamp(300px, 94vw, 1500px);
-          height: clamp(280px, 46vw, 560px);
-          margin-left: calc(clamp(300px, 94vw, 1500px) / -2);
-          margin-top: calc(clamp(280px, 46vw, 560px) / -2);
+          width: clamp(280px, 76vw, 1100px);
+          aspect-ratio: 3 / 2;
+          margin-left: calc(clamp(280px, 76vw, 1100px) / -2);
+          margin-top: calc((clamp(280px, 76vw, 1100px) / (3 / 2)) / -2);
+          transform-style: preserve-3d;
+          will-change: transform, opacity, filter;
         }
 
         /* ── Photo card ── */
@@ -549,6 +519,9 @@ export default function Gallery3D() {
           background: #d5cfc6;
           border-radius: 8px;
           overflow: hidden;
+          box-shadow:
+            0 14px 35px rgba(0, 0, 0, 0.18),
+            0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
         /* ═══ NAVIGATION BUTTONS ═══ */
@@ -579,6 +552,18 @@ export default function Gallery3D() {
         }
         .gl3d-nav-btn:active {
           transform: translateY(-50%) scale(0.95);
+        }
+        .gl3d-nav-btn:disabled {
+          opacity: 0.35;
+          cursor: not-allowed;
+          transform: translateY(-50%);
+          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+        }
+        .gl3d-nav-btn:disabled:hover {
+          background: rgba(255, 255, 255, 0.85);
+          border-color: rgba(196, 152, 91, 0.35);
+          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+          transform: translateY(-50%);
         }
         .gl3d-nav-btn--left {
           left: 8px;

@@ -29,7 +29,9 @@ const Navbar = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isInFooterSection, setIsInFooterSection] = useState(false);
   const [isInRSVPSection, setIsInRSVPSection] = useState(false);
-  const [isInHeroSection, setIsInHeroSection] = useState(false);
+  // Start as true — page always loads at the top over the hero image.
+  // The scroll handler will correct this once it fires.
+  const [isInHeroSection, setIsInHeroSection] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
   const { isNightMode } = useTheme();

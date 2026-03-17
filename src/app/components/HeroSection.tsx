@@ -22,11 +22,14 @@ const HERO_PHOTO_ONE = '/assets/hero-0624.jpg';
 // ─────────────────────────────────────────────────────────────────────────────
 interface HeroSectionProps {
   entered?: boolean;
+  /** When true, skip all entrance animations and show content immediately (e.g. page refresh). */
+  immediate?: boolean;
 }
 
-const HeroSection = ({ entered = false }: HeroSectionProps) => {
+const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) => {
   const { isNightMode } = useTheme();
-  const [loaded, setLoaded] = useState(false);
+  // If immediate, start fully loaded — no animations needed.
+  const [loaded, setLoaded] = useState(immediate);
   const heroSectionRef = useStatusBarSection({
     sectionId: 'hero',
     color: '#f9f5e9',
@@ -34,12 +37,12 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
     isNightMode
   });
 
-  // Only start animations after the envelope has been opened
+  // Only start animations after the envelope has been opened (skip if immediate)
   useEffect(() => {
-    if (!entered) return;
+    if (!entered || immediate) return;
     const t = setTimeout(() => setLoaded(true), 75);
     return () => clearTimeout(t);
-  }, [entered]);
+  }, [entered, immediate]);
 
   // ── Animation timing constants (ms after `loaded` fires at 75ms) ──────────
   // Names:    "Cindy" → pause → "&" → pause → "Jorge"  ≈ 0 – 935ms
@@ -104,8 +107,8 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
               {'Cindy'.split('').map((char, i) => (
                 <span
                   key={`c-${i}`}
-                  className={`letter-span${loaded ? ' letter-animated' : ''}`}
-                  style={{ animationDelay: `${CINDY_START + i * 55}ms` }}
+                  className={`letter-span${immediate ? ' letter-immediate' : loaded ? ' letter-animated' : ''}`}
+                  style={immediate ? undefined : { animationDelay: `${CINDY_START + i * 55}ms` }}
                 >
                   {char}
                 </span>
@@ -114,9 +117,9 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
 
             <p
               className={`hero-ampersand text-white${
-                loaded ? ' ampersand-animated' : ' ampersand-hidden'
+                immediate ? ' ampersand-immediate' : loaded ? ' ampersand-animated' : ' ampersand-hidden'
               }`}
-              style={{ animationDelay: `${AMP_START}ms` }}
+              style={immediate ? undefined : { animationDelay: `${AMP_START}ms` }}
             >
               &amp;
             </p>
@@ -125,8 +128,8 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
               {'Jorge'.split('').map((char, i) => (
                 <span
                   key={`j-${i}`}
-                  className={`letter-span${loaded ? ' letter-animated' : ''}`}
-                  style={{ animationDelay: `${JORGE_START + i * 55}ms` }}
+                  className={`letter-span${immediate ? ' letter-immediate' : loaded ? ' letter-animated' : ''}`}
+                  style={immediate ? undefined : { animationDelay: `${JORGE_START + i * 55}ms` }}
                 >
                   {char}
                 </span>
@@ -136,10 +139,10 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
 
           {/* Wedding date label */}
           <div
-            className={`hero-date-wrap flex items-center justify-center gap-4 mt-3 transition-all duration-[700ms] ease-out ${
-              loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            className={`hero-date-wrap flex items-center justify-center gap-4 mt-3 ${
+              immediate ? 'opacity-100' : `transition-all duration-[700ms] ease-out ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`
             }`}
-            style={{ transitionDelay: `${POST_NAMES + 750}ms` }}
+            style={immediate ? undefined : { transitionDelay: `${POST_NAMES + 750}ms` }}
           >
             <span className="hero-label-text text-white">
               {weddingDateLabel}
@@ -151,29 +154,29 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
         <div className="hero-bottom-group absolute inset-x-0 bottom-4 sm:bottom-5 md:bottom-1 flex flex-col items-center gap-3">
           <a
             href="#rsvp"
-            className={`hero-cta-btn ${loaded ? 'hero-cta-btn--animate' : ''}`}
+            className={`hero-cta-btn ${immediate ? 'hero-cta-btn--immediate' : loaded ? 'hero-cta-btn--animate' : ''}`}
             onClick={(e) => {
               e.preventDefault();
               document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth' });
             }}
-            style={{
+            style={immediate ? undefined : {
               '--btn-delay': `${POST_NAMES + 1000}ms`,
               '--btn-draw-duration': '0.8s',
               '--btn-fill-delay': `${POST_NAMES + 1000 + 800}ms`,
             } as React.CSSProperties}
           >
-            <span className={`hero-cta-border-el ${loaded ? 'hero-cta-border-el--draw' : ''}`} />
-            <span className={`hero-cta-bg ${loaded ? 'hero-cta-bg--visible' : ''}`} />
-            <span className={`hero-cta-label ${loaded ? 'hero-cta-label--visible' : ''}`}>
+            <span className={`hero-cta-border-el ${immediate ? 'hero-cta-border-el--immediate' : loaded ? 'hero-cta-border-el--draw' : ''}`} />
+            <span className={`hero-cta-bg ${immediate ? 'hero-cta-bg--immediate' : loaded ? 'hero-cta-bg--visible' : ''}`} />
+            <span className={`hero-cta-label ${immediate ? 'hero-cta-label--immediate' : loaded ? 'hero-cta-label--visible' : ''}`}>
               Confirma Tu Asistencia
             </span>
           </a>
 
           <div
-            className={`hero-timer-wrap transition-all duration-[900ms] ease-out ${
-              loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            className={`hero-timer-wrap ${
+              immediate ? 'opacity-100' : `transition-all duration-[900ms] ease-out ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`
             }`}
-            style={{ transitionDelay: `${POST_NAMES + 1200}ms` }}
+            style={immediate ? undefined : { transitionDelay: `${POST_NAMES + 1200}ms` }}
           >
             <CountdownTimer targetDate={weddingDate.toISOString()} variant="dark" />
           </div>
@@ -262,6 +265,10 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
           animation: ampersandSwirl 0.325s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
           opacity: 0;
         }
+
+        /* Immediate (no animation) — shows everything instantly on refresh */
+        .letter-immediate { opacity: 1 !important; }
+        .ampersand-immediate { opacity: 1 !important; }
 
         @keyframes ampersandSwirl {
           0%   { opacity: 0; transform: scale(0.3) rotate(-20deg) translateY(15px); filter: blur(4px); }
@@ -420,6 +427,14 @@ const HeroSection = ({ entered = false }: HeroSectionProps) => {
         .hero-cta-btn:hover .hero-cta-border-el {
           border-color: rgba(255, 255, 255, 1);
         }
+
+        /* Immediate CTA — skip all draw/fade animations */
+        .hero-cta-border-el--immediate {
+          opacity: 1 !important;
+          --cta-border-angle: 360deg;
+        }
+        .hero-cta-bg--immediate { opacity: 1 !important; }
+        .hero-cta-label--immediate { opacity: 1 !important; }
 
         @media (min-width: 640px) {
           .hero-cta-btn { padding: 17px 46px; min-width: 320px; }
