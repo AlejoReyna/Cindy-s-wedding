@@ -308,7 +308,7 @@ export default function ParentsSection() {
         /* ═══ TWO-COLUMN LAYOUT ═══ */
         .ps-two-col {
           display: flex;
-          flex-direction: column;
+          flex-direction: column-reverse;
           width: 100%;
           min-height: 80vh;
         }

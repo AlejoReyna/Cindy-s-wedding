@@ -56,7 +56,7 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
 
   return (
     <>
-      <audio ref={audioRef} src="/snow-on-the-beach.mp3" loop />
+      <audio ref={audioRef} src="/snow-on-the-beach-karaoke.mp3" loop />
 
       <div
         className={`song-player transition-all ease-out ${

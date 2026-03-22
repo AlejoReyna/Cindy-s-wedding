@@ -18,9 +18,10 @@ interface EventData {
 }
 
 const EVENTS: EventData[] = [
-  { time: '4:30 PM',  title: 'Misa',           icon: church,        alt: 'Misa'           },
-  { time: '7:00 PM',  title: 'Ceremonia Civil', icon: legalDocument, alt: 'Ceremonia Civil' },
-  { time: '7:00 PM',  title: 'Recepción',       icon: nightClub,     alt: 'Recepción'      },
+  { time: '4:30 PM',  title: 'Misa',                   icon: church,        alt: 'Misa'                   },
+  { time: '6:00 PM',  title: 'Cocktail de Bienvenida',  icon: nightClub,     alt: 'Cocktail de Bienvenida'  },
+  { time: '7:00 PM',  title: 'Ceremonia Civil',          icon: legalDocument, alt: 'Ceremonia Civil'         },
+  { time: '8:00 PM',  title: 'Recepción',                icon: nightClub,     alt: 'Recepción'               },
 ]
 
 const LETTER_SPEED   = 80
@@ -292,6 +293,19 @@ export default function ItinerarySection() {
                 )}
               </div>
             ))}
+
+            {/* ── After party teaser ── */}
+            <div
+              className="it-after"
+              style={{
+                transitionDelay: `${EVENTS.length * 120 + 200}ms`,
+                opacity:   completed ? 1 : 0,
+                transform: completed ? 'translateY(0)' : 'translateY(12px)',
+              }}
+            >
+              <p className="it-after-title">After</p>
+              <p className="it-after-location">Lugar: TBD</p>
+            </div>
           </div>
 
           {/* Scroll cue (only before completion) */}
@@ -533,22 +547,22 @@ export default function ItinerarySection() {
         }
 
         .it-card-icon-wrap {
-          width: 68px;
-          height: 68px;
+          width: clamp(44px, 10vw, 68px);
+          height: clamp(44px, 10vw, 68px);
           border-radius: 50%;
           background: rgba(237,233,226,0.5);
           border: 1px solid rgba(196,152,91,0.08);
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-bottom: clamp(1.2rem, 2.5vh, 2rem);
+          margin-bottom: clamp(0.6rem, 2.5vh, 2rem);
         }
 
         .it-card-time {
           margin: 0 0 clamp(0.5rem, 1.2vh, 0.8rem);
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
           font-weight: 300;
-          font-size: clamp(2rem, 4.5vw, 3.2rem);
+          font-size: clamp(1.4rem, 4.5vw, 3.2rem);
           letter-spacing: 0.06em;
           color: #2e1e14;
           line-height: 1;
@@ -565,38 +579,106 @@ export default function ItinerarySection() {
           text-align: center;
         }
 
-        /* ── Mobile: summary cards stack vertically ── */
+        /* ══════════════ AFTER PARTY TEASER ══════════════ */
+
+        .it-after {
+          grid-column: 1 / -1;
+          text-align: center;
+          padding: clamp(0.6rem, 1.5vh, 1rem) 0 0;
+          transition: opacity 0.6s ease-out, transform 0.5s ease-out;
+        }
+        .it-after-title {
+          margin: 0;
+          font-family: 'Cormorant Garamond', 'EB Garamond', serif;
+          font-weight: 300;
+          font-style: italic;
+          font-size: clamp(0.85rem, 1.8vw, 1.1rem);
+          letter-spacing: 0.25em;
+          text-transform: uppercase;
+          color: rgba(139,115,85,0.55);
+        }
+        .it-after-location {
+          margin: 0.15rem 0 0;
+          font-family: 'Cormorant Garamond', 'EB Garamond', serif;
+          font-weight: 300;
+          font-size: clamp(0.65rem, 1.2vw, 0.78rem);
+          letter-spacing: 0.18em;
+          color: rgba(139,115,85,0.4);
+        }
+
+        /* ── Mobile: summary cards in balanced 2×2 grid ── */
         @media (max-width: 640px) {
+          .it-header {
+            top: clamp(1.8rem, 5vh, 3rem);
+          }
+
           .it-summary {
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 14px;
-            padding: 6rem 1.25rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 0;
+            padding: 0 0;
+            margin: 0;
+            position: absolute;
+            inset: 0;
+            align-content: center;
+            justify-items: stretch;
+            padding-top: clamp(4rem, 10vh, 6rem);
           }
 
           .it-card-wrapper {
+            display: flex;
             flex-direction: column;
+            align-items: stretch;
             width: 100%;
-            max-width: 420px;
           }
 
           .it-card {
             width: 100%;
             height: auto;
-            padding: 1.6rem 1.25rem;
+            padding: clamp(1rem, 3.5vh, 1.8rem) 0.5rem;
           }
 
+          .it-card-icon-wrap {
+            width: 52px;
+            height: 52px;
+            margin-bottom: 0.6rem;
+          }
+
+          .it-card-time {
+            font-size: clamp(1.5rem, 6vw, 2rem);
+            margin-bottom: 0.35rem;
+          }
+
+          .it-card-title {
+            font-size: 0.55rem;
+            letter-spacing: 0.22em;
+          }
+
+          /* Vertical divider between columns */
+          .it-card-wrapper:nth-child(odd) {
+            border-right: 1px solid rgba(196,152,91,0.18);
+          }
+
+          /* Horizontal divider between rows */
+          .it-card-wrapper:nth-child(-n+2) {
+            border-bottom: 1px solid rgba(196,152,91,0.18);
+          }
+
+          /* Hide the original separators in grid mode */
           .it-card-sep {
-            width: min(260px, 70vw);
-            height: 1px;
-            margin: 2px 0 2px;
-            background: linear-gradient(
-              to right,
-              transparent,
-              rgba(196,152,91,0.25),
-              transparent
-            );
+            display: none;
+          }
+
+          .it-after {
+            padding: 0.8rem 0 0;
+          }
+          .it-after-title {
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+          }
+          .it-after-location {
+            font-size: 0.58rem;
           }
         }
 

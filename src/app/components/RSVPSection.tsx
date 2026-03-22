@@ -28,13 +28,14 @@ export default function RSVPSection() {
       }}
       className="w-full min-h-screen relative overflow-hidden px-5 md:px-8 flex items-center justify-center"
       style={{
-        backgroundImage: `linear-gradient(
-          135deg,
-          rgba(22, 16, 12, 0.58) 0%,
-          rgba(28, 21, 16, 0.5) 35%,
-          rgba(34, 25, 18, 0.46) 70%,
-          rgba(22, 16, 12, 0.58) 100%
-        ), url('/real_final_pic.JPG')`,
+        // Gradient overlay + background image - commented out to test section appearance
+        // backgroundImage: `linear-gradient(
+        //   135deg,
+        //   rgba(22, 16, 12, 0.58) 0%,
+        //   rgba(28, 21, 16, 0.5) 35%,
+        //   rgba(34, 25, 18, 0.46) 70%,
+        //   rgba(22, 16, 12, 0.58) 100%
+        // ), url('/real_final_pic.JPG')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -101,7 +102,7 @@ export default function RSVPSection() {
       <style jsx>{`
         .rsvp-message {
           text-align: center;
-          color: #f7efe2;
+          color: #8B7355;
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(1.9rem, 5.2vw, 3.4rem);
           font-weight: 300;
@@ -124,7 +125,7 @@ export default function RSVPSection() {
 
         .rsvp-form-title {
           text-align: center;
-          color: rgba(247, 239, 226, 0.86);
+          color: #8B7355;
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(0.95rem, 2.1vw, 1.18rem);
           font-weight: 400;
@@ -138,7 +139,7 @@ export default function RSVPSection() {
           display: flex;
           align-items: center;
           gap: 0.65rem;
-          border-bottom: 1px solid rgba(247, 239, 226, 0.62);
+          border-bottom: 1px solid rgba(139, 115, 85, 0.5);
           padding: 0.25rem 0.1rem 0.55rem;
         }
 
@@ -147,22 +148,22 @@ export default function RSVPSection() {
           background: transparent;
           border: none;
           outline: none;
-          color: #f7efe2;
+          color: #8B7355;
           font-size: 1rem;
           font-family: 'Cormorant Garamond', serif;
           letter-spacing: 0.02em;
         }
 
         .rsvp-input::placeholder {
-          color: rgba(247, 239, 226, 0.56);
+          color: rgba(139, 115, 85, 0.5);
           font-style: italic;
         }
 
         .rsvp-send-btn {
           margin-top: 0.2rem;
-          border: 1px solid rgba(247, 239, 226, 0.58);
-          background: rgba(247, 239, 226, 0.08);
-          color: #f7efe2;
+          border: 1px solid rgba(139, 115, 85, 0.5);
+          background: rgba(139, 115, 85, 0.08);
+          color: #8B7355;
           border-radius: 999px;
           padding: 0.42rem 1.45rem;
           font-family: 'Cormorant Garamond', serif;
@@ -173,7 +174,7 @@ export default function RSVPSection() {
         }
 
         .rsvp-send-btn:hover {
-          background: rgba(247, 239, 226, 0.15);
+          background: rgba(139, 115, 85, 0.15);
           transform: translateY(-1px);
         }
 
