@@ -104,6 +104,22 @@ export default function DressCodeSection() {
               <p className="garamond-regular text-2xl md:text-3xl text-[#543c24] leading-snug mb-5">
                 Formal
               </p>
+              {/* ── Dress code icon ── */}
+              <div className={`flex justify-center mb-5 transition-all duration-[1600ms] ease-out ${
+                isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'
+              }`} style={{ transitionDelay: '720ms' }}>
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/1124/1124043.png"
+                  alt="Código de vestimenta formal"
+                  className="dress-icon"
+                  style={{
+                    filter:
+                      'invert(40%) sepia(30%) saturate(500%) hue-rotate(10deg) brightness(85%) contrast(90%)',
+                    opacity: 0.75,
+                  }}
+                />
+              </div>
+
               <p className="garamond-300 text-sm md:text-[15px] text-[#7a6a55] leading-relaxed max-w-xs mx-auto">
                 El blanco está reservado para la novia.
                 <br />
@@ -116,17 +132,12 @@ export default function DressCodeSection() {
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`} style={{ transitionDelay: '1100ms' }}>
 
-              <p className="garamond-regular text-base md:text-[17px] text-[#543c24] leading-relaxed max-w-xs mx-auto mb-6">
-                Con mucho cariño hemos planeado una velada íntima entre adultos.
-                Les pedimos amablemente que este día tan especial sea solo para los grandes.
-              </p>
-
-              {/* No children badge (renders last) */}
+              {/* No children badge (above message) */}
               <div
-                className={`inline-flex items-center gap-4 transition-all duration-[900ms] ease-out ${
+                className={`inline-flex items-center gap-4 mb-6 transition-all duration-[900ms] ease-out ${
                   isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-3 scale-95'
                 }`}
-                style={{ transitionDelay: '2100ms' }}
+                style={{ transitionDelay: '1200ms' }}
               >
                 <span className="block w-14 h-[1px] bg-[#C4985B]/55" />
                 <span className="garamond-regular tracking-[0.3em] text-[15px] md:text-[18px] uppercase text-[#9a6e34] font-semibold drop-shadow-[0_1px_0_rgba(84,60,36,0.18)]">
@@ -134,6 +145,11 @@ export default function DressCodeSection() {
                 </span>
                 <span className="block w-14 h-[1px] bg-[#C4985B]/55" />
               </div>
+
+              <p className="garamond-regular text-base md:text-[17px] text-[#543c24] leading-relaxed max-w-xs mx-auto">
+                Con mucho cariño hemos planeado una velada íntima entre adultos.
+                Les pedimos amablemente que este día tan especial sea solo para los grandes.
+              </p>
             </div>
 
           </div>{/* end content */}
@@ -267,6 +283,20 @@ export default function DressCodeSection() {
         @media (max-width: 767px) {
           .ds-right-feather {
             display: none;
+          }
+        }
+
+        /* ══ DRESS CODE ICON ══ */
+        .dress-icon {
+          width: 52px;
+          height: 52px;
+          object-fit: contain;
+          display: block;
+        }
+        @media (min-width: 768px) {
+          .dress-icon {
+            width: 60px;
+            height: 60px;
           }
         }
       `}</style>
