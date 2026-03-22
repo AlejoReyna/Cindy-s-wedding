@@ -37,6 +37,29 @@ export default function ItinerarySection() {
   // Track which events have been activated (for animation persistence)
   const [seen, setSeen] = useState<boolean[]>(EVENTS.map(() => false))
 
+  // ── Scroll correction + lock: when completed, pin viewport and freeze
+  //    scrolling until the summary card animation finishes (~1 s) ──
+  useEffect(() => {
+    if (!completed) return
+    const outer = outerRef.current
+    if (!outer) return
+
+    // Pin viewport to the section's top so the height collapse doesn't jump
+    const sectionTop = outer.getBoundingClientRect().top + window.scrollY
+    window.scrollTo({ top: sectionTop, behavior: 'instant' })
+
+    // Lock scrolling while the summary cards animate in
+    document.body.style.overflow = 'hidden'
+    const unlock = setTimeout(() => {
+      document.body.style.overflow = ''
+    }, 1000)
+
+    return () => {
+      clearTimeout(unlock)
+      document.body.style.overflow = ''
+    }
+  }, [completed])
+
   // ── Scroll listener ──
   useEffect(() => {
     const handleScroll = () => {
