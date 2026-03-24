@@ -192,7 +192,7 @@ export default function Gallery3D() {
       ref={sectionRef}
       className="min-h-screen w-full relative overflow-hidden flex items-center"
       style={{
-        background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)',
+        backgroundColor: '#edeae4',
       }}
     >
       {/* ═══ Border frame ═══ */}
@@ -210,7 +210,7 @@ export default function Gallery3D() {
             width="calc(100% - 2px)" height="calc(100% - 2px)"
             rx="0" ry="0"
             fill="none"
-            stroke="rgba(196,152,91,0.28)"
+            stroke="#dfac59"
             strokeWidth="0.5"
           />
         </svg>
@@ -378,7 +378,7 @@ export default function Gallery3D() {
           font-size: 2.25rem;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #5c5c5c;
+          color: #ba764e;
           line-height: 1.1;
         }
         .gl3d-subtitle-text {
