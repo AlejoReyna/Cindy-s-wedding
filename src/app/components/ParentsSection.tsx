@@ -16,6 +16,7 @@ import { useEffect, useState, useRef } from 'react'
 //   ③ Decorative divider draws                        (after ② ends)
 //   ④ "Padres de la novia" + names — letter/word      (after ③)
 //   ⑤ "Padres del novio" + names — letter/word        (after ④ ends)
+// Two-column layout with image placeholder on the left.
 // ═══════════════════════════════════════════════════════════════════════
 
 const TOTAL_TEXT_RENDER_MS = 2000
@@ -102,29 +103,13 @@ export default function ParentsSection() {
       ref={sectionRef}
       className="w-full relative overflow-hidden"
     >
-      {/* ═══ TWO-COLUMN LAYOUT: Image (left 50%) | Content (right 50%) ═══ */}
       <div className="ps-two-col">
-
-        {/* ── LEFT COLUMN: Image ── */}
-        <div className="ps-col-image">
-          <Image
-            src="/hands.JPG"
-            alt="Parents"
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 50vw"
-            priority
-          />
-          {/* Soft overlay to blend with the right side */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(to right, transparent 60%, rgba(251,249,246,0.35) 100%)'
-            }}
-          />
+        <div className="ps-col-image" aria-hidden="true">
+          <div className="ps-image-placeholder">
+            <span className="ps-image-placeholder-label">Imagen placeholder</span>
+          </div>
         </div>
 
-        {/* ── RIGHT COLUMN: Parents content ── */}
         <div
           className="ps-col-content"
           style={{
@@ -200,7 +185,7 @@ export default function ParentsSection() {
               <span className="block w-12 h-[0.5px] bg-[#C4985B]/40" />
             </div>
 
-            {/* ④ & ⑤ Parent cards — stacked vertically in the right column */}
+            {/* ④ & ⑤ Parent cards */}
             <div className="w-full max-w-md mx-auto space-y-10">
 
               {/* ④ Bride's parents */}
@@ -305,7 +290,6 @@ export default function ParentsSection() {
            Same keyframe as HeroSection / Gallery
          ═══════════════════════════════════════════════════════════════ */}
       <style jsx>{`
-        /* ═══ TWO-COLUMN LAYOUT ═══ */
         .ps-two-col {
           display: flex;
           flex-direction: column-reverse;
@@ -317,17 +301,36 @@ export default function ParentsSection() {
           width: 100%;
           height: 45vh;
           overflow: hidden;
+          background: linear-gradient(145deg, #ede7df 0%, #f4efe8 50%, #e8dfd4 100%);
+        }
+        .ps-image-placeholder {
+          position: absolute;
+          inset: 1.25rem;
+          border: 1px dashed rgba(139, 115, 85, 0.45);
+          border-radius: 0.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background:
+            radial-gradient(circle at 30% 20%, rgba(196, 152, 91, 0.14) 0%, transparent 60%),
+            radial-gradient(circle at 70% 75%, rgba(139, 115, 85, 0.12) 0%, transparent 60%);
+        }
+        .ps-image-placeholder-label {
+          font-family: 'Cormorant Garamond', 'EB Garamond', serif;
+          font-size: 1.1rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: rgba(92, 92, 92, 0.72);
         }
         .ps-col-content {
           position: relative;
           width: 100%;
-          min-height: 55vh;
+          min-height: 80vh;
           display: flex;
           align-items: center;
           justify-content: center;
         }
 
-        /* Desktop: side-by-side 50/50 */
         @media (min-width: 768px) {
           .ps-two-col {
             flex-direction: row;

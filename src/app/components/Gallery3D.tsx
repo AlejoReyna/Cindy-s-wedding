@@ -38,6 +38,8 @@ export default function Gallery3D() {
   const hasTriggered = useRef(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const borderPathRef = useRef<SVGRectElement>(null);
+  const titleRef = useRef<HTMLSpanElement>(null);
+  const [titleWidth, setTitleWidth] = useState(0);
   const [borderPerimeter, setBorderPerimeter] = useState(0);
 
   // ── Measure SVG rect perimeter ──
@@ -51,11 +53,21 @@ export default function Gallery3D() {
     return () => window.removeEventListener('resize', measure);
   }, []);
 
+  // ── Measure title width for divider ──
+  useEffect(() => {
+    const el = titleRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setTitleWidth(el.getBoundingClientRect().width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   // ── Sequential animation chain flags ──
   const [, setFlowersVisible] = useState(false);
   const [, setDateStarted] = useState(false);
   const [titleStarted, setTitleStarted] = useState(false);
   const [, setLineDrawn] = useState(false);
+  const [dividerVisible, setDividerVisible] = useState(false);
   const [subtitleStarted, setSubtitleStarted] = useState(false);
   const [cardsVisible, setCardsVisible] = useState(false);
 
@@ -86,7 +98,8 @@ export default function Gallery3D() {
             after(0,    () => setDateStarted(true));
             after(120,  () => setTitleStarted(true));
             after(180,  () => setLineDrawn(true));
-            after(300,  () => setSubtitleStarted(true));
+            after(250,  () => setDividerVisible(true));
+            after(400,  () => setSubtitleStarted(true));
             after(900,  () => setCardsVisible(true));
           }
         });
@@ -239,18 +252,27 @@ export default function Gallery3D() {
             {/* ③ Title */}
             <div className="mb-6 mt-8">
               <h2 className="gl3d-title-text">
-                {`${titleLine1} ${titleLine2}`.split('').map((char, i) => (
-                  <span
-                    key={`t-${i}`}
-                    className={`gl3d-letter${titleStarted ? ' gl3d-letter--animated' : ''}`}
-                    style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
-                  >
-                    {char === ' ' ? '\u00A0' : char}
-                  </span>
-                ))}
+                <span ref={titleRef} className="gl3d-title-inner">
+                  {`${titleLine1} ${titleLine2}`.split('').map((char, i) => (
+                    <span
+                      key={`t-${i}`}
+                      className={`gl3d-letter${titleStarted ? ' gl3d-letter--animated' : ''}`}
+                      style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
+                    >
+                      {char === ' ' ? '\u00A0' : char}
+                    </span>
+                  ))}
+                </span>
               </h2>
             </div>
 
+            {/* ④ Decorative divider — expands from center */}
+            <div className="gl3d-divider-wrap mb-6">
+              <div
+                className={`gl3d-divider${dividerVisible ? ' gl3d-divider--visible' : ''}`}
+                style={{ ['--divider-target' as string]: `${titleWidth}px` } as React.CSSProperties}
+              />
+            </div>
 
             {/* ⑤ Subtitle */}
             <div className="max-w-sm mb-8">
@@ -381,6 +403,12 @@ export default function Gallery3D() {
           color: #ba764e;
           line-height: 1.1;
         }
+        .gl3d-title-inner {
+          display: inline;
+        }
+        .gl3d-title-inner > span:last-child {
+          letter-spacing: 0;
+        }
         .gl3d-subtitle-text {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
@@ -425,6 +453,34 @@ export default function Gallery3D() {
           0%   { opacity: 0; transform: translateY(8px) scaleX(0.6); filter: blur(1.5px); }
           55%  { opacity: 1; filter: blur(0); }
           100% { opacity: 1; transform: translateY(0) scaleX(1); filter: blur(0); }
+        }
+
+        /* ═══ DECORATIVE DIVIDER ═══ */
+        .gl3d-divider-wrap {
+          display: flex;
+          justify-content: center;
+          width: 100%;
+        }
+        .gl3d-divider {
+          height: 1px;
+          width: 0;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            #C4985B 20%,
+            #C4985B 80%,
+            transparent 100%
+          );
+          opacity: 0;
+          transition: none;
+        }
+        .gl3d-divider--visible {
+          animation: gl3dDividerExpand 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        @keyframes gl3dDividerExpand {
+          0%   { width: 0; opacity: 0; }
+          20%  { opacity: 1; }
+          100% { width: var(--divider-target, 200px); opacity: 1; }
         }
 
         /* ═══ BORDER FRAME ═══ */
