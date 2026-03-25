@@ -1,7 +1,6 @@
 "use client"
 import { useRef } from 'react';
 import { useState } from 'react';
-import { useStatusBarSection } from '../../hooks/useStatusBarManager';
 import { useTheme } from '../context/ThemeContext';
 
 export default function RSVPSection() {
@@ -10,22 +9,10 @@ export default function RSVPSection() {
   const [message, setMessage] = useState('');
   const [sent, setSent] = useState(false);
 
-  const rsvpSectionRef = useStatusBarSection({
-    sectionId: 'rsvp',
-    color: '#4c4c48',
-    defaultColor: isNightMode ? '#000000' : '#ffffff',
-    isNightMode
-  });
-
 
   return (
     <section
-      ref={(el) => {
-        sectionRef.current = el as HTMLDivElement;
-        if (rsvpSectionRef) {
-          (rsvpSectionRef as React.MutableRefObject<HTMLElement | null>).current = el;
-        }
-      }}
+      ref={sectionRef}
       className="w-full min-h-screen relative overflow-hidden"
       style={{
         backgroundImage: `linear-gradient(

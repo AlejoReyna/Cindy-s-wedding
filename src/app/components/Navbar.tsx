@@ -1,6 +1,5 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useTheme } from '../context/ThemeContext';
 
 interface NavigationItem {
   id: string;
@@ -22,6 +21,13 @@ const leftNavItems = navigationItems.slice(0, 3);
 const rightNavItems = navigationItems.slice(3);
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+const STATUS_BAR_DEBUG = process.env.NODE_ENV !== 'production';
+
+// Converts "r,g,b" string → "#rrggbb" for use in meta tags.
+const rgbToHex = (rgb: string): string => {
+  const [r, g, b] = rgb.split(',').map(Number);
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+};
 
 // ── Per-section navbar theme overrides ──────────────────────────────────────
 // Add an entry here to give any section its own navbar appearance.
@@ -84,10 +90,13 @@ const Navbar = () => {
   const [isInHeroSection, setIsInHeroSection] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
-  const { isNightMode } = useTheme();
 
   const navRef = useRef<HTMLElement | null>(null);
   const ticking = useRef(false);
+  const lastHeroStateRef = useRef<boolean | null>(null);
+  const lastRsvpStateRef = useRef<boolean | null>(null);
+  const lastFooterStateRef = useRef<boolean | null>(null);
+  const lastNotchColorRef = useRef<string | null>(null);
 
   // ── Scroll handler (uses refs to avoid re-creating listener) ──
   const onScroll = useCallback(() => {
@@ -106,23 +115,77 @@ const Navbar = () => {
       const footerRect = document.getElementById('footer')?.getBoundingClientRect();
       const rsvpRect = document.getElementById('rsvp')?.getBoundingClientRect();
 
+      let nextHeroState = false;
       if (heroRect && heroRect.bottom > 0 && heroRect.top < wh) {
         const probeLine = wh * 0.35;
-        setIsInHeroSection(heroRect.top <= probeLine && heroRect.bottom >= probeLine);
+        nextHeroState = heroRect.top <= probeLine && heroRect.bottom >= probeLine;
+        setIsInHeroSection(nextHeroState);
       } else {
         setIsInHeroSection(false);
       }
 
-      setIsInFooterSection(footerRect ? footerRect.top < wh * 0.8 : false);
+      const nextFooterState = footerRect ? footerRect.top < wh * 0.8 : false;
+      setIsInFooterSection(nextFooterState);
 
+      let nextRsvpState = false;
       if (rsvpRect && rsvpRect.bottom > 0 && rsvpRect.top < wh) {
         const visTop = Math.max(0, rsvpRect.top);
         const visBot = Math.min(wh, rsvpRect.bottom);
         const actual = visBot - visTop;
         const required = Math.min(rsvpRect.height * 0.6, wh);
-        setIsInRSVPSection(actual >= required);
+        nextRsvpState = actual >= required;
+        setIsInRSVPSection(nextRsvpState);
       } else {
         setIsInRSVPSection(false);
+      }
+
+      if (STATUS_BAR_DEBUG && lastHeroStateRef.current !== nextHeroState) {
+        console.log('[status-bar-debug] hero visibility changed', {
+          nextHeroState,
+          scrollY: currentY,
+          viewportHeight: wh,
+          probeLine: wh * 0.35,
+          heroRect: heroRect
+            ? {
+                top: Math.round(heroRect.top),
+                bottom: Math.round(heroRect.bottom),
+                height: Math.round(heroRect.height),
+              }
+            : null,
+        });
+        lastHeroStateRef.current = nextHeroState;
+      }
+
+      if (STATUS_BAR_DEBUG && lastRsvpStateRef.current !== nextRsvpState) {
+        console.log('[status-bar-debug] rsvp visibility changed', {
+          nextRsvpState,
+          scrollY: currentY,
+          viewportHeight: wh,
+          rsvpRect: rsvpRect
+            ? {
+                top: Math.round(rsvpRect.top),
+                bottom: Math.round(rsvpRect.bottom),
+                height: Math.round(rsvpRect.height),
+              }
+            : null,
+        });
+        lastRsvpStateRef.current = nextRsvpState;
+      }
+
+      if (STATUS_BAR_DEBUG && lastFooterStateRef.current !== nextFooterState) {
+        console.log('[status-bar-debug] footer visibility changed', {
+          nextFooterState,
+          scrollY: currentY,
+          viewportHeight: wh,
+          footerRect: footerRect
+            ? {
+                top: Math.round(footerRect.top),
+                bottom: Math.round(footerRect.bottom),
+                height: Math.round(footerRect.height),
+              }
+            : null,
+        });
+        lastFooterStateRef.current = nextFooterState;
       }
 
       // Active section highlight
@@ -151,7 +214,7 @@ const Navbar = () => {
 
   // ── Derived visual values ──
   const t = scrollProgress;
-  const isDark = isNightMode || isInHeroSection || isInRSVPSection || isInFooterSection;
+  const isDark = isInHeroSection || isInRSVPSection || isInFooterSection;
   const isSpecialSection = isInFooterSection;
 
   const heroLikeNav = isInHeroSection || isInRSVPSection;
@@ -179,13 +242,64 @@ const Navbar = () => {
   const dotColor  = isDark ? '#ffffff' : (sectionTheme?.dotColor  ?? '#C4985B');
 
   // Background color: white by default, overridden per-section when applicable.
-  const navBgRgb = isNightMode ? '0,0,0' : (sectionTheme?.bgRgb ?? '255,255,255');
+  const navBgRgb = sectionTheme?.bgRgb ?? '255,255,255';
 
   // Monogram color via CSS mask-image (PNG is pure black #000 on transparent).
   // mask-image uses the alpha channel as the stencil; background-color fills it.
   const navLogoColor = isDark
     ? '#ffffff'                           // white on dark backgrounds
     : (sectionTheme?.logoColor ?? '#000000'); // section override, or original black
+
+  // ── Status bar / notch color sync ────────────────────────────────────────
+  // Keeps meta[name="theme-color"] in step with the navbar background so the
+  // mobile OS top bar blends with whichever section is currently visible.
+  // Dark sections (RSVP, footer, night mode) use their actual bg colors since
+  // the navbar is transparent there — the OS bar reveals the page content.
+  useEffect(() => {
+    const notchColor = isInFooterSection ? '#000000'  // Footer bg-black
+      : isInRSVPSection                  ? '#16100c'  // RSVP dark photo overlay
+      : isInHeroSection                  ? '#9c9c9c'  // Hero section
+      : rgbToHex(navBgRgb);                           // section theme or white
+
+    const isDarkNotch = isInFooterSection || isInRSVPSection;
+    const isIOSWebKit = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    let metaTheme = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (!metaTheme) {
+      metaTheme = document.createElement('meta');
+      metaTheme.name = 'theme-color';
+      document.head.appendChild(metaTheme);
+    }
+    // iOS browsers read the initial theme color but do not reliably repaint
+    // browser chrome when this tag changes after load. Keep the SSR value there
+    // for the hero, and only live-update on platforms that support it.
+    if (!isIOSWebKit) {
+      metaTheme.content = notchColor;
+    }
+
+    let metaApple = document.querySelector<HTMLMetaElement>('meta[name="apple-mobile-web-app-status-bar-style"]');
+    if (!metaApple) {
+      metaApple = document.createElement('meta');
+      metaApple.name = 'apple-mobile-web-app-status-bar-style';
+      document.head.appendChild(metaApple);
+    }
+    metaApple.content = isDarkNotch ? 'black-translucent' : 'default';
+
+    if (STATUS_BAR_DEBUG && lastNotchColorRef.current !== notchColor) {
+      console.log('[status-bar-debug] applying notch color', {
+        notchColor,
+        isInHeroSection,
+        isInRSVPSection,
+        isInFooterSection,
+        navBgRgb,
+        isIOSWebKit,
+        attemptedThemeColorWrite: !isIOSWebKit,
+        metaThemeContentAfterEffect: metaTheme.content,
+        metaAppleContentAfterEffect: metaApple.content,
+      });
+      lastNotchColorRef.current = notchColor;
+    }
+  }, [navBgRgb, isInHeroSection, isInRSVPSection, isInFooterSection]);
 
   const handleNavClick = (id: string) => {
     setIsMobileMenuOpen(false);
@@ -200,7 +314,7 @@ const Navbar = () => {
       ref={navRef}
       className="fixed top-0 left-0 right-0 z-50"
       style={{
-        paddingTop: `${padY}px`,
+        paddingTop: `calc(${padY}px + env(safe-area-inset-top))`,
         paddingBottom: `${padY}px`,
         paddingLeft: 'clamp(16px, 3vw, 48px)',
         paddingRight: 'clamp(16px, 3vw, 48px)',

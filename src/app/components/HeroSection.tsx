@@ -1,8 +1,7 @@
 "use client"
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useStatusBarSection } from '../../hooks/useStatusBarManager';
-import { useTheme } from '../context/ThemeContext';
+
 import CountdownTimer from '../../components/CountdownTimer';
 import SongPlayer from './SongPlayer';
 
@@ -27,15 +26,8 @@ interface HeroSectionProps {
 }
 
 const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) => {
-  const { isNightMode } = useTheme();
   // If immediate, start fully loaded — no animations needed.
   const [loaded, setLoaded] = useState(immediate);
-  const heroSectionRef = useStatusBarSection({
-    sectionId: 'hero',
-    color: '#f9f5e9',
-    defaultColor: isNightMode ? '#000000' : '#f9f5e9',
-    isNightMode
-  });
 
   // Only start animations after the envelope has been opened (skip if immediate)
   useEffect(() => {
@@ -65,12 +57,8 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
   return (
     <section
       id="hero-section"
-      ref={heroSectionRef}
       className="relative flex flex-col min-h-screen overflow-hidden items-center justify-center"
-      style={{
-        backgroundColor: isNightMode ? '#0a0a0a' : '#f9f5e9',
-        transition: 'background-color 0.5s ease',
-      }}
+      style={{ backgroundColor: '#f9f5e9' }}
     >
       {/* Background photo */}
       <div className="absolute inset-0 pointer-events-none">
@@ -85,13 +73,7 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
           />
         </div>
 
-        <div
-          className={`absolute inset-0 ${
-            isNightMode
-              ? 'bg-gradient-to-b from-black/55 via-black/45 to-black/60'
-              : 'bg-gradient-to-b from-black/40 via-black/30 to-black/50'
-          }`}
-        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
       </div>
 
       <div className="relative z-10 flex flex-col items-center justify-start text-center px-6 w-full min-h-screen py-16">
