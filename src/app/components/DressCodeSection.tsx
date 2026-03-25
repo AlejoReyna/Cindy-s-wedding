@@ -1,4 +1,5 @@
 "use client"
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
 /* ─── Letter-span renderer (hero-style stagger) ─── */
@@ -151,10 +152,12 @@ export default function DressCodeSection() {
               <div className={`flex justify-center mb-5 transition-all duration-[400ms] ease-out ${
                 isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'
               }`} style={{ transitionDelay: '580ms' }}>
-                <img
+                <Image
                   src="https://cdn-icons-png.flaticon.com/512/1124/1124043.png"
                   alt="Código de vestimenta formal"
                   className="dress-icon"
+                  width={60}
+                  height={60}
                   style={{
                     filter:
                       'invert(40%) sepia(30%) saturate(500%) hue-rotate(10deg) brightness(85%) contrast(90%)',

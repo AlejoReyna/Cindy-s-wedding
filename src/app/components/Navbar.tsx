@@ -68,7 +68,6 @@ const SECTION_THEMES: Record<string, SectionTheme> = {
 };
 
 const Navbar = () => {
-  const [isVisible, setIsVisible] = useState(true);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isInFooterSection, setIsInFooterSection] = useState(false);
   const [isInRSVPSection, setIsInRSVPSection] = useState(false);
@@ -80,7 +79,6 @@ const Navbar = () => {
   const { isNightMode } = useTheme();
 
   const navRef = useRef<HTMLElement | null>(null);
-  const lastScrollYRef = useRef(0);
   const ticking = useRef(false);
 
   // ── Scroll handler (uses refs to avoid re-creating listener) ──
@@ -90,15 +88,6 @@ const Navbar = () => {
 
     requestAnimationFrame(() => {
       const currentY = window.scrollY;
-      const prevY = lastScrollYRef.current;
-
-      // Hide on scroll-down, show on scroll-up
-      if (currentY > prevY && currentY > 80) {
-        setIsVisible(false);
-        setIsMobileMenuOpen(false);
-      } else {
-        setIsVisible(true);
-      }
 
       // Continuous progress 0→1
       setScrollProgress(Math.min(currentY / SCROLL_RANGE, 1));
@@ -142,7 +131,6 @@ const Navbar = () => {
       }
       setActiveSection(current);
 
-      lastScrollYRef.current = currentY;
       ticking.current = false;
     });
   }, []);
@@ -202,9 +190,7 @@ const Navbar = () => {
   return (
     <nav
       ref={navRef}
-      className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-500 ease-out ${
-        isVisible ? 'translate-y-0' : '-translate-y-full'
-      }`}
+      className="fixed top-0 left-0 right-0 z-50"
       style={{
         paddingTop: `${padY}px`,
         paddingBottom: `${padY}px`,

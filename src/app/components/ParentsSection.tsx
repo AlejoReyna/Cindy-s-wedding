@@ -1,6 +1,5 @@
 "use client"
 
-import Image from 'next/image'
 import { useEffect, useState, useRef } from 'react'
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -48,7 +47,6 @@ export default function ParentsSection() {
   const sectionRef = useRef<HTMLElement>(null)
 
   // ── Trigger flags ──
-  const [monoVisible,      setMonoVisible]      = useState(false)
   const [textStarted,      setTextStarted]      = useState(false)
 
   // Single timeline: all text should finish in <= 1 second.
@@ -87,7 +85,6 @@ export default function ParentsSection() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setMonoVisible(true)
           setTextStarted(true)
           observer.disconnect()
         }

@@ -185,7 +185,85 @@ export default function ItinerarySection() {
                 }}
               >
                 <div className="it-event-content">
-                  {/* Step dots */}
+                  <div className="it-event-card">
+                    <p className="it-event-number">{String(i + 1).padStart(2, '0')}</p>
+
+                    {/* Icon */}
+                    <div className="it-icon-medallion">
+                      <div
+                        className="it-icon"
+                        style={{
+                          opacity:   wasSeen ? 1 : 0,
+                          transform: wasSeen ? 'scale(1)' : 'scale(0.55)',
+                        }}
+                      >
+                        <Image
+                          src={event.icon}
+                          alt={event.alt}
+                          fill
+                          sizes="(max-width: 640px) 88px, 112px"
+                          className="it-icon-image"
+                          style={{ filter: 'sepia(1) saturate(0.35) brightness(0.50)' }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Time */}
+                    <p className="it-time">
+                      {event.time.split('').map((char, ci) => (
+                        <span
+                          key={`t-${ci}`}
+                          className={`it-letter${wasSeen ? ' it-letter--on' : ''}`}
+                          style={{ animationDelay: `${250 + ci * LETTER_SPEED}ms` }}
+                        >
+                          {char === ' ' ? '\u00A0' : char}
+                        </span>
+                      ))}
+                    </p>
+
+                    {/* Accent */}
+                    <div
+                      className="it-accent"
+                      style={{
+                        width: wasSeen ? 'clamp(2.5rem, 8vw, 4rem)' : '0',
+                        transitionDelay: '0.65s',
+                      }}
+                    />
+
+                    {/* Title */}
+                    <p className="it-title">
+                      {event.title.split('').map((char, ci) => (
+                        <span
+                          key={`n-${ci}`}
+                          className={`it-letter${wasSeen ? ' it-letter--on' : ''}`}
+                          style={{ animationDelay: `${550 + ci * LETTER_SPEED}ms` }}
+                        >
+                          {char === ' ' ? '\u00A0' : char}
+                        </span>
+                      ))}
+                    </p>
+                    <div
+                      className={`it-event-scroll-cue${wasSeen ? ' it-event-scroll-cue--on' : ''}`}
+                      aria-hidden="true"
+                    >
+                      <svg
+                        className="it-event-scroll-cue-chevron"
+                        viewBox="0 0 24 14"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M3 3L12 11L21 3"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Step dots (carousel decoration) */}
                   <div className="it-step-dots">
                     {EVENTS.map((_, di) => (
                       <div
@@ -195,78 +273,6 @@ export default function ItinerarySection() {
                         }${di < i ? ' it-step-dot--done' : ''}`}
                       />
                     ))}
-                  </div>
-
-                  {/* Icon */}
-                  <div
-                    className="it-icon"
-                    style={{
-                      opacity:   wasSeen ? 1 : 0,
-                      transform: wasSeen ? 'scale(1)' : 'scale(0.55)',
-                    }}
-                  >
-                    <Image
-                      src={event.icon}
-                      alt={event.alt}
-                      fill
-                      sizes="(max-width: 640px) 88px, 112px"
-                      className="it-icon-image"
-                      style={{ filter: 'sepia(1) saturate(0.35) brightness(0.50)' }}
-                    />
-                  </div>
-
-                  {/* Time */}
-                  <p className="it-time">
-                    {event.time.split('').map((char, ci) => (
-                      <span
-                        key={`t-${ci}`}
-                        className={`it-letter${wasSeen ? ' it-letter--on' : ''}`}
-                        style={{ animationDelay: `${250 + ci * LETTER_SPEED}ms` }}
-                      >
-                        {char === ' ' ? '\u00A0' : char}
-                      </span>
-                    ))}
-                  </p>
-
-                  {/* Accent */}
-                  <div
-                    className="it-accent"
-                    style={{
-                      width: wasSeen ? 'clamp(2.5rem, 8vw, 4rem)' : '0',
-                      transitionDelay: '0.65s',
-                    }}
-                  />
-
-                  {/* Title */}
-                  <p className="it-title">
-                    {event.title.split('').map((char, ci) => (
-                      <span
-                        key={`n-${ci}`}
-                        className={`it-letter${wasSeen ? ' it-letter--on' : ''}`}
-                        style={{ animationDelay: `${550 + ci * LETTER_SPEED}ms` }}
-                      >
-                        {char === ' ' ? '\u00A0' : char}
-                      </span>
-                    ))}
-                  </p>
-                  <div
-                    className={`it-event-scroll-cue${wasSeen ? ' it-event-scroll-cue--on' : ''}`}
-                    aria-hidden="true"
-                  >
-                    <svg
-                      className="it-event-scroll-cue-chevron"
-                      viewBox="0 0 24 14"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M3 3L12 11L21 3"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
                   </div>
                 </div>
               </div>
@@ -473,10 +479,71 @@ export default function ItinerarySection() {
           margin-top: 2rem;
         }
 
+        .it-event-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: min(100%, 760px);
+          min-height: clamp(360px, 56vh, 520px);
+          padding: clamp(2rem, 6vh, 3.2rem) clamp(1.2rem, 5vw, 3.2rem);
+          border-radius: 10px;
+          border: 1px solid rgba(139,115,85,0.28);
+          background:
+            linear-gradient(135deg, rgba(255,255,255,0.13), rgba(139,115,85,0.08)),
+            linear-gradient(45deg, rgba(139,115,85,0.04), rgba(255,255,255,0.2));
+          box-shadow:
+            inset 2px 2px 4px rgba(139,115,85,0.14),
+            inset -1px -1px 2px rgba(255,255,255,0.42),
+            0 12px 30px rgba(120,88,60,0.16),
+            0 2px 5px rgba(120,88,60,0.08);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .it-event-card::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          opacity: 0.28;
+          background-image:
+            linear-gradient(45deg, transparent 49%, rgba(139,115,85,0.03) 50%, transparent 51%),
+            linear-gradient(-45deg, transparent 49%, rgba(196,152,91,0.025) 50%, transparent 51%);
+          background-size: 7px 7px, 9px 9px;
+        }
+
+        .it-event-number {
+          margin: 0 0 clamp(0.8rem, 2vh, 1.1rem);
+          font-family: 'Cormorant Garamond', 'EB Garamond', serif;
+          font-weight: 500;
+          font-size: clamp(0.72rem, 1.5vw, 0.92rem);
+          letter-spacing: 0.24em;
+          text-transform: uppercase;
+          color: rgba(74,55,40,0.82);
+          z-index: 1;
+        }
+
+        .it-icon-medallion {
+          width: clamp(4.6rem, 12vw, 6rem);
+          height: clamp(4.6rem, 12vw, 6rem);
+          border-radius: 999px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: clamp(1.2rem, 3.2vh, 1.9rem);
+          background:
+            linear-gradient(145deg, rgba(255,255,255,0.34), rgba(181,150,106,0.18));
+          box-shadow:
+            inset 1px 1px 2px rgba(255,255,255,0.55),
+            inset -1px -1px 2px rgba(139,115,85,0.2),
+            0 4px 12px rgba(120,88,60,0.12);
+          z-index: 1;
+        }
+
         .it-step-dots {
           display: flex;
           gap: 10px;
-          margin-bottom: clamp(2rem, 5vh, 3.5rem);
+          margin-top: clamp(1.1rem, 2.8vh, 1.8rem);
         }
         .it-step-dot {
           width: 7px;
@@ -499,13 +566,14 @@ export default function ItinerarySection() {
 
         .it-icon {
           position: relative;
-          width: clamp(5rem, 14vw, 7rem);
-          height: clamp(5rem, 14vw, 7rem);
+          width: clamp(2.8rem, 7vw, 3.7rem);
+          height: clamp(2.8rem, 7vw, 3.7rem);
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
+          margin-bottom: 0;
           transition: opacity 0.6s ease, transform 0.65s cubic-bezier(0.34,1.56,0.64,1);
+          z-index: 1;
         }
         .it-icon-image {
           object-fit: contain;
@@ -515,7 +583,7 @@ export default function ItinerarySection() {
           margin: 0 0 clamp(0.8rem, 2vh, 1.5rem);
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
           font-weight: 300;
-          font-size: clamp(3.2rem, 10vw, 6rem);
+          font-size: clamp(3.6rem, 11vw, 6.8rem);
           letter-spacing: 0.06em;
           color: #4a3728;
           line-height: 1;
@@ -587,9 +655,11 @@ export default function ItinerarySection() {
 
         /* ── Row of event cards ── */
         .it-cards-row {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          width: min(100%, 980px);
+          display: flex;
+          flex-direction: column;
+          width: min(100%, 560px);
+          border-top: 1px solid rgba(181,150,106,0.15);
+          border-bottom: 1px solid rgba(181,150,106,0.15);
         }
 
         /* Wrapper holds card + optional right separator */
@@ -598,17 +668,11 @@ export default function ItinerarySection() {
           flex-direction: column;
           align-items: stretch;
           width: 100%;
+          border-bottom: 1px solid rgba(181,150,106,0.15);
           transition: opacity 0.5s ease-out, transform 0.5s ease-out;
         }
-
-        /* Vertical divider between columns */
-        .it-card-wrapper:nth-child(odd) {
-          border-right: 1px solid rgba(181,150,106,0.15);
-        }
-
-        /* Horizontal divider between rows */
-        .it-card-wrapper:nth-child(-n+2) {
-          border-bottom: 1px solid rgba(181,150,106,0.15);
+        .it-card-wrapper:last-child {
+          border-bottom: 0;
         }
 
         .it-card {
@@ -617,7 +681,7 @@ export default function ItinerarySection() {
           align-items: center;
           justify-content: center;
           width: 100%;
-          height: clamp(230px, 30vh, 330px);
+          height: clamp(190px, 24vh, 270px);
           padding: clamp(1.5rem, 3vw, 2.5rem);
         }
 
@@ -785,8 +849,32 @@ export default function ItinerarySection() {
             padding: clamp(4rem, 10vh, 6rem) 0 1rem;
           }
 
+          .it-event-content {
+            padding: 0 1rem;
+          }
+
+          .it-event-card {
+            width: 100%;
+            min-height: 0;
+            padding: 1.6rem 0.95rem 1.45rem;
+            border-radius: 10px;
+          }
+
+          .it-event-number {
+            margin-bottom: 0.65rem;
+            font-size: 0.68rem;
+            letter-spacing: 0.2em;
+          }
+
+          .it-icon-medallion {
+            width: 4.2rem;
+            height: 4.2rem;
+            margin-bottom: 0.95rem;
+          }
+
           .it-cards-row {
             width: 100%;
+            max-width: 430px;
           }
 
           .it-card {
