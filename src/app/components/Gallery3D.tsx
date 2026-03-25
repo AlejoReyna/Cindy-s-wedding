@@ -79,8 +79,8 @@ export default function Gallery3D() {
   const dragStartX = useRef(0);
 
   // ── Text data ──
-  const titleLine1 = '¡Nos';
-  const titleLine2 = 'Casamos!';
+  const titleLine1 = 'Nos';
+  const titleLine2 = 'Casamos';
   const subtitleWords = 'Con inmensa alegría en nuestros corazones, queremos invitarte a celebrar el día en que uniremos nuestras vidas para siempre.'.split(' ');
 
   // ── Scroll observer → animation cascade ──
@@ -193,7 +193,7 @@ export default function Gallery3D() {
       transform: `translateX(${direction * 59}%) translateZ(-40px) rotateY(${direction * -24}deg) scale(0.82)`,
       zIndex: 4,
       opacity: 0.58,
-      filter: 'brightness(0.86) saturate(0.9)',
+      filter: 'brightness(0.92) saturate(0.95)',
       transition,
       pointerEvents: 'none' as const,
     };
@@ -203,7 +203,7 @@ export default function Gallery3D() {
     <section
       id="galeria"
       ref={sectionRef}
-      className="min-h-screen w-full relative overflow-hidden flex items-center"
+      className="min-h-[120vh] md:min-h-screen w-full relative overflow-hidden flex items-center"
       style={{
         backgroundColor: '#edeae4',
       }}
@@ -242,15 +242,15 @@ export default function Gallery3D() {
       </div>
 
       {/* ═══ Main Layout ═══ */}
-      <div className="w-full max-w-[1600px] mx-auto relative z-10 px-4 md:px-6 lg:px-8 py-16">
-        <div className="flex flex-col items-center ">
+      <div className="w-full max-w-[1600px] mx-auto relative z-10 px-4 md:px-6 lg:px-8 py-8 sm:py-10 md:py-16">
+        <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 md:gap-0">
 
           {/* ── TOP: Text Section (identical cascade) ── */}
-          <div className="w-full max-w-3xl flex flex-col items-center text-center shrink-0">
+          <div className="w-full max-w-3xl flex flex-col items-center text-center shrink-0 pt-1 md:pt-0">
 
 
             {/* ③ Title */}
-            <div className="mb-6 mt-8">
+            <div className="mb-2 mt-0 md:mb-6 md:mt-8">
               <h2 className="gl3d-title-text">
                 <span ref={titleRef} className="gl3d-title-inner">
                   {`${titleLine1} ${titleLine2}`.split('').map((char, i) => (
@@ -267,37 +267,19 @@ export default function Gallery3D() {
             </div>
 
             {/* ④ Decorative divider — expands from center */}
-            <div className="gl3d-divider-wrap mb-6">
+            <div className="gl3d-divider-wrap mb-1 md:mb-6">
               <div
                 className={`gl3d-divider${dividerVisible ? ' gl3d-divider--visible' : ''}`}
                 style={{ ['--divider-target' as string]: `${titleWidth}px` } as React.CSSProperties}
               />
             </div>
-
-            {/* ⑤ Subtitle */}
-            <div className="max-w-sm mb-8">
-              <p className="gl3d-subtitle-text">
-                {subtitleWords.map((word, i) => (
-                  <span key={`w-${i}`}>
-                    <span
-                      className={`gl3d-word${subtitleStarted ? ' gl3d-word--animated' : ''}`}
-                      style={{ animationDelay: `${i * WORD_SPEED}ms` }}
-                    >
-                      {word}
-                    </span>
-                    {i < subtitleWords.length - 1 && ' '}
-                  </span>
-                ))}
-              </p>
-            </div>
-
           </div>
 
           {/* ── BOTTOM: 3D Coverflow Carousel ── */}
           <div
             className={`w-full flex flex-col items-center relative transition-all duration-1000 ease-out ${
               cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-            }`}
+            } mt-1 md:mt-0`}
           >
             {/* 3D Stage */}
             <div
@@ -359,7 +341,7 @@ export default function Gallery3D() {
             </div>
 
             {/* ═══ Dot indicators ═══ */}
-            <div className="flex items-center justify-center mt-8">
+            <div className="flex items-center justify-center mt-5 md:mt-8">
               <div className="flex items-center gap-3">
                 {photos.map((_, i) => (
                   <button
@@ -373,9 +355,26 @@ export default function Gallery3D() {
             </div>
 
             {/* Counter */}
-            <p className="text-center mt-3 text-[10px] tracking-[0.3em] uppercase text-[#8B7355]/40 garamond-300">
+            <p className="text-center mt-2 md:mt-3 text-[10px] tracking-[0.3em] uppercase text-[#8B7355]/40 garamond-300">
               {currentIndex + 1}&thinsp;/&thinsp;{photos.length}
             </p>
+
+            {/* ⑤ Subtitle */}
+            <div className="max-w-[20rem] px-3 mt-4 md:mt-6 md:max-w-sm">
+              <p className="gl3d-subtitle-text">
+                {subtitleWords.map((word, i) => (
+                  <span key={`w-${i}`}>
+                    <span
+                      className={`gl3d-word${subtitleStarted ? ' gl3d-word--animated' : ''}`}
+                      style={{ animationDelay: `${i * WORD_SPEED}ms` }}
+                    >
+                      {word}
+                    </span>
+                    {i < subtitleWords.length - 1 && ' '}
+                  </span>
+                ))}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -397,11 +396,11 @@ export default function Gallery3D() {
         .gl3d-title-text {
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
           font-weight: 300;
-          font-size: 2.25rem;
-          letter-spacing: 0.2em;
+          font-size: clamp(1.5rem, 7.1vw, 1.95rem);
+          letter-spacing: 0.14em;
           text-transform: uppercase;
           color: #ba764e;
-          line-height: 1.1;
+          line-height: 1;
         }
         .gl3d-title-inner {
           display: inline;
@@ -412,15 +411,15 @@ export default function Gallery3D() {
         .gl3d-subtitle-text {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 1rem;
+          font-size: 0.9rem;
           color: #8B7355;
-          line-height: 1.7;
+          line-height: 1.45;
         }
 
         @media (min-width: 640px) {
           .gl3d-date-text { font-size: 15px; }
-          .gl3d-title-text { font-size: 2.8rem; }
-          .gl3d-subtitle-text { font-size: 1.05rem; }
+          .gl3d-title-text { font-size: 2.25rem; }
+          .gl3d-subtitle-text { font-size: 1rem; }
         }
         @media (min-width: 768px) {
           .gl3d-date-text { font-size: 16px; }
@@ -486,8 +485,13 @@ export default function Gallery3D() {
         /* ═══ BORDER FRAME ═══ */
         .gl3d-border-frame {
           position: absolute;
-          top: 20px; left: 20px; right: 20px; bottom: 20px;
+          top: 12px; left: 12px; right: 12px; bottom: 12px;
           z-index: 2;
+        }
+        @media (max-width: 767px) {
+          .gl3d-border-frame {
+            display: none;
+          }
         }
         @media (min-width: 640px) {
           .gl3d-border-frame { top: 28px; left: 28px; right: 28px; bottom: 28px; }
@@ -525,6 +529,12 @@ export default function Gallery3D() {
           perspective: 1400px;
           perspective-origin: center center;
         }
+        @media (max-width: 767px) {
+          .gl3d-stage {
+            height: clamp(332px, 88vw, 470px);
+            perspective: 1100px;
+          }
+        }
         .gl3d-stage:active {
           cursor: grabbing;
         }
@@ -534,16 +544,21 @@ export default function Gallery3D() {
           bottom: -2px;
           left: 10%;
           right: 10%;
-          height: 60px;
+          height: 40px;
           background: linear-gradient(
             to bottom,
-            rgba(196, 152, 91, 0.04) 0%,
+            rgba(196, 152, 91, 0.02) 0%,
             transparent 100%
           );
           border-radius: 50%;
           filter: blur(20px);
           pointer-events: none;
           z-index: 0;
+        }
+        @media (max-width: 767px) {
+          .gl3d-reflection {
+            display: none;
+          }
         }
 
         .gl3d-cards-container {
@@ -568,10 +583,10 @@ export default function Gallery3D() {
 
         @media (max-width: 767px) {
           .gl3d-card {
-            width: clamp(280px, 84vw, 520px);
-            aspect-ratio: 6 / 5;
-            margin-left: calc(clamp(280px, 84vw, 520px) / -2);
-            margin-top: calc((clamp(280px, 84vw, 520px) / (6 / 5)) / -2);
+            width: clamp(300px, 92vw, 560px);
+            aspect-ratio: 4 / 3;
+            margin-left: calc(clamp(300px, 92vw, 560px) / -2);
+            margin-top: calc((clamp(300px, 92vw, 560px) / (4 / 3)) / -2);
           }
         }
 
@@ -584,8 +599,8 @@ export default function Gallery3D() {
           border-radius: 8px;
           overflow: hidden;
           box-shadow:
-            0 14px 35px rgba(0, 0, 0, 0.18),
-            0 2px 8px rgba(0, 0, 0, 0.08);
+            0 8px 20px rgba(0, 0, 0, 0.10),
+            0 2px 6px rgba(0, 0, 0, 0.05);
         }
 
         /* ═══ NAVIGATION BUTTONS ═══ */
@@ -634,6 +649,16 @@ export default function Gallery3D() {
         }
         .gl3d-nav-btn--right {
           right: 8px;
+        }
+
+        @media (max-width: 767px) {
+          .gl3d-nav-btn {
+            width: 42px;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.78);
+          }
+          .gl3d-nav-btn--left { left: 10px; }
+          .gl3d-nav-btn--right { right: 10px; }
         }
 
         @media (min-width: 768px) {

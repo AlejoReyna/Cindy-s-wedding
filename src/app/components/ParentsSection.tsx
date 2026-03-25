@@ -101,7 +101,7 @@ export default function ParentsSection() {
   return (
     <section
       ref={sectionRef}
-      className="w-full relative overflow-hidden"
+      className="w-full relative overflow-hidden min-h-screen"
     >
       <div className="ps-two-col">
         <div className="ps-col-image" aria-hidden="true">
@@ -142,21 +142,7 @@ export default function ParentsSection() {
 
           <div className="relative z-10 text-center px-6 md:px-10 py-16 md:py-24 flex flex-col items-center justify-center h-full">
 
-            {/* ① Monogram — fades in */}
-            <div
-              className={`flex justify-center items-center mb-8 transition-all duration-[1600ms] ease-out ${
-                monoVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
-              }`}
-            >
-              <Image
-                src="/Diseño sin título.png"
-                alt="Monograma"
-                width={80}
-                height={80}
-                className="object-contain opacity-40"
-              />
-            </div>
-
+       
             {/* ② Quote — word by word writing */}
             <div className="flex justify-center items-center mb-12">
               <p className="ps-quote-text">
@@ -294,7 +280,7 @@ export default function ParentsSection() {
           display: flex;
           flex-direction: column-reverse;
           width: 100%;
-          min-height: 80vh;
+          min-height: 100svh;
         }
         .ps-col-image {
           position: relative;
@@ -325,7 +311,7 @@ export default function ParentsSection() {
         .ps-col-content {
           position: relative;
           width: 100%;
-          min-height: 80vh;
+          min-height: 100svh;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -334,16 +320,16 @@ export default function ParentsSection() {
         @media (min-width: 768px) {
           .ps-two-col {
             flex-direction: row;
-            min-height: 90vh;
+            min-height: 100svh;
           }
           .ps-col-image {
             width: 50%;
             height: auto;
-            min-height: 90vh;
+            min-height: 100svh;
           }
           .ps-col-content {
             width: 50%;
-            min-height: 90vh;
+            min-height: 100svh;
           }
         }
 

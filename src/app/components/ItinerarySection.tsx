@@ -249,6 +249,25 @@ export default function ItinerarySection() {
                       </span>
                     ))}
                   </p>
+                  <div
+                    className={`it-event-scroll-cue${wasSeen ? ' it-event-scroll-cue--on' : ''}`}
+                    aria-hidden="true"
+                  >
+                    <svg
+                      className="it-event-scroll-cue-chevron"
+                      viewBox="0 0 24 14"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3 3L12 11L21 3"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
                 </div>
               </div>
             )
@@ -325,23 +344,6 @@ export default function ItinerarySection() {
             </div>
           </div>
 
-          {/* Scroll cue (only before completion) */}
-          {!completed && (
-            <div
-              className="it-scroll-cue"
-              style={{
-                opacity: hasEntered ? 0.45 : 0,
-                transitionDelay: '1.6s',
-              }}
-            >
-              <svg className="it-bounce-arrow" width="14" height="22"
-                viewBox="0 0 16 24" fill="none"
-                stroke="rgba(156,130,108,0.35)" strokeWidth="1.2">
-                <path d="M8 4v14M3 14l5 5 5-5"/>
-              </svg>
-            </div>
-          )}
-
         </div>
       </div>
 
@@ -405,10 +407,16 @@ export default function ItinerarySection() {
           margin: 0 0 1rem;
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
           font-weight: 300;
-          font-size: clamp(1.6rem, 4vw, 2.4rem);
+          font-size: 2.25rem;
           letter-spacing: 0.35em;
           text-transform: uppercase;
           color: #4a3728;
+        }
+        @media (min-width: 640px) {
+          .it-header-text { font-size: 2.8rem; }
+        }
+        @media (min-width: 768px) {
+          .it-header-text { font-size: 3.4rem; }
         }
         .it-header-inner {
           display: inline;
@@ -528,6 +536,38 @@ export default function ItinerarySection() {
           letter-spacing: 0.35em;
           text-transform: uppercase;
           color: #9c8068;
+        }
+
+        .it-event-scroll-cue {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: clamp(0.9rem, 2.4vh, 1.4rem);
+          opacity: 0;
+          transform: translateY(0);
+          transition: opacity 0.25s ease;
+          transition-delay: 1s;
+        }
+
+        .it-event-scroll-cue--on {
+          opacity: 0.92;
+        }
+
+        .it-event-scroll-cue-chevron {
+          width: clamp(1.15rem, 2.8vw, 1.45rem);
+          height: auto;
+          display: block;
+          color: rgba(156,128,104,0.82);
+          animation: it-event-scroll-cue-float 1.5s ease-in-out infinite;
+        }
+
+        @keyframes it-event-scroll-cue-float {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(0.35rem);
+          }
         }
 
         /* ══════════════ SUMMARY CARDS ══════════════ */
@@ -779,24 +819,6 @@ export default function ItinerarySection() {
           .it-after-btn {
             width: 100%;
           }
-        }
-
-        /* ══════════════ SCROLL CUE ══════════════ */
-
-        .it-scroll-cue {
-          position: absolute;
-          bottom: clamp(1.5rem, 4vh, 3rem);
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 6;
-          transition: opacity 0.6s ease-out;
-        }
-        .it-bounce-arrow {
-          animation: itBounce 2s ease-in-out infinite;
-        }
-        @keyframes itBounce {
-          0%, 100% { transform: translateY(0); }
-          50%      { transform: translateY(5px); }
         }
 
         /* ══════════════ LETTER ANIMATION ══════════════ */

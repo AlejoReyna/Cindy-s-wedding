@@ -71,19 +71,16 @@ export default function LocationSection() {
   return (
     <section
       className="w-full py-12 md:py-16 px-4 md:px-8 relative overflow-hidden"
-      style={{
-        background:
-          'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)',
-      }}
+      style={{ backgroundColor: '#f3ebe2' }}
     >
       {/* Subtle organic texture */}
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `radial-gradient(circle at 25% 20%, rgba(196,152,91,0.15) 0%, transparent 60%),
-                              radial-gradient(circle at 75% 60%, rgba(139,115,85,0.12) 0%, transparent 60%),
-                              radial-gradient(circle at 50% 90%, rgba(180,147,113,0.1) 0%, transparent 60%)`,
+            backgroundImage: `radial-gradient(circle at 25% 20%, rgba(181,143,108,0.10) 0%, transparent 60%),
+                              radial-gradient(circle at 75% 60%, rgba(156,130,108,0.08) 0%, transparent 60%),
+                              radial-gradient(circle at 50% 90%, rgba(168,140,112,0.06) 0%, transparent 60%)`,
           }}
         />
       </div>
@@ -219,7 +216,7 @@ export default function LocationSection() {
           font-size: 9px;
           letter-spacing: 0.45em;
           text-transform: uppercase;
-          color: rgba(160, 120, 70, 0.5);
+          color: rgba(156, 130, 108, 0.50);
           margin-bottom: 0.6rem;
           opacity: 0;
           transform: translateY(6px);
@@ -231,18 +228,18 @@ export default function LocationSection() {
         .loc-section-title {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 2.4rem;
+          font-size: 2.25rem;
           letter-spacing: 0.25em;
           text-transform: uppercase;
-          color: #5c5c5c;
+          color: #4a3728;
           line-height: 1;
           margin: 0 0 1.1rem 0;
           opacity: 0;
           transform: translateY(10px);
         }
-        @media (min-width: 640px)  { .loc-section-title { font-size: 3rem;   letter-spacing: 0.28em; } }
-        @media (min-width: 768px)  { .loc-section-title { font-size: 3.5rem; letter-spacing: 0.3em;  } }
-        @media (min-width: 1024px) { .loc-section-title { font-size: 4rem;   letter-spacing: 0.32em; } }
+        @media (min-width: 640px)  { .loc-section-title { font-size: 2.8rem; letter-spacing: 0.28em; } }
+        @media (min-width: 768px)  { .loc-section-title { font-size: 3.4rem; letter-spacing: 0.3em;  } }
+        @media (min-width: 1024px) { .loc-section-title { font-size: 3.4rem; letter-spacing: 0.32em; } }
 
         .loc-section-title--visible {
           animation: locHeaderFadeUp 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) 120ms forwards;
@@ -254,8 +251,8 @@ export default function LocationSection() {
           width: 0;
           background: linear-gradient(
             90deg,
-            rgba(196, 152, 91, 0.6) 0%,
-            rgba(160, 115, 60, 0.35) 55%,
+            rgba(181, 150, 106, 0.45) 0%,
+            rgba(156, 130, 108, 0.25) 55%,
             transparent 100%
           );
         }
@@ -277,7 +274,7 @@ export default function LocationSection() {
         .loc-row + .loc-row {
           margin-top: 3rem;
           padding-top: 3rem;
-          border-top: 1px solid rgba(196, 152, 91, 0.12);
+          border-top: 1px solid rgba(181, 150, 106, 0.10);
         }
 
         @media (min-width: 768px) {
@@ -379,9 +376,9 @@ export default function LocationSection() {
           position: absolute;
           background: linear-gradient(
             90deg,
-            rgba(139, 90, 43, 0.25),
-            rgba(196, 152, 91, 0.55),
-            rgba(160, 115, 60, 0.3)
+            rgba(156, 130, 108, 0.18),
+            rgba(181, 150, 106, 0.35),
+            rgba(156, 130, 108, 0.15)
           );
         }
 
@@ -398,9 +395,9 @@ export default function LocationSection() {
           height: 0;
           background: linear-gradient(
             180deg,
-            rgba(196, 152, 91, 0.55),
-            rgba(160, 115, 60, 0.3),
-            rgba(139, 90, 43, 0.2)
+            rgba(181, 150, 106, 0.35),
+            rgba(156, 130, 108, 0.20),
+            rgba(156, 130, 108, 0.12)
           ) !important;
         }
         /* Bottom: right → left */
@@ -416,9 +413,9 @@ export default function LocationSection() {
           height: 0;
           background: linear-gradient(
             0deg,
-            rgba(196, 152, 91, 0.55),
-            rgba(160, 115, 60, 0.3),
-            rgba(139, 90, 43, 0.2)
+            rgba(181, 150, 106, 0.35),
+            rgba(156, 130, 108, 0.20),
+            rgba(156, 130, 108, 0.12)
           ) !important;
         }
 
@@ -446,7 +443,7 @@ export default function LocationSection() {
           font-weight: 300;
           font-size: 9px;
           letter-spacing: 0.4em;
-          color: rgba(139, 115, 85, 0.45);
+          color: rgba(156, 130, 108, 0.55);
           margin-bottom: 0.65rem;
           text-transform: uppercase;
           opacity: 0;
@@ -465,7 +462,7 @@ export default function LocationSection() {
           font-weight: 300;
           font-size: 1.35rem;
           letter-spacing: 0.03em;
-          color: #5c5c5c;
+          color: #4a3728;
           margin-bottom: 0.6rem;
           min-height: 1.8em;
           line-height: 1.35;
@@ -500,7 +497,7 @@ export default function LocationSection() {
           font-weight: 300;
           font-size: 0.78rem;
           letter-spacing: 0.025em;
-          color: rgba(139, 115, 85, 0.5);
+          color: rgba(156, 130, 108, 0.55);
           line-height: 1.7;
           margin-bottom: 1.4rem;
           opacity: 0;
@@ -520,7 +517,7 @@ export default function LocationSection() {
           display: block;
           height: 1px;
           width: 0;
-          background: linear-gradient(90deg, rgba(196, 152, 91, 0.45), rgba(139, 90, 43, 0.2));
+          background: linear-gradient(90deg, rgba(181, 150, 106, 0.35), rgba(156, 130, 108, 0.15));
           margin-bottom: 1.4rem;
         }
 
@@ -549,8 +546,8 @@ export default function LocationSection() {
           align-items: center;
           gap: 0.625rem;
           padding: 0.6rem 1.4rem;
-          border: 1px solid rgba(139, 115, 85, 0.18);
-          color: rgba(139, 115, 85, 0.6);
+          border: 1px solid rgba(181, 150, 106, 0.20);
+          color: rgba(156, 130, 108, 0.65);
           border-radius: 2px;
           text-decoration: none;
           opacity: 0;
@@ -559,9 +556,9 @@ export default function LocationSection() {
         }
 
         .loc-btn:hover {
-          color: #7a6245;
-          border-color: rgba(139, 115, 85, 0.4);
-          background: rgba(196, 152, 91, 0.04);
+          color: #6d5a42;
+          border-color: rgba(181, 150, 106, 0.38);
+          background: rgba(181, 150, 106, 0.04);
         }
 
         .loc-btn--visible {

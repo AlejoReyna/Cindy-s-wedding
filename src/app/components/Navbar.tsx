@@ -1,6 +1,5 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from 'react';
-import Image from 'next/image';
 import { useTheme } from '../context/ThemeContext';
 
 interface NavigationItem {
@@ -23,6 +22,50 @@ const leftNavItems = navigationItems.slice(0, 3);
 const rightNavItems = navigationItems.slice(3);
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+// ── Per-section navbar theme overrides ──────────────────────────────────────
+// Add an entry here to give any section its own navbar appearance.
+// bgRgb: background color as "r,g,b" (will be combined with bgAlpha)
+// textCls: Tailwind classes for link color + hover state
+// lineColor: color for the bottom accent line and hover underline
+// dotColor: color for the active-section dot indicator
+// ─────────────────────────────────────────────────────────────────────────────
+interface SectionTheme {
+  bgRgb: string;
+  textCls: string;
+  lineColor: string;
+  dotColor: string;
+  logoColor: string; // exact fill color applied to the monogram via CSS mask-image
+}
+
+const DEFAULT_TEXT_CLS  = 'text-[#543c24]/55 hover:text-[#543c24]';
+const DEFAULT_LINE_COLOR = '#543c24';
+const DEFAULT_DOT_COLOR  = '#C4985B';
+const DEFAULT_LOGO_COLOR = '#000000';
+
+const SECTION_THEMES: Record<string, SectionTheme> = {
+  galeria: {
+    bgRgb:     '237,234,228',                            // #edeae4 — Gallery3D bg
+    textCls:   'text-[#ba764e]/75 hover:text-[#ba764e]', // same as gl3d-title-text
+    lineColor: '#ba764e',
+    dotColor:  '#C4985B',
+    logoColor: '#9e5f3c',
+  },
+  itinerario: {
+    bgRgb:     '246,236,230',                            // #f6ece6 — ItinerarySection bg
+    textCls:   DEFAULT_TEXT_CLS,
+    lineColor: DEFAULT_LINE_COLOR,
+    dotColor:  DEFAULT_DOT_COLOR,
+    logoColor: DEFAULT_LOGO_COLOR,
+  },
+  ubicacion: {
+    bgRgb:     '243,235,226',                            // #f3ebe2 — LocationSection bg
+    textCls:   DEFAULT_TEXT_CLS,
+    lineColor: DEFAULT_LINE_COLOR,
+    dotColor:  DEFAULT_DOT_COLOR,
+    logoColor: DEFAULT_LOGO_COLOR,
+  },
+};
 
 const Navbar = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -126,12 +169,27 @@ const Navbar = () => {
   const lineAlpha = isSpecialSection ? 0 : navProgress;
   const shadowAlpha = isSpecialSection ? 0 : lerp(0, 0.06, navProgress);
 
+  // Pick a per-section theme override, but only when the navbar isn't already
+  // in a "dark" state (hero / rsvp / footer / night-mode take precedence).
+  const sectionTheme = !isDark ? (SECTION_THEMES[activeSection] ?? null) : null;
+
   const textCls = isDark
     ? 'text-white hover:text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.4)]'
-    : 'text-[#543c24]/55 hover:text-[#543c24]';
+    : sectionTheme
+      ? sectionTheme.textCls
+      : 'text-[#543c24]/55 hover:text-[#543c24]';
 
-  const lineColor = isDark ? '#ffffff' : '#543c24';
-  const dotColor = isDark ? '#ffffff' : '#C4985B';
+  const lineColor = isDark ? '#ffffff' : (sectionTheme?.lineColor ?? '#543c24');
+  const dotColor  = isDark ? '#ffffff' : (sectionTheme?.dotColor  ?? '#C4985B');
+
+  // Background color: white by default, overridden per-section when applicable.
+  const navBgRgb = isNightMode ? '0,0,0' : (sectionTheme?.bgRgb ?? '255,255,255');
+
+  // Monogram color via CSS mask-image (PNG is pure black #000 on transparent).
+  // mask-image uses the alpha channel as the stencil; background-color fills it.
+  const navLogoColor = isDark
+    ? '#ffffff'                           // white on dark backgrounds
+    : (sectionTheme?.logoColor ?? '#000000'); // section override, or original black
 
   const handleNavClick = (id: string) => {
     setIsMobileMenuOpen(false);
@@ -152,9 +210,7 @@ const Navbar = () => {
         paddingBottom: `${padY}px`,
         paddingLeft: 'clamp(16px, 3vw, 48px)',
         paddingRight: 'clamp(16px, 3vw, 48px)',
-        backgroundColor: isNightMode
-          ? `rgba(0,0,0,${bgAlpha})`
-          : `rgba(255,255,255,${bgAlpha})`,
+        backgroundColor: `rgba(${navBgRgb},${bgAlpha})`,
         backdropFilter: `blur(${blur}px)`,
         WebkitBackdropFilter: `blur(${blur}px)`,
         boxShadow:
@@ -213,18 +269,24 @@ const Navbar = () => {
 
           {/* Center monogram */}
           <div className="px-8 xl:px-10 flex items-center justify-center">
-            <Image
-              src="/Diseño sin título.png"
-              alt="Monograma"
-              width={144}
-              height={144}
-              className={`object-contain ${isDark ? 'invert' : ''}`}
+            <div
+              role="img"
+              aria-label="Monograma"
               style={{
                 width: `${logoDesktop}px`,
                 height: `${logoDesktop}px`,
-                transition: 'filter 0.5s ease',
+                backgroundColor: navLogoColor,
+                WebkitMaskImage: "url('/Diseño sin título.png')",
+                maskImage: "url('/Diseño sin título.png')",
+                WebkitMaskSize: 'contain',
+                maskSize: 'contain',
+                WebkitMaskRepeat: 'no-repeat',
+                maskRepeat: 'no-repeat',
+                WebkitMaskPosition: 'center',
+                maskPosition: 'center',
+                transition: 'background-color 0.5s ease, width 0.3s ease, height 0.3s ease',
+                flexShrink: 0,
               }}
-              priority
             />
           </div>
 
@@ -281,16 +343,23 @@ const Navbar = () => {
           </ul>
 
           <div className="flex items-center justify-center">
-            <Image
-              src="/Diseño sin título.png"
-              alt="Monograma"
-              width={132}
-              height={132}
-              className={`object-contain ${isDark ? 'invert' : ''}`}
+            <div
+              role="img"
+              aria-label="Monograma"
               style={{
                 width: `${logoMobile}px`,
                 height: `${logoMobile}px`,
-                transition: 'filter 0.5s ease',
+                backgroundColor: navLogoColor,
+                WebkitMaskImage: "url('/Diseño sin título.png')",
+                maskImage: "url('/Diseño sin título.png')",
+                WebkitMaskSize: 'contain',
+                maskSize: 'contain',
+                WebkitMaskRepeat: 'no-repeat',
+                maskRepeat: 'no-repeat',
+                WebkitMaskPosition: 'center',
+                maskPosition: 'center',
+                transition: 'background-color 0.5s ease, width 0.3s ease, height 0.3s ease',
+                flexShrink: 0,
               }}
             />
           </div>
@@ -355,16 +424,23 @@ const Navbar = () => {
           <div />
 
           <div className="flex items-center justify-center">
-            <Image
-              src="/Diseño sin título.png"
-              alt="Monograma"
-              width={120}
-              height={120}
-              className={`object-contain ${isDark ? 'invert' : ''}`}
+            <div
+              role="img"
+              aria-label="Monograma"
               style={{
                 width: `${logoMobile}px`,
                 height: `${logoMobile}px`,
-                transition: 'filter 0.5s ease',
+                backgroundColor: navLogoColor,
+                WebkitMaskImage: "url('/Diseño sin título.png')",
+                maskImage: "url('/Diseño sin título.png')",
+                WebkitMaskSize: 'contain',
+                maskSize: 'contain',
+                WebkitMaskRepeat: 'no-repeat',
+                maskRepeat: 'no-repeat',
+                WebkitMaskPosition: 'center',
+                maskPosition: 'center',
+                transition: 'background-color 0.5s ease, width 0.3s ease, height 0.3s ease',
+                flexShrink: 0,
               }}
             />
           </div>
