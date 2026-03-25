@@ -26,7 +26,7 @@ export default function RSVPSection() {
           (rsvpSectionRef as React.MutableRefObject<HTMLElement | null>).current = el;
         }
       }}
-      className="w-full min-h-screen relative overflow-hidden px-5 md:px-8 flex items-center justify-center"
+      className="w-full min-h-screen relative overflow-hidden"
       style={{
         backgroundImage: `linear-gradient(
           135deg,
@@ -40,62 +40,64 @@ export default function RSVPSection() {
         backgroundRepeat: 'no-repeat'
       }}
     >
-      <div className="max-w-3xl mx-auto relative z-10 w-full">
-        <p className="rsvp-message">
-          Esperamos celebrar nuestra unión contigo.
-        </p>
-
-        <form
-          className="rsvp-form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            setSent(true);
-            setMessage('');
-            setTimeout(() => setSent(false), 2200);
-          }}
-        >
-          <p className="rsvp-form-title">
-            Si deseas enviarnos un mensaje para esta nueva aventura que comenzamos, lo agradecemos :)
+      <div className="absolute inset-x-0 bottom-0 h-[30%] min-h-[280px] z-10 flex items-center justify-center px-5 md:px-8 pb-5 md:pb-8">
+        <div className="max-w-3xl mx-auto w-full">
+          <p className="rsvp-message">
+            Esperamos celebrar nuestra unión contigo.
           </p>
 
-          {!sent && (
-            <>
-              <div className="rsvp-input-bar">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    d="M4 20h4l9.8-9.8a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
-                    stroke="rgba(247,239,226,0.82)"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+          <form
+            className="rsvp-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              setSent(true);
+              setMessage('');
+              setTimeout(() => setSent(false), 2200);
+            }}
+          >
+            <p className="rsvp-form-title">
+Agradecemos tus buenos deseos para esta nueva aventura que comenzamos :)
+            </p>
+
+            {!sent && (
+              <>
+                <div className="rsvp-input-bar">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M4 20h4l9.8-9.8a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+                      stroke="rgba(247,239,226,0.82)"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="m13.5 6.5 4 4"
+                      stroke="rgba(247,239,226,0.82)"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+
+                  <input
+                    type="text"
+                    value={message}
+                    onChange={(event) => setMessage(event.target.value)}
+                    placeholder="Escribe tu mensaje..."
+                    className="rsvp-input"
                   />
-                  <path
-                    d="m13.5 6.5 4 4"
-                    stroke="rgba(247,239,226,0.82)"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                </div>
 
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(event) => setMessage(event.target.value)}
-                  placeholder="Escribe tu mensaje..."
-                  className="rsvp-input"
-                />
-              </div>
+                <button type="submit" className="rsvp-send-btn">
+                  Enviar
+                </button>
+              </>
+            )}
 
-              <button type="submit" className="rsvp-send-btn">
-                Enviar
-              </button>
-            </>
-          )}
-
-          <p className={`rsvp-send-feedback ${sent ? 'rsvp-send-feedback--visible' : ''}`}>
-            Enviado con éxito.
-          </p>
-        </form>
+            <p className={`rsvp-send-feedback ${sent ? 'rsvp-send-feedback--visible' : ''}`}>
+              Enviado con éxito.
+            </p>
+          </form>
+        </div>
       </div>
 
       <style jsx>{`

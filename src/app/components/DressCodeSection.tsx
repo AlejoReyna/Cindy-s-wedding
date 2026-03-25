@@ -22,6 +22,7 @@ function LetterReveal({ text, active, baseDelay = 0, charStagger = 55, className
 }
 
 export default function DressCodeSection() {
+  const ACCENT_COLOR = '#bdb49b';
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [noNinosReady, setNoNinosReady] = useState(false);
@@ -131,7 +132,7 @@ export default function DressCodeSection() {
 
             {/* ══ 2) DRESS CODE / ETIQUETA FORMAL BLOCK ══ */}
             <div className="mb-14">
-              <p className="garamond-300 tracking-[0.32em] text-[11px] md:text-xs uppercase text-[#8B7355]/80 mb-4">
+              <p className="garamond-300 tracking-[0.32em] text-[11px] md:text-xs uppercase mb-4" style={{ color: ACCENT_COLOR, opacity: 0.8 }}>
                 <LetterReveal
                   text="Etiqueta"
                   active={isVisible}
@@ -139,7 +140,7 @@ export default function DressCodeSection() {
                   charStagger={22}
                 />
               </p>
-              <p className="garamond-regular text-2xl md:text-3xl text-[#543c24] leading-snug mb-5">
+              <p className="garamond-regular text-2xl md:text-3xl leading-snug mb-5" style={{ color: ACCENT_COLOR }}>
                 <LetterReveal
                   text="Formal"
                   active={isVisible}
@@ -188,7 +189,7 @@ export default function DressCodeSection() {
               {/* "NO NIÑOS" badge — materializes from nothing */}
               <div className={`ds-no-ninos-badge ${noNinosReady ? 'ds-no-ninos-visible' : ''}`}>
                 <span className="ds-ninos-line" />
-                <span className="garamond-regular tracking-[0.3em] text-[15px] md:text-[18px] uppercase text-[#9a6e34] font-semibold drop-shadow-[0_1px_0_rgba(84,60,36,0.18)]">
+                <span className="garamond-regular tracking-[0.3em] text-[15px] md:text-[18px] uppercase font-semibold drop-shadow-[0_1px_0_rgba(84,60,36,0.18)]" style={{ color: ACCENT_COLOR }}>
                   <LetterReveal
                     text="NO NIÑOS"
                     active={noNinosReady}
@@ -203,7 +204,7 @@ export default function DressCodeSection() {
               <div className={`mt-6 max-w-xs mx-auto transition-all duration-[800ms] ease-out ${
                 noNinosTextStart ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}>
-                <p className="garamond-regular text-base md:text-[17px] text-[#543c24] leading-relaxed">
+                <p className="garamond-regular text-base md:text-[17px] leading-relaxed" style={{ color: ACCENT_COLOR }}>
                   Con mucho cariño hemos planeado una velada íntima entre adultos.
                   {' '}Les pedimos amablemente que este día tan especial sea solo para los grandes.
                 </p>
@@ -247,7 +248,7 @@ export default function DressCodeSection() {
               <defs>
                 <pattern id="dressPattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
                   <path d="M10,50 Q25,10 50,20 Q75,30 90,50 Q75,70 50,80 Q25,90 10,50Z" stroke="#8B7355" strokeWidth="0.4" fill="none" opacity="0.4"/>
-                  <circle cx="50" cy="50" r="2" fill="#C4985B" opacity="0.2"/>
+              <circle cx="50" cy="50" r="2" fill="#bdb49b" opacity="0.2"/>
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#dressPattern)"/>
@@ -261,12 +262,12 @@ export default function DressCodeSection() {
 
             <svg width="60" height="60" viewBox="0 0 64 64" fill="none" className="mb-8 opacity-30">
               <circle cx="32" cy="32" r="28" stroke="#8B7355" strokeWidth="0.6"/>
-              <circle cx="32" cy="32" r="18" stroke="#C4985B" strokeWidth="0.5"/>
+              <circle cx="32" cy="32" r="18" stroke="#bdb49b" strokeWidth="0.5"/>
               <path d="M32,10 Q36,20 32,32 Q28,20 32,10Z" fill="#8B7355" opacity="0.4"/>
               <path d="M32,54 Q28,44 32,32 Q36,44 32,54Z" fill="#8B7355" opacity="0.4"/>
               <path d="M10,32 Q20,28 32,32 Q20,36 10,32Z" fill="#8B7355" opacity="0.4"/>
               <path d="M54,32 Q44,36 32,32 Q44,28 54,32Z" fill="#8B7355" opacity="0.4"/>
-              <circle cx="32" cy="32" r="3" fill="#C4985B" opacity="0.3"/>
+              <circle cx="32" cy="32" r="3" fill="#bdb49b" opacity="0.3"/>
             </svg>
 
             <p className="garamond-300 tracking-[0.35em] text-[11px] uppercase text-center mb-2" style={{ color: '#8B7355', opacity: 0.55 }}>
@@ -277,9 +278,9 @@ export default function DressCodeSection() {
             </p>
 
             <div className="flex items-center gap-3 mt-7 opacity-35">
-              <span className="block w-10 h-[0.5px] bg-[#C4985B]" />
-              <span className="block w-1 h-1 rounded-full bg-[#C4985B]" />
-              <span className="block w-10 h-[0.5px] bg-[#C4985B]" />
+              <span className="block w-10 h-[0.5px]" style={{ backgroundColor: ACCENT_COLOR }} />
+              <span className="block w-1 h-1 rounded-full" style={{ backgroundColor: ACCENT_COLOR }} />
+              <span className="block w-10 h-[0.5px]" style={{ backgroundColor: ACCENT_COLOR }} />
             </div>
           </div>
         </div>
@@ -389,7 +390,7 @@ export default function DressCodeSection() {
           display: block;
           width: 3.5rem;
           height: 1px;
-          background: rgba(196, 152, 91, 0.55);
+          background: rgba(189, 180, 155, 0.55);
           transform-origin: center;
           transform: scaleX(0);
           transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1) 0.15s;

@@ -39,8 +39,6 @@ export default function ItinerarySection() {
   const [completed, setCompleted]     = useState(false)
   // Track which events have been activated (for animation persistence)
   const [seen, setSeen] = useState<boolean[]>(EVENTS.map(() => false))
-  // After party reveal
-  const [afterRevealed, setAfterRevealed] = useState(false)
 
   // ── Measure header width for divider ──
   useEffect(() => {
@@ -138,7 +136,7 @@ export default function ItinerarySection() {
       <div
         ref={outerRef}
         className="it-outer"
-        style={{ height: completed ? '100svh' : `${SCROLL_SCREENS * 100}svh` }}
+        style={{ height: completed ? 'auto' : `${SCROLL_SCREENS * 100}svh` }}
       >
         {/* Sticky viewport container (becomes static once completed) */}
         <div className={completed ? 'it-static' : 'it-sticky'}>
@@ -281,7 +279,7 @@ export default function ItinerarySection() {
 
           {/* ── Summary cards (once completed, never goes back) ── */}
           <div
-            className="it-summary"
+            className={`it-summary${completed ? ' it-summary--completed' : ''}`}
             style={{
               opacity:   completed ? 1 : 0,
               transform: completed ? 'translateY(0)' : 'translateY(30px)',
@@ -301,15 +299,18 @@ export default function ItinerarySection() {
                   }}
                 >
                   <div className="it-card">
-                    <div className="it-card-icon-wrap">
+                    <div className="it-card-icon-medallion">
+                      <div className="it-card-icon-wrap">
                       <Image
                         src={event.icon}
                         alt={event.alt}
-                        fill
-                        sizes="(max-width: 640px) 52px, 68px"
+                        width={56}
+                        height={56}
+                        sizes="56px"
                         className="it-card-icon-image"
-                        style={{ filter: 'sepia(1) saturate(0.35) brightness(0.50)' }}
+                        style={{ filter: 'sepia(1) saturate(0.2) brightness(0.38)' }}
                       />
+                      </div>
                     </div>
                     <p className="it-card-time">{event.time}</p>
                     <p className="it-card-title">{event.title}</p>
@@ -322,32 +323,6 @@ export default function ItinerarySection() {
               ))}
             </div>
 
-            {/* ── After party reveal button row ── */}
-            <div
-              className="it-after-row"
-              style={{
-                transitionDelay: `${EVENTS.length * 120 + 200}ms`,
-                opacity:   completed ? 1 : 0,
-                transform: completed ? 'translateY(0)' : 'translateY(12px)',
-                transition: 'opacity 0.6s ease-out, transform 0.5s ease-out',
-              }}
-            >
-              <button
-                className={`it-after-btn${afterRevealed ? ' it-after-btn--open' : ''}`}
-                onClick={() => !afterRevealed && setAfterRevealed(true)}
-              >
-                {/* Revealed content sitting underneath */}
-                <div className="it-after-revealed">
-                  <p className="it-after-revealed-title">After Party</p>
-                  <p className="it-after-revealed-location">Lugar: TBD</p>
-                </div>
-                {/* Sheet cover that lifts on click */}
-                <div className={`it-after-sheet${afterRevealed ? ' it-after-sheet--lifted' : ''}`}>
-                  <p className="it-after-sheet-title">After Party</p>
-                  <p className="it-after-sheet-hint">Click para revelar</p>
-                </div>
-              </button>
-            </div>
           </div>
 
         </div>
@@ -377,9 +352,10 @@ export default function ItinerarySection() {
         /* ── Static container (after completion, normal flow) ── */
         .it-static {
           position: relative;
-          height: 100svh;
+          min-height: 100svh;
+          height: auto;
           width: 100%;
-          overflow: hidden;
+          overflow: visible;
         }
 
         /* ── Background ── */
@@ -649,8 +625,16 @@ export default function ItinerarySection() {
           justify-content: center;
           gap: clamp(1.2rem, 3vh, 2rem);
           padding: 6rem 2rem 2rem;
+          box-sizing: border-box;
           z-index: 4;
           transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .it-summary--completed {
+          position: relative;
+          inset: auto;
+          min-height: 100svh;
+          justify-content: flex-start;
+          padding: clamp(8.5rem, 16vh, 10rem) 2rem clamp(2.5rem, 6vh, 4rem);
         }
 
         /* ── Row of event cards ── */
@@ -660,6 +644,7 @@ export default function ItinerarySection() {
           width: min(100%, 560px);
           border-top: 1px solid rgba(181,150,106,0.15);
           border-bottom: 1px solid rgba(181,150,106,0.15);
+          flex-shrink: 0;
         }
 
         /* Wrapper holds card + optional right separator */
@@ -670,6 +655,7 @@ export default function ItinerarySection() {
           width: 100%;
           border-bottom: 1px solid rgba(181,150,106,0.15);
           transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+          flex-shrink: 0;
         }
         .it-card-wrapper:last-child {
           border-bottom: 0;
@@ -699,16 +685,31 @@ export default function ItinerarySection() {
           display: none;
         }
 
-        .it-card-icon-wrap {
-          position: relative;
-          width: clamp(44px, 10vw, 68px);
-          height: clamp(44px, 10vw, 68px);
+        .it-card-icon-medallion {
+          width: clamp(60px, 12vw, 82px);
+          height: clamp(60px, 12vw, 82px);
           display: flex;
           align-items: center;
           justify-content: center;
           margin-bottom: clamp(0.6rem, 2.5vh, 2rem);
+          border-radius: 999px;
+          background: linear-gradient(145deg, rgba(255,255,255,0.28), rgba(181,150,106,0.14));
+          box-shadow:
+            inset 1px 1px 2px rgba(255,255,255,0.52),
+            inset -1px -1px 2px rgba(139,115,85,0.18),
+            0 4px 12px rgba(120,88,60,0.08);
+        }
+
+        .it-card-icon-wrap {
+          width: clamp(32px, 7vw, 46px);
+          height: clamp(32px, 7vw, 46px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .it-card-icon-image {
+          width: 100%;
+          height: 100%;
           object-fit: contain;
         }
 
@@ -739,6 +740,7 @@ export default function ItinerarySection() {
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
         }
 
         .it-after-btn {
@@ -848,6 +850,10 @@ export default function ItinerarySection() {
             gap: clamp(1rem, 2.5vh, 1.6rem);
             padding: clamp(4rem, 10vh, 6rem) 0 1rem;
           }
+          .it-summary--completed {
+            justify-content: flex-start;
+            padding: clamp(6.5rem, 14vh, 8rem) 0 1.5rem;
+          }
 
           .it-event-content {
             padding: 0 1rem;
@@ -883,9 +889,9 @@ export default function ItinerarySection() {
             padding: clamp(1rem, 3.5vh, 1.8rem) 0.5rem;
           }
 
-          .it-card-icon-wrap {
-            width: 52px;
-            height: 52px;
+          .it-card-icon-medallion {
+            width: 58px;
+            height: 58px;
             margin-bottom: 0.6rem;
           }
 

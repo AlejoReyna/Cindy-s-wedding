@@ -157,17 +157,7 @@ export default function ParentsSection() {
               </p>
             </div>
 
-            {/* ③ Decorative divider — draws in */}
-            <div
-              className={`flex items-center justify-center gap-3 mb-10 transition-all duration-[350ms] ease-out ${
-                textStarted ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
-              }`}
-            >
-              <span className="block w-12 h-[0.5px] bg-[#C4985B]/40" />
-              <span className="block w-1.5 h-1.5 rounded-full bg-[#C4985B]/35" />
-              <span className="block w-12 h-[0.5px] bg-[#C4985B]/40" />
-            </div>
-
+         
             {/* ④ & ⑤ Parent cards */}
             <div className="w-full max-w-md mx-auto space-y-10">
 
@@ -337,13 +327,11 @@ export default function ParentsSection() {
           font-size: 1.125rem;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          font-style: italic;
           color: #8B7355;
           line-height: 1.8;
         }
         .ps-heading-text {
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
-          font-weight: 600;
           font-size: 1.5rem;
           letter-spacing: 0.15em;
           text-transform: uppercase;

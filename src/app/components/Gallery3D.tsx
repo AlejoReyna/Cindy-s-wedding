@@ -79,8 +79,8 @@ export default function Gallery3D() {
   const dragStartX = useRef(0);
 
   // ── Text data ──
-  const titleLine1 = 'Nos';
-  const titleLine2 = 'Casamos';
+  const titleLine1 = '¡Nos';
+  const titleLine2 = 'Casamos!';
   const subtitleWords = 'Con inmensa alegría en nuestros corazones, queremos invitarte a celebrar el día en que uniremos nuestras vidas para siempre.'.split(' ');
 
   // ── Scroll observer → animation cascade ──
@@ -273,6 +273,26 @@ export default function Gallery3D() {
                 style={{ ['--divider-target' as string]: `${titleWidth}px` } as React.CSSProperties}
               />
             </div>
+
+            {/* ⑤ Subtitle */}
+            <div
+              className="w-full px-3 mt-2 mb-4 md:mt-0 md:mb-6"
+              style={{ width: `${titleWidth}px`, maxWidth: '100%' }}
+            >
+              <p className="gl3d-subtitle-text">
+                {subtitleWords.map((word, i) => (
+                  <span key={`w-${i}`}>
+                    <span
+                      className={`gl3d-word${subtitleStarted ? ' gl3d-word--animated' : ''}`}
+                      style={{ animationDelay: `${i * WORD_SPEED}ms` }}
+                    >
+                      {word}
+                    </span>
+                    {i < subtitleWords.length - 1 && ' '}
+                  </span>
+                ))}
+              </p>
+            </div>
           </div>
 
           {/* ── BOTTOM: 3D Coverflow Carousel ── */}
@@ -358,23 +378,6 @@ export default function Gallery3D() {
             <p className="text-center mt-2 md:mt-3 text-[10px] tracking-[0.3em] uppercase text-[#8B7355]/40 garamond-300">
               {currentIndex + 1}&thinsp;/&thinsp;{photos.length}
             </p>
-
-            {/* ⑤ Subtitle */}
-            <div className="max-w-[20rem] px-3 mt-4 md:mt-6 md:max-w-sm">
-              <p className="gl3d-subtitle-text">
-                {subtitleWords.map((word, i) => (
-                  <span key={`w-${i}`}>
-                    <span
-                      className={`gl3d-word${subtitleStarted ? ' gl3d-word--animated' : ''}`}
-                      style={{ animationDelay: `${i * WORD_SPEED}ms` }}
-                    >
-                      {word}
-                    </span>
-                    {i < subtitleWords.length - 1 && ' '}
-                  </span>
-                ))}
-              </p>
-            </div>
           </div>
         </div>
       </div>
@@ -411,7 +414,7 @@ export default function Gallery3D() {
         .gl3d-subtitle-text {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 0.9rem;
+          font-size: 1.12rem;
           color: #8B7355;
           line-height: 1.45;
         }
@@ -419,12 +422,12 @@ export default function Gallery3D() {
         @media (min-width: 640px) {
           .gl3d-date-text { font-size: 15px; }
           .gl3d-title-text { font-size: 2.25rem; }
-          .gl3d-subtitle-text { font-size: 1rem; }
+          .gl3d-subtitle-text { font-size: 1.24rem; }
         }
         @media (min-width: 768px) {
           .gl3d-date-text { font-size: 16px; }
           .gl3d-title-text { font-size: 3.4rem; }
-          .gl3d-subtitle-text { font-size: 1.125rem; }
+          .gl3d-subtitle-text { font-size: 1.38rem; }
         }
 
         /* ═══ LETTER / WORD WRITING ANIMATIONS ═══ */
