@@ -17,26 +17,23 @@ interface ItineraryItem {
 interface ItineraryItemCardProps {
   item: ItineraryItem;
   index: number;
-  isRevealed: boolean;
-  accentColor: string;
+  isRevealed?: boolean;
+  accentColor?: string;
+  isActive?: boolean;
 }
 
-// Progressively deeper circle backgrounds (afternoon → evening)
-const CIRCLE_BG = [
-  'rgba(245,238,223,0.9)', // warm gold
-  'rgba(242,232,227,0.9)', // amber
-  'rgba(234,229,223,0.9)', // deep warm
-];
 
 export default function ItineraryItemCard({
   item,
   index,
-  isRevealed,
-  accentColor,
+  isRevealed = true,
+  accentColor = '#C4985B',
+  isActive = false,
 }: ItineraryItemCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
   const [animating, setAnimating] = useState(false);
+  const isLeftSide = index % 2 === 0;
 
   // Internal choreography states
   const [showTime, setShowTime] = useState(false);
@@ -93,19 +90,19 @@ export default function ItineraryItemCard({
     switch (item.title) {
       case 'Misa':
         return (
-          <Image src={church} alt="Misa" width={32} height={32} className={cls} />
+          <Image src={church} alt="Misa" width={72} height={72} className={cls} />
         );
       case 'Ceremonia':
         return (
-          <Image src={church} alt="Ceremonia" width={32} height={32} className={cls} />
+          <Image src={church} alt="Ceremonia" width={72} height={72} className={cls} />
         );
       case 'Ceremonia Civil':
         return (
           <Image
             src={legalDocument}
             alt="Ceremonia Civil"
-            width={32}
-            height={32}
+            width={44}
+            height={44}
             className={cls}
           />
         );
@@ -114,8 +111,8 @@ export default function ItineraryItemCard({
           <Image
             src={nightClub}
             alt="Cocktail de Bienvenida"
-            width={32}
-            height={32}
+            width={44}
+            height={44}
             className={cls}
           />
         );
@@ -124,8 +121,8 @@ export default function ItineraryItemCard({
           <Image
             src={nightClub}
             alt="Recepción"
-            width={32}
-            height={32}
+            width={44}
+            height={44}
             className={`${cls} brightness-0`}
           />
         );
@@ -137,140 +134,198 @@ export default function ItineraryItemCard({
   // Unified color palette
   const cardColor = '#7a6a5a';
   const cardColorLight = '#7a6a5a99';
-  const accent = accentColor || '#C4985B';
+  const accent = accentColor;
 
   return (
-    <div ref={cardRef} className="group px-2 md:px-3 text-center">
-      {/* ── Elegant card container ── */}
+    <div ref={cardRef} className="group relative px-2 md:px-0">
+
+      {/* ── Desktop: horizontal connector line at midpoint of card height ── */}
+      {/* md gap: wrapper(2.5rem) + pr-10(2.5rem) = 5rem | lg gap: wrapper(2.5rem) + pr-14(3.5rem) = 6rem */}
       <div
-        className={`relative py-16 md:py-24 px-8 md:px-10 rounded-none transition-all duration-1000 ease-out ${
-          animating ? 'opacity-100' : 'opacity-0'
+        className={`absolute hidden md:block pointer-events-none top-1/2 -translate-y-1/2 h-px transition-opacity duration-700 ease-out ${
+          animating ? 'opacity-60' : 'opacity-0'
+        } ${
+          isLeftSide
+            ? 'left-[calc(50%_-_5rem)] w-20 lg:left-[calc(50%_-_6rem)] lg:w-24'
+            : 'left-1/2 w-20 lg:w-24'
         }`}
         style={{
-          background: 'rgba(255,255,255,0.45)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          border: '1px solid rgba(196,152,91,0.12)',
-          boxShadow: '0 2px 20px rgba(139,115,85,0.04), 0 1px 4px rgba(139,115,85,0.02)',
+          backgroundColor: '#C4985B',
+          zIndex: 2,
+        }}
+      />
+
+      {/* ── Desktop: dot at the junction with the vertical bar ── */}
+      <div
+        className={`absolute hidden md:block pointer-events-none rounded-full transition-opacity duration-700 ease-out ${
+          animating ? 'opacity-70' : 'opacity-0'
+        }`}
+        style={{
+          left: 'calc(50% - 3px)',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          width: '6px',
+          height: '6px',
+          backgroundColor: '#C4985B',
+          zIndex: 3,
+        }}
+      />
+
+      <div
+        className={`w-full md:w-[calc(50%-2.5rem)] ${
+          isLeftSide ? 'md:mr-auto md:pr-10 lg:pr-14' : 'md:ml-auto md:pl-10 lg:pl-14'
+        }`}
+        style={{
+          transform: isActive ? 'scale(1.3)' : 'scale(1)',
+          transition: 'transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          zIndex: isActive ? 20 : 1,
+          position: 'relative',
         }}
       >
-        {/* Corner accents — delicate L-shapes */}
+        {/* ── Elegant card container ── */}
         <div
-          className="absolute top-4 left-4 w-6 h-6 pointer-events-none"
+          className={`relative flex flex-col rounded-none text-center transition-all duration-1000 ease-out ${
+            animating ? 'opacity-100' : 'opacity-0'
+          }`}
           style={{
-            borderTop: '1px solid rgba(196,152,91,0.25)',
-            borderLeft: '1px solid rgba(196,152,91,0.25)',
+            height: '380px',
+            background: 'rgba(255,255,255,0.45)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            border: '1px solid rgba(196,152,91,0.12)',
+            boxShadow: '0 2px 20px rgba(139,115,85,0.04), 0 1px 4px rgba(139,115,85,0.02)',
           }}
-        />
-        <div
-          className="absolute top-4 right-4 w-6 h-6 pointer-events-none"
-          style={{
-            borderTop: '1px solid rgba(196,152,91,0.25)',
-            borderRight: '1px solid rgba(196,152,91,0.25)',
-          }}
-        />
-        <div
-          className="absolute bottom-4 left-4 w-6 h-6 pointer-events-none"
-          style={{
-            borderBottom: '1px solid rgba(196,152,91,0.25)',
-            borderLeft: '1px solid rgba(196,152,91,0.25)',
-          }}
-        />
-        <div
-          className="absolute bottom-4 right-4 w-6 h-6 pointer-events-none"
-          style={{
-            borderBottom: '1px solid rgba(196,152,91,0.25)',
-            borderRight: '1px solid rgba(196,152,91,0.25)',
-          }}
-        />
-
-        {/* ── Icon (scales in with soft bounce) ── */}
-        <div className="flex justify-center mb-8">
+        >
+          {/* Corner accents — delicate L-shapes */}
           <div
-            className={`w-18 h-18 rounded-full flex items-center justify-center transition-all duration-700 group-hover:scale-110 ${
-              showIcon ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.6]'
-            }`}
+            className="absolute top-4 left-4 w-6 h-6 pointer-events-none"
             style={{
-              width: '4.5rem',
-              height: '4.5rem',
-              backgroundColor: CIRCLE_BG[index] || CIRCLE_BG[2],
-              transitionTimingFunction: showIcon
-                ? 'cubic-bezier(0.34, 1.56, 0.64, 1)'
-                : 'ease-out',
-            }}
-          >
-            {getIcon()}
-          </div>
-        </div>
-
-        {/* ── Title (fades up) ── */}
-        <div className="overflow-hidden mb-5">
-          <h3
-            className={`text-lg md:text-xl font-light tracking-[0.3em] uppercase garamond-300 transition-all duration-600 ease-out ${
-              showTitle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}
-            style={{ color: cardColor }}
-          >
-            {item.title}
-          </h3>
-        </div>
-
-        {/* ── Accent line (expands from center) ── */}
-        <div className="flex justify-center mb-6">
-          <div
-            className={`h-[1px] transition-all ease-out group-hover:w-16 ${
-              showLine ? 'w-12 opacity-100 duration-600' : 'w-0 opacity-0 duration-300'
-            }`}
-            style={{
-              backgroundColor: accent,
-              opacity: 0.35,
+              borderTop: '1px solid rgba(196,152,91,0.25)',
+              borderLeft: '1px solid rgba(196,152,91,0.25)',
             }}
           />
-        </div>
-
-        {/* ── Time ── */}
-        <div className="mb-5 overflow-hidden">
           <div
-            className={`transition-all duration-700 ease-out ${
-              showTime
-                ? 'opacity-100 translate-y-0 scale-100'
-                : 'opacity-0 translate-y-5 scale-[0.92]'
-            }`}
+            className="absolute top-4 right-4 w-6 h-6 pointer-events-none"
+            style={{
+              borderTop: '1px solid rgba(196,152,91,0.25)',
+              borderRight: '1px solid rgba(196,152,91,0.25)',
+            }}
+          />
+          <div
+            className="absolute bottom-4 left-4 w-6 h-6 pointer-events-none"
+            style={{
+              borderBottom: '1px solid rgba(196,152,91,0.25)',
+              borderLeft: '1px solid rgba(196,152,91,0.25)',
+            }}
+          />
+          <div
+            className="absolute bottom-4 right-4 w-6 h-6 pointer-events-none"
+            style={{
+              borderBottom: '1px solid rgba(196,152,91,0.25)',
+              borderRight: '1px solid rgba(196,152,91,0.25)',
+            }}
+          />
+
+          {/* ── Top half — Icon (sin círculo) ── */}
+          <div
+            className="flex items-center justify-center"
+            style={{ height: '50%', paddingTop: '2rem', paddingBottom: '1rem', paddingLeft: '2rem', paddingRight: '2rem' }}
           >
-            <span
-              className="text-3xl md:text-4xl font-light tracking-[0.15em] garamond-300 transition-all duration-500 group-hover:opacity-100"
-              style={{ color: cardColor, opacity: showTime ? 0.8 : 0 }}
+            <div
+              className={`transition-all duration-700 group-hover:scale-110 ${
+                showIcon ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.6]'
+              }`}
+              style={{
+                transitionTimingFunction: showIcon
+                  ? 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+                  : 'ease-out',
+              }}
             >
-              {item.time}
-            </span>
+              {getIcon()}
+            </div>
+          </div>
+
+          {/* ── Divisor central ── */}
+          <div
+            className="w-full h-px mx-auto opacity-10 pointer-events-none"
+            style={{ backgroundColor: accent }}
+          />
+
+          {/* ── Bottom half — Texto ── */}
+          <div
+            className="flex flex-col items-center justify-center"
+            style={{ height: '50%', paddingTop: '1rem', paddingBottom: '2rem', paddingLeft: '2rem', paddingRight: '2rem' }}
+          >
+            {/* ── Title (fades up) ── */}
+            <div className="overflow-hidden mb-4">
+              <h3
+                className={`text-lg md:text-xl font-light tracking-[0.3em] uppercase garamond-300 transition-all duration-600 ease-out ${
+                  showTitle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                }`}
+                style={{ color: cardColor }}
+              >
+                {item.title}
+              </h3>
+            </div>
+
+            {/* ── Accent line (expands from center) ── */}
+            <div className="flex justify-center mb-4">
+              <div
+                className={`h-[1px] transition-all ease-out group-hover:w-16 ${
+                  showLine ? 'w-12 opacity-100 duration-600' : 'w-0 opacity-0 duration-300'
+                }`}
+                style={{
+                  backgroundColor: accent,
+                  opacity: 0.35,
+                }}
+              />
+            </div>
+
+            {/* ── Time ── */}
+            <div className="overflow-hidden">
+              <div
+                className={`transition-all duration-700 ease-out ${
+                  showTime
+                    ? 'opacity-100 translate-y-0 scale-100'
+                    : 'opacity-0 translate-y-5 scale-[0.92]'
+                }`}
+              >
+                <span
+                  className="text-3xl md:text-4xl font-light tracking-[0.15em] garamond-300 transition-all duration-500 group-hover:opacity-100"
+                  style={{ color: cardColor, opacity: showTime ? 0.8 : 0 }}
+                >
+                  {item.time}
+                </span>
+              </div>
+            </div>
+
+            {/* ── Location (gentle fade) ── */}
+            {item.location && (
+              <p
+                className={`mt-3 text-xs md:text-sm tracking-[0.08em] font-light max-w-[260px] mx-auto leading-relaxed transition-all duration-500 ease-out ${
+                  showDetails
+                    ? 'opacity-100 translate-y-0'
+                    : 'opacity-0 translate-y-2'
+                }`}
+                style={{ color: cardColorLight }}
+              >
+                {item.location}
+              </p>
+            )}
+
+            {/* ── Description (if any) ── */}
+            {item.description && item.description.trim() !== '' && (
+              <p
+                className={`mt-3 text-sm font-light max-w-[240px] mx-auto leading-relaxed transition-all duration-500 ease-out ${
+                  showDetails ? 'opacity-100' : 'opacity-0'
+                }`}
+                style={{ color: cardColorLight }}
+              >
+                {item.description}
+              </p>
+            )}
           </div>
         </div>
-
-        {/* ── Location (gentle fade) ── */}
-        {item.location && (
-          <p
-            className={`text-xs md:text-sm tracking-[0.08em] font-light max-w-[260px] mx-auto leading-relaxed transition-all duration-500 ease-out ${
-              showDetails
-                ? 'opacity-100 translate-y-0'
-                : 'opacity-0 translate-y-2'
-            }`}
-            style={{ color: cardColorLight }}
-          >
-            {item.location}
-          </p>
-        )}
-
-        {/* ── Description (if any) ── */}
-        {item.description && item.description.trim() !== '' && (
-          <p
-            className={`mt-5 text-sm font-light max-w-[240px] mx-auto leading-relaxed transition-all duration-500 ease-out ${
-              showDetails ? 'opacity-100' : 'opacity-0'
-            }`}
-            style={{ color: cardColorLight }}
-          >
-            {item.description}
-          </p>
-        )}
       </div>
     </div>
   );

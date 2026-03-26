@@ -23,6 +23,7 @@ function LetterReveal({ text, active, baseDelay = 0, charStagger = 55, className
 
 export default function DressCodeSection() {
   const ACCENT_COLOR = '#bdb49b';
+  const DARK_ACCENT_COLOR = '#a89f70';
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [noNinosReady, setNoNinosReady] = useState(false);
@@ -56,7 +57,7 @@ export default function DressCodeSection() {
       ref={sectionRef}
       className="w-full relative overflow-hidden min-h-screen"
     >
-      {/* ═══ TWO-COLUMN LAYOUT: Paper (left 50%) | Image (right 50%) ═══ */}
+      {/* ═══ SINGLE COLUMN: Paper (full width) ═══ */}
       <div className="ds-two-col">
 
         {/* ══════════════════════════════════════════
@@ -100,16 +101,8 @@ export default function DressCodeSection() {
             }}
           />
 
-          {/* Right-edge feather into image column */}
-          <div
-            className="absolute top-0 right-0 bottom-0 w-14 pointer-events-none ds-right-feather"
-            style={{
-              background: 'linear-gradient(to right, transparent 0%, rgba(226,220,210,0.18) 100%)',
-            }}
-          />
-
           {/* ── Content — centred on the paper ── */}
-          <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-10 md:px-16 py-20">
+          <div className="relative z-10 flex flex-col items-center justify-center text-center px-10 md:px-16 py-20">
 
             {/* ══ 1) NOTA ESPECIAL HEADING ══ */}
             <p className="mrs-saint-delafield-regular text-4xl md:text-5xl text-[#8B7355]/65 mb-2">
@@ -189,7 +182,10 @@ export default function DressCodeSection() {
               {/* "NO NIÑOS" badge — materializes from nothing */}
               <div className={`ds-no-ninos-badge ${noNinosReady ? 'ds-no-ninos-visible' : ''}`}>
                 <span className="ds-ninos-line" />
-                <span className="garamond-regular tracking-[0.3em] text-[15px] md:text-[18px] uppercase font-semibold drop-shadow-[0_1px_0_rgba(84,60,36,0.18)]" style={{ color: ACCENT_COLOR }}>
+                <span
+                  className="garamond-regular tracking-[0.3em] text-[16.5px] md:text-[19.8px] uppercase font-semibold drop-shadow-[0_1px_0_rgba(84,60,36,0.22)]"
+                  style={{ color: DARK_ACCENT_COLOR }}
+                >
                   <LetterReveal
                     text="NO NIÑOS"
                     active={noNinosReady}
@@ -204,7 +200,10 @@ export default function DressCodeSection() {
               <div className={`mt-6 max-w-xs mx-auto transition-all duration-[800ms] ease-out ${
                 noNinosTextStart ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}>
-                <p className="garamond-regular text-base md:text-[17px] leading-relaxed" style={{ color: ACCENT_COLOR }}>
+                <p
+                  className="garamond-regular text-[17.6px] md:text-[18.7px] leading-relaxed"
+                  style={{ color: DARK_ACCENT_COLOR, opacity: 0.98 }}
+                >
                   Con mucho cariño hemos planeado una velada íntima entre adultos.
                   {' '}Les pedimos amablemente que este día tan especial sea solo para los grandes.
                 </p>
@@ -214,81 +213,10 @@ export default function DressCodeSection() {
           </div>{/* end content */}
         </div>{/* end left paper column */}
 
-        {/* ── RIGHT COLUMN: Placeholder image ── */}
-        <div className="ds-col-image">
-          {/* Warm parchment base */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(160deg, #e8e3d8 0%, #ddd8cc 40%, #d4cfc3 70%, #dbd6cb 100%)'
-            }}
-          />
-
-          {/* Grain overlay */}
-          <div
-            className="absolute inset-0 opacity-30"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E")`,
-              backgroundRepeat: 'repeat',
-              mixBlendMode: 'multiply',
-            }}
-          />
-
-          {/* Vignette */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(0,0,0,0.12) 100%)'
-            }}
-          />
-
-          {/* Decorative tiling pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <pattern id="dressPattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                  <path d="M10,50 Q25,10 50,20 Q75,30 90,50 Q75,70 50,80 Q25,90 10,50Z" stroke="#8B7355" strokeWidth="0.4" fill="none" opacity="0.4"/>
-              <circle cx="50" cy="50" r="2" fill="#bdb49b" opacity="0.2"/>
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#dressPattern)"/>
-            </svg>
-          </div>
-
-          {/* Centred placeholder mark */}
-          <div className={`relative z-10 flex flex-col items-center justify-center h-full px-10 transition-all duration-[1600ms] ease-out ${
-            isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-          }`} style={{ transitionDelay: '400ms' }}>
-
-            <svg width="60" height="60" viewBox="0 0 64 64" fill="none" className="mb-8 opacity-30">
-              <circle cx="32" cy="32" r="28" stroke="#8B7355" strokeWidth="0.6"/>
-              <circle cx="32" cy="32" r="18" stroke="#bdb49b" strokeWidth="0.5"/>
-              <path d="M32,10 Q36,20 32,32 Q28,20 32,10Z" fill="#8B7355" opacity="0.4"/>
-              <path d="M32,54 Q28,44 32,32 Q36,44 32,54Z" fill="#8B7355" opacity="0.4"/>
-              <path d="M10,32 Q20,28 32,32 Q20,36 10,32Z" fill="#8B7355" opacity="0.4"/>
-              <path d="M54,32 Q44,36 32,32 Q44,28 54,32Z" fill="#8B7355" opacity="0.4"/>
-              <circle cx="32" cy="32" r="3" fill="#bdb49b" opacity="0.3"/>
-            </svg>
-
-            <p className="garamond-300 tracking-[0.35em] text-[11px] uppercase text-center mb-2" style={{ color: '#8B7355', opacity: 0.55 }}>
-              Imagen
-            </p>
-            <p className="garamond-300 tracking-[0.2em] text-[10px] uppercase text-center" style={{ color: '#9B8366', opacity: 0.4 }}>
-              próximamente
-            </p>
-
-            <div className="flex items-center gap-3 mt-7 opacity-35">
-              <span className="block w-10 h-[0.5px]" style={{ backgroundColor: ACCENT_COLOR }} />
-              <span className="block w-1 h-1 rounded-full" style={{ backgroundColor: ACCENT_COLOR }} />
-              <span className="block w-10 h-[0.5px]" style={{ backgroundColor: ACCENT_COLOR }} />
-            </div>
-          </div>
-        </div>
-
       </div>{/* end ds-two-col */}
 
       <style jsx>{`
-        /* ══ TWO-COLUMN GRID ══ */
+        /* ══ SINGLE COLUMN LAYOUT ══ */
         .ds-two-col {
           display: flex;
           flex-direction: column;
@@ -299,45 +227,10 @@ export default function DressCodeSection() {
         .ds-col-paper {
           position: relative;
           width: 100%;
-          min-height: 60vh;
+          min-height: 100vh;
           display: flex;
           align-items: center;
           justify-content: center;
-          order: 1;
-        }
-        .ds-col-image {
-          position: relative;
-          width: 100%;
-          height: 40vh;
-          overflow: hidden;
-          order: 2;
-        }
-
-        @media (min-width: 768px) {
-          .ds-two-col {
-            flex-direction: row;
-            min-height: 100vh;
-          }
-          .ds-col-paper {
-            width: 50%;
-            min-height: 100vh;
-            order: 1;
-          }
-          .ds-col-image {
-            width: 50%;
-            height: auto;
-            min-height: 100vh;
-            order: 2;
-          }
-          .ds-right-feather {
-            display: block;
-          }
-        }
-
-        @media (max-width: 767px) {
-          .ds-right-feather {
-            display: none;
-          }
         }
 
         /* ══ DRESS CODE ICON ══ */

@@ -1,8 +1,7 @@
 "use client";
 
 import ItineraryItemCard from './ItineraryItemCard';
-import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
-import Image from 'next/image';
+import { useEffect, useRef, useState, useMemo } from 'react';
 
 interface ItineraryItem {
   time: string;
@@ -13,14 +12,77 @@ interface ItineraryItem {
 }
 
 export default function ItinerarySection() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [windowHeight, setWindowHeight] = useState(0);
-  const [isClient, setIsClient] = useState(false);
-  const [isSectionVisible, setIsSectionVisible] = useState(false);
-  const [revealedCount, setRevealedCount] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
+  const cardWrapperRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [lineStyle, setLineStyle] = useState<{ top: string | number; height: string | number }>({
+    top: '3rem',
+    height: 'calc(100% - 6rem)',
+  });
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  // Preserve current itinerary events while using the older visual layout.
+  // ── Track which card is most visible in the viewport ──
+  useEffect(() => {
+    const handleScroll = () => {
+      const viewportHeight = window.innerHeight;
+      let maxVisibility = -1;
+      let newActiveIndex = 0;
+
+      cardWrapperRefs.current.forEach((ref, index) => {
+        if (!ref) return;
+        const rect = ref.getBoundingClientRect();
+        const visibleTop = Math.max(rect.top, 0);
+        const visibleBottom = Math.min(rect.bottom, viewportHeight);
+        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+        const visibilityRatio = rect.height > 0 ? visibleHeight / rect.height : 0;
+        if (visibilityRatio > maxVisibility) {
+          maxVisibility = visibilityRatio;
+          newActiveIndex = index;
+        }
+      });
+
+      setActiveIndex(newActiveIndex);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    const updateLine = () => {
+      const container = containerRef.current;
+      const cards = cardsRef.current;
+      if (!container || !cards) return;
+
+      const cardEls = cards.children;
+      if (cardEls.length === 0) return;
+
+      const containerTop = container.getBoundingClientRect().top;
+      const firstRect = cardEls[0].getBoundingClientRect();
+      const lastRect = cardEls[cardEls.length - 1].getBoundingClientRect();
+
+      const firstMidY = firstRect.top + firstRect.height / 2 - containerTop;
+      const lastMidY = lastRect.top + lastRect.height / 2 - containerTop;
+
+      setLineStyle({ top: firstMidY, height: lastMidY - firstMidY });
+    };
+
+    // Run after a brief delay so cards have rendered
+    const timer = setTimeout(updateLine, 100);
+    window.addEventListener('resize', updateLine);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateLine);
+    };
+  }, []);
+
+  // Preserve the current itinerary events while using the previous visual design.
   const itineraryItems: ItineraryItem[] = useMemo(
     () => [
       {
@@ -28,82 +90,32 @@ export default function ItinerarySection() {
         displayTime: "4:30",
         title: "Misa",
         description: "",
+        location: "",
       },
       {
         time: "6:00 PM",
         displayTime: "6:00",
         title: "Cocktail de Bienvenida",
         description: "",
+        location: "",
       },
       {
         time: "7:00 PM",
         displayTime: "7:00",
         title: "Ceremonia Civil",
         description: "",
+        location: "",
       },
       {
         time: "8:00 PM",
         displayTime: "8:00",
         title: "Recepción",
         description: "",
+        location: "",
       },
     ],
     []
   );
-
-  useEffect(() => {
-    setIsClient(true);
-    const updateWindowHeight = () => setWindowHeight(window.innerHeight);
-    updateWindowHeight();
-    window.addEventListener('resize', updateWindowHeight);
-    return () => window.removeEventListener('resize', updateWindowHeight);
-  }, []);
-
-  const updateScrollProgress = useCallback(() => {
-    if (!sectionRef.current || !isClient || windowHeight === 0) return;
-
-    const rect = sectionRef.current.getBoundingClientRect();
-    const sectionHeight = sectionRef.current.offsetHeight;
-    const sectionTop = rect.top;
-    const sectionBottom = rect.bottom;
-
-    let progress = 0;
-    if (sectionTop <= 0 && sectionBottom >= windowHeight) {
-      const scrolledDistance = Math.abs(sectionTop);
-      const totalScrollableDistance = sectionHeight - windowHeight;
-      progress =
-        totalScrollableDistance > 0
-          ? Math.min(scrolledDistance / totalScrollableDistance, 1)
-          : 0;
-    } else if (sectionTop <= windowHeight && sectionBottom >= 0) {
-      const visibleHeight =
-        Math.min(sectionBottom, windowHeight) - Math.max(sectionTop, 0);
-      progress = visibleHeight / windowHeight;
-    }
-
-    const clampedProgress = Math.max(0, Math.min(1, progress));
-    const isVisible =
-      sectionTop <= windowHeight * 0.6 && sectionBottom >= windowHeight * 0.25;
-
-    setIsSectionVisible(isVisible);
-    setScrollProgress(clampedProgress);
-  }, [isClient, windowHeight]);
-
-  useEffect(() => {
-    if (!isClient) return;
-    const handleScroll = () => updateScrollProgress();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    updateScrollProgress();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isClient, updateScrollProgress]);
-
-  useEffect(() => {
-    if (!isSectionVisible || revealedCount >= itineraryItems.length) return;
-    const timer = setTimeout(() => {
-      setRevealedCount((prev) => Math.min(prev + 1, itineraryItems.length));
-    }, 180);
-    return () => clearTimeout(timer);
-  }, [isSectionVisible, revealedCount, itineraryItems.length]);
 
   const FloralDecoration = ({ className = "" }) => (
     <svg className={`w-full h-full ${className}`} viewBox="0 0 80 80" fill="none">
@@ -124,42 +136,12 @@ export default function ItinerarySection() {
 
   return (
     <section
-      ref={sectionRef}
-      className="min-h-screen w-full py-24 px-4 md:px-8 relative overflow-hidden transition-all duration-1000 ease-in-out"
+      className="min-h-screen w-full py-24 px-4 md:px-8 relative transition-all duration-1000 ease-in-out"
       style={{
         background:
           'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)',
       }}
     >
-      <div
-        className="absolute celestial-transition animate-celestial-float opacity-100 scale-100"
-        style={{
-          zIndex: 1,
-          top: `${20 + scrollProgress * 40}%`,
-          right: `${10 + scrollProgress * 30}%`,
-          transform: `translateX(${scrollProgress * 100}px) translateY(${Math.sin(scrollProgress * Math.PI) * 30}px) rotate(${scrollProgress * 360}deg)`,
-        }}
-      >
-        <div className="relative animate-fade-celestial">
-          <div className="w-32 h-32 bg-[#d4c4b0] rounded-full opacity-80 relative">
-            <div className="absolute inset-0 animate-sun-rotate">
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-6">
-                <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-[#d4c4b0] opacity-60"></div>
-              </div>
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-6 rotate-180">
-                <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-[#d4c4b0] opacity-60"></div>
-              </div>
-              <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-6 -rotate-90">
-                <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-[#d4c4b0] opacity-60"></div>
-              </div>
-              <div className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-6 rotate-90">
-                <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-[#d4c4b0] opacity-60"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="absolute inset-0 opacity-[0.02]" style={{ zIndex: 3 }}>
         <div
           className="absolute inset-0"
@@ -176,17 +158,6 @@ export default function ItinerarySection() {
           className="text-center mb-20 transition-all duration-2000 ease-out opacity-100 translate-y-0"
           style={{ transitionDelay: '200ms' }}
         >
-          <div className="flex justify-center mb-16">
-            <div className="w-24 h-24 md:w-32 md:h-32 relative">
-              <Image
-                src="/assets/clock.png"
-                alt="Reloj decorativo"
-                fill
-                className="object-contain opacity-80 transition-opacity duration-500 hover:opacity-100"
-              />
-            </div>
-          </div>
-
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.1em] uppercase mb-8 garamond-300 relative text-[#8B7355]">
             Itinerario
           </h2>
@@ -200,25 +171,40 @@ export default function ItinerarySection() {
           <FloralDecoration className="transform rotate-180" />
         </div>
 
-        <div className="max-w-4xl mx-auto relative">
+        <div ref={containerRef} className="max-w-4xl mx-auto relative">
           <div
-            className="absolute left-1/2 transform -translate-x-1/2 w-px transition-all duration-500 opacity-60 bg-gradient-to-b from-[#C4985B] via-[#8B7355] to-[#C4985B] hidden md:block"
-            style={{ top: '3rem', height: 'calc(100% - 6rem)', zIndex: 1 }}
+            className="absolute left-1/2 transform -translate-x-1/2 w-px transition-all duration-500 opacity-60 hidden md:block"
+            style={{ backgroundColor: '#C4985B', top: lineStyle.top, height: lineStyle.height, zIndex: 1 }}
           />
           <div
             className="absolute left-1/2 transform -translate-x-1/2 w-px transition-all duration-500 opacity-40 bg-gradient-to-b from-[#C4985B] via-[#8B7355] to-[#C4985B] md:hidden"
             style={{ top: '2rem', height: 'calc(100% - 4rem)', zIndex: 1 }}
           />
 
-          <div className="space-y-24 md:space-y-32 relative z-10">
-            {itineraryItems.map((item, index) => (
-              <ItineraryItemCard
+          <div className="md:hidden">
+            {itineraryItems.map((_, index) => (
+              <div
                 key={index}
-                item={item}
-                index={index}
-                isRevealed={index < revealedCount}
-                accentColor="#C4985B"
-              />
+                className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 z-10"
+                style={{
+                  top: `${3 + index * 24}rem`,
+                }}
+              >
+                <div className="w-full h-full rounded-full border-2 shadow-lg transition-colors duration-500 bg-white border-[#947e63]/60">
+                  <div className="absolute inset-1 rounded-full transition-colors duration-500 bg-[#947e63]/40"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div ref={cardsRef} className="space-y-24 md:space-y-32 relative z-10">
+            {itineraryItems.map((item, index) => (
+              <div
+                key={index}
+                ref={(el) => { cardWrapperRefs.current[index] = el; }}
+              >
+                <ItineraryItemCard item={item} index={index} isActive={index === activeIndex} />
+              </div>
             ))}
           </div>
         </div>
