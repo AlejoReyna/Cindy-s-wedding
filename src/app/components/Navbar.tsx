@@ -81,7 +81,11 @@ const SECTION_THEMES: Record<string, SectionTheme> = {
   },
 };
 
-const Navbar = () => {
+interface NavbarProps {
+  visible?: boolean;
+}
+
+const Navbar = ({ visible = true }: NavbarProps) => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isInFooterSection, setIsInFooterSection] = useState(false);
   const [isInRSVPSection, setIsInRSVPSection] = useState(false);
@@ -221,6 +225,7 @@ const Navbar = () => {
   const logoProgress = heroLikeNav ? 0 : t;
   const logoDesktop = lerp(130, 62, logoProgress);
   const logoMobile = lerp(104, 50, logoProgress);
+  const logoOpacity = isInHeroSection ? Math.max(0, 1 - t * 1.5) : 1;
   const padY = lerp(14, 4, t);
   const navProgress = heroLikeNav ? 0 : t;
   const bgAlpha = isSpecialSection ? 0 : lerp(0, 0.97, navProgress);
@@ -314,6 +319,9 @@ const Navbar = () => {
       ref={navRef}
       className="fixed top-0 left-0 right-0 z-50"
       style={{
+        opacity: visible ? 1 : 0,
+        pointerEvents: visible ? undefined : 'none',
+        transition: 'opacity 0.6s ease',
         paddingTop: `calc(${padY}px + env(safe-area-inset-top))`,
         paddingBottom: `${padY}px`,
         paddingLeft: 'clamp(16px, 3vw, 48px)',
@@ -383,6 +391,7 @@ const Navbar = () => {
               style={{
                 width: `${logoDesktop}px`,
                 height: `${logoDesktop}px`,
+                opacity: logoOpacity,
                 backgroundColor: navLogoColor,
                 WebkitMaskImage: "url('/Diseño sin título.png')",
                 maskImage: "url('/Diseño sin título.png')",
@@ -392,7 +401,7 @@ const Navbar = () => {
                 maskRepeat: 'no-repeat',
                 WebkitMaskPosition: 'center',
                 maskPosition: 'center',
-                transition: 'background-color 0.5s ease, width 0.3s ease, height 0.3s ease',
+                transition: 'background-color 0.5s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease',
                 flexShrink: 0,
               }}
             />
@@ -457,6 +466,7 @@ const Navbar = () => {
               style={{
                 width: `${logoMobile}px`,
                 height: `${logoMobile}px`,
+                opacity: logoOpacity,
                 backgroundColor: navLogoColor,
                 WebkitMaskImage: "url('/Diseño sin título.png')",
                 maskImage: "url('/Diseño sin título.png')",
@@ -466,7 +476,7 @@ const Navbar = () => {
                 maskRepeat: 'no-repeat',
                 WebkitMaskPosition: 'center',
                 maskPosition: 'center',
-                transition: 'background-color 0.5s ease, width 0.3s ease, height 0.3s ease',
+                transition: 'background-color 0.5s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease',
                 flexShrink: 0,
               }}
             />
@@ -538,6 +548,7 @@ const Navbar = () => {
               style={{
                 width: `${logoMobile}px`,
                 height: `${logoMobile}px`,
+                opacity: logoOpacity,
                 backgroundColor: navLogoColor,
                 WebkitMaskImage: "url('/Diseño sin título.png')",
                 maskImage: "url('/Diseño sin título.png')",
@@ -547,7 +558,7 @@ const Navbar = () => {
                 maskRepeat: 'no-repeat',
                 WebkitMaskPosition: 'center',
                 maskPosition: 'center',
-                transition: 'background-color 0.5s ease, width 0.3s ease, height 0.3s ease',
+                transition: 'background-color 0.5s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease',
                 flexShrink: 0,
               }}
             />

@@ -28,6 +28,7 @@ interface HeroSectionProps {
 const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) => {
   // If immediate, start fully loaded — no animations needed.
   const [loaded, setLoaded] = useState(immediate);
+  const [borderDrawn, setBorderDrawn] = useState(immediate);
 
   // Only start animations after the envelope has been opened (skip if immediate)
   useEffect(() => {
@@ -133,7 +134,7 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
         </div>
 
         {/* ── Bottom group: CTA + timer (positioned independently) ───────── */}
-        <div className="hero-bottom-group absolute inset-x-0 bottom-12 sm:bottom-5 md:bottom-1 flex flex-col items-center gap-3">
+        <div className="hero-bottom-group absolute inset-x-0 bottom-[10vh] flex flex-col items-center gap-3">
           <a
             href="#rsvp"
             className={`hero-cta-btn ${immediate ? 'hero-cta-btn--immediate' : loaded ? 'hero-cta-btn--animate' : ''}`}
@@ -147,7 +148,10 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
               '--btn-fill-delay': `${POST_NAMES + 1000 + 800}ms`,
             } as React.CSSProperties}
           >
-            <span className={`hero-cta-border-el ${immediate ? 'hero-cta-border-el--immediate' : loaded ? 'hero-cta-border-el--draw' : ''}`} />
+            <span
+              className={`hero-cta-border-el ${immediate ? 'hero-cta-border-el--immediate' : loaded ? 'hero-cta-border-el--draw' : ''} ${borderDrawn ? 'hero-cta-border-el--solid' : ''}`}
+              onAnimationEnd={() => setBorderDrawn(true)}
+            />
             <span className={`hero-cta-bg ${immediate ? 'hero-cta-bg--immediate' : loaded ? 'hero-cta-bg--visible' : ''}`} />
             <span className={`hero-cta-label ${immediate ? 'hero-cta-label--immediate' : loaded ? 'hero-cta-label--visible' : ''}`}>
               Confirma Tu Asistencia
@@ -414,6 +418,14 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
         .hero-cta-border-el--immediate {
           opacity: 1 !important;
           --cta-border-angle: 360deg;
+          -webkit-mask-image: none !important;
+          mask-image: none !important;
+        }
+
+        /* Once the draw animation finishes, drop the conic mask for a clean solid border */
+        .hero-cta-border-el--solid {
+          -webkit-mask-image: none !important;
+          mask-image: none !important;
         }
         .hero-cta-bg--immediate { opacity: 1 !important; }
         .hero-cta-label--immediate { opacity: 1 !important; }

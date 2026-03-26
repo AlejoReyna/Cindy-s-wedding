@@ -23,6 +23,8 @@ export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
   // When true, hero skips animations and shows content immediately (refresh case).
   const [immediate, setImmediate] = useState(false);
+  // Navbar stays hidden until the splash finishes its exit animation.
+  const [navbarReady, setNavbarReady] = useState(false);
 
   // useLayoutEffect runs BEFORE the browser paints, so on refresh the splash
   // is removed and hero shows instantly — no flash.
@@ -33,6 +35,7 @@ export default function Home() {
       setEntered(true);
       setShowSplash(false);
       setImmediate(true);
+      setNavbarReady(true);
     } else {
       document.body.style.overflow = 'hidden';
     }
@@ -47,12 +50,14 @@ export default function Home() {
     // SplashScreen handles its own unmounting via internal `hidden` state.
     setEntered(true);
     document.body.style.overflow = '';
+    // Show navbar once the splash exit animation is fully done (1400ms).
+    setTimeout(() => setNavbarReady(true), 1400);
   };
 
   return (
     <ThemeProvider>
       {showSplash && <SplashScreen onEnter={handleEnter} />}
-      <Navbar />
+      <Navbar visible={navbarReady} />
       <HeroSection entered={entered} immediate={immediate} />
 
 
