@@ -63,8 +63,6 @@ export default function Gallery3D() {
   }, []);
 
   // ── Sequential animation chain flags ──
-  const [, setFlowersVisible] = useState(false);
-  const [, setDateStarted] = useState(false);
   const [titleStarted, setTitleStarted] = useState(false);
   const [, setLineDrawn] = useState(false);
   const [dividerVisible, setDividerVisible] = useState(false);
@@ -94,8 +92,6 @@ export default function Gallery3D() {
           if (entry.isIntersecting && !hasTriggered.current) {
             hasTriggered.current = true;
             setIsVisible(true);
-            setFlowersVisible(true);
-            after(0,    () => setDateStarted(true));
             after(120,  () => setTitleStarted(true));
             after(180,  () => setLineDrawn(true));
             after(250,  () => setDividerVisible(true));
@@ -241,13 +237,13 @@ export default function Gallery3D() {
         />
       </div>
 
+
       {/* ═══ Main Layout ═══ */}
       <div className="w-full max-w-[1600px] mx-auto relative z-10 px-4 md:px-6 lg:px-8 py-8 sm:py-10 md:py-16">
         <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 md:gap-0">
 
-          {/* ── TOP: Text Section (identical cascade) ── */}
-          <div className="w-full max-w-3xl flex flex-col items-center text-center shrink-0 pt-1 md:pt-0">
-
+          {/* ── TOP: Text Section ── */}
+          <div className="w-full max-w-6xl flex flex-col items-center text-center shrink-0 pt-1 md:pt-0">
 
             {/* ③ Title */}
             <div className="mb-2 mt-0 md:mb-6 md:mt-8">
@@ -259,7 +255,9 @@ export default function Gallery3D() {
                       className={`gl3d-letter${titleStarted ? ' gl3d-letter--animated' : ''}`}
                       style={{ animationDelay: `${i * LETTER_SPEED}ms` }}
                     >
-                      {char === ' ' ? '\u00A0' : char}
+                      <span className={char === '¡' || char === '!' ? 'gl3d-punct-lower' : ''}>
+                        {char === ' ' ? '\u00A0' : char}
+                      </span>
                     </span>
                   ))}
                 </span>
@@ -399,7 +397,7 @@ export default function Gallery3D() {
         .gl3d-title-text {
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
           font-weight: 300;
-          font-size: clamp(1.5rem, 7.1vw, 1.95rem);
+          font-size: clamp(3rem, 14.2vw, 3.9rem);
           letter-spacing: 0.14em;
           text-transform: uppercase;
           color: #ba764e;
@@ -414,26 +412,32 @@ export default function Gallery3D() {
         .gl3d-subtitle-text {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 1.12rem;
+          font-size: 2.24rem;
           color: #8B7355;
           line-height: 1.45;
+          text-align: justify;
+          text-align-last: center;
         }
 
         @media (min-width: 640px) {
           .gl3d-date-text { font-size: 15px; }
-          .gl3d-title-text { font-size: 2.25rem; }
-          .gl3d-subtitle-text { font-size: 1.24rem; }
+          .gl3d-title-text { font-size: 4.5rem; }
+          .gl3d-subtitle-text { font-size: 2.48rem; }
         }
         @media (min-width: 768px) {
           .gl3d-date-text { font-size: 16px; }
-          .gl3d-title-text { font-size: 3.4rem; }
-          .gl3d-subtitle-text { font-size: 1.38rem; }
+          .gl3d-title-text { font-size: 6.8rem; }
+          .gl3d-subtitle-text { font-size: 2.76rem; }
         }
 
         /* ═══ LETTER / WORD WRITING ANIMATIONS ═══ */
         .gl3d-letter {
           display: inline-block;
           opacity: 0;
+        }
+        .gl3d-punct-lower {
+          display: inline-block;
+          transform: translateY(0.09em);
         }
         .gl3d-letter--animated {
           animation: gl3dLetterWrite 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;

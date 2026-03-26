@@ -15,7 +15,7 @@ import { useEffect, useState, useRef } from 'react'
 //   ③ Decorative divider draws                        (after ② ends)
 //   ④ "Padres de la novia" + names — letter/word      (after ③)
 //   ⑤ "Padres del novio" + names — letter/word        (after ④ ends)
-// Two-column layout with image placeholder on the left.
+// Single centered layout.
 // ═══════════════════════════════════════════════════════════════════════
 
 const TOTAL_TEXT_RENDER_MS = 2000
@@ -39,7 +39,7 @@ const BRIDE_NAMES   = [
 // Groom parent data
 const GROOM_HEADING = 'Padres del novio'
 const GROOM_NAMES   = [
-  'Patricia Perez Hernandez',
+  'Patricia Pérez Hernández',
   'Jorge Alberto González Rodriguez',
 ]
 
@@ -97,22 +97,16 @@ export default function ParentsSection() {
 
   return (
     <section
+      id="padres"
       ref={sectionRef}
       className="w-full relative overflow-hidden min-h-screen"
     >
-      <div className="ps-two-col">
-        <div className="ps-col-image" aria-hidden="true">
-          <div className="ps-image-placeholder">
-            <span className="ps-image-placeholder-label">Imagen placeholder</span>
-          </div>
-        </div>
-
-        <div
-          className="ps-col-content"
-          style={{
-            background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)'
-          }}
-        >
+      <div
+        className="ps-col-content"
+        style={{
+          background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)'
+        }}
+      >
           {/* Background texture */}
           <div className="absolute inset-0 opacity-[0.02]">
             <div
@@ -137,7 +131,7 @@ export default function ParentsSection() {
             </svg>
           </div>
 
-          <div className="relative z-10 text-center px-6 md:px-10 py-16 md:py-24 flex flex-col items-center justify-center h-full">
+        <div className="relative z-10 text-center px-6 md:px-10 py-16 md:py-24 flex flex-col items-center justify-center h-full">
 
        
             {/* ② Quote — word by word writing */}
@@ -159,11 +153,11 @@ export default function ParentsSection() {
 
          
             {/* ④ & ⑤ Parent cards */}
-            <div className="w-full max-w-md mx-auto space-y-10">
+            <div className="w-full max-w-md md:max-w-6xl mx-auto space-y-10 md:space-y-0 md:flex md:items-start md:justify-center md:gap-12">
 
               {/* ④ Bride's parents */}
-              <div className="text-center">
-                <h3 className="ps-heading-text mb-4">
+              <div className="text-center md:flex-[1.2] md:min-w-[420px]">
+                <h3 className="ps-heading-text mb-4 md:whitespace-nowrap">
                   {brideHeadingChars.map((char, i) => (
                     <span
                       key={`bh-${i}`}
@@ -204,18 +198,18 @@ export default function ParentsSection() {
 
               {/* Small divider between parent groups */}
               <div
-                className={`flex items-center justify-center gap-2 transition-all duration-[350ms] ease-out ${
+                className={`flex items-center justify-center gap-2 md:gap-0 md:flex-col transition-all duration-[350ms] ease-out ${
                   textStarted ? 'opacity-100' : 'opacity-0'
                 }`}
               >
-                <span className="block w-8 h-[0.5px] bg-[#C4985B]/30" />
+                <span className="block w-8 h-[0.5px] md:w-[0.5px] md:h-8 bg-[#C4985B]/30" />
                 <span className="block w-1 h-1 rounded-full bg-[#C4985B]/25" />
-                <span className="block w-8 h-[0.5px] bg-[#C4985B]/30" />
+                <span className="block w-8 h-[0.5px] md:w-[0.5px] md:h-8 bg-[#C4985B]/30" />
               </div>
 
               {/* ⑤ Groom's parents */}
-              <div className="text-center">
-                <h3 className="ps-heading-text mb-4">
+              <div className="text-center md:flex-[1.2] md:min-w-[420px]">
+                <h3 className="ps-heading-text mb-4 md:whitespace-nowrap">
                   {groomHeadingChars.map((char, i) => (
                     <span
                       key={`gh-${i}`}
@@ -254,7 +248,6 @@ export default function ParentsSection() {
                 </p>
               </div>
             </div>
-          </div>
         </div>
       </div>
 
@@ -263,38 +256,6 @@ export default function ParentsSection() {
            Same keyframe as HeroSection / Gallery
          ═══════════════════════════════════════════════════════════════ */}
       <style jsx>{`
-        .ps-two-col {
-          display: flex;
-          flex-direction: column-reverse;
-          width: 100%;
-          min-height: 100svh;
-        }
-        .ps-col-image {
-          position: relative;
-          width: 100%;
-          height: 45vh;
-          overflow: hidden;
-          background: linear-gradient(145deg, #ede7df 0%, #f4efe8 50%, #e8dfd4 100%);
-        }
-        .ps-image-placeholder {
-          position: absolute;
-          inset: 1.25rem;
-          border: 1px dashed rgba(139, 115, 85, 0.45);
-          border-radius: 0.75rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background:
-            radial-gradient(circle at 30% 20%, rgba(196, 152, 91, 0.14) 0%, transparent 60%),
-            radial-gradient(circle at 70% 75%, rgba(139, 115, 85, 0.12) 0%, transparent 60%);
-        }
-        .ps-image-placeholder-label {
-          font-family: 'Cormorant Garamond', 'EB Garamond', serif;
-          font-size: 1.1rem;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: rgba(92, 92, 92, 0.72);
-        }
         .ps-col-content {
           position: relative;
           width: 100%;
@@ -304,27 +265,11 @@ export default function ParentsSection() {
           justify-content: center;
         }
 
-        @media (min-width: 768px) {
-          .ps-two-col {
-            flex-direction: row;
-            min-height: 100svh;
-          }
-          .ps-col-image {
-            width: 50%;
-            height: auto;
-            min-height: 100svh;
-          }
-          .ps-col-content {
-            width: 50%;
-            min-height: 100svh;
-          }
-        }
-
         /* ── Typography ── */
         .ps-quote-text {
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
           font-weight: 300;
-          font-size: 1.125rem;
+          font-size: 1.625rem;
           letter-spacing: 0.1em;
           text-transform: uppercase;
           color: #8B7355;
@@ -332,7 +277,7 @@ export default function ParentsSection() {
         }
         .ps-heading-text {
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
-          font-size: 1.5rem;
+          font-size: 2.125rem;
           letter-spacing: 0.15em;
           text-transform: uppercase;
           color: #5c5c5c;
@@ -341,15 +286,16 @@ export default function ParentsSection() {
         .ps-name-text {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 1.125rem;
+          font-size: 1.55rem;
           color: #57534e;
           line-height: 1.7;
           margin-bottom: 0;
         }
 
         @media (min-width: 768px) {
-          .ps-quote-text   { font-size: 1.25rem; }
-          .ps-heading-text { font-size: 1.75rem; }
+          .ps-quote-text   { font-size: 1.8rem; }
+          .ps-heading-text { font-size: 2.45rem; }
+          .ps-name-text    { font-size: 1.7rem; }
         }
 
         /* ═══ LETTER WRITING — same keyframe as Hero / Gallery ═══ */

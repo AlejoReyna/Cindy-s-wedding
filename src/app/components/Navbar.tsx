@@ -49,6 +49,10 @@ const DEFAULT_LINE_COLOR = '#543c24';
 const DEFAULT_DOT_COLOR  = '#C4985B';
 const DEFAULT_LOGO_COLOR = '#000000';
 
+// Section IDs that influence the navbar theme but are NOT nav-menu links.
+// These are checked after navigationItems in the active-section detection loop.
+const THEME_ONLY_SECTION_IDS = ['padres'];
+
 const SECTION_THEMES: Record<string, SectionTheme> = {
   galeria: {
     bgRgb:     '237,234,228',                            // #edeae4 — Gallery3D bg
@@ -56,6 +60,13 @@ const SECTION_THEMES: Record<string, SectionTheme> = {
     lineColor: '#ba764e',
     dotColor:  '#C4985B',
     logoColor: '#9e5f3c',
+  },
+  padres: {
+    bgRgb:     '248,246,243',                            // #f8f6f3 — ParentsSection gradient midpoint
+    textCls:   DEFAULT_TEXT_CLS,
+    lineColor: DEFAULT_LINE_COLOR,
+    dotColor:  DEFAULT_DOT_COLOR,
+    logoColor: DEFAULT_LOGO_COLOR,
   },
   itinerario: {
     bgRgb:     '246,236,230',                            // #f6ece6 — ItinerarySection bg
@@ -92,6 +103,7 @@ const Navbar = ({ visible = true }: NavbarProps) => {
   // Start as true — page always loads at the top over the hero image.
   // The scroll handler will correct this once it fires.
   const [isInHeroSection, setIsInHeroSection] = useState(true);
+  const [isInGaleriaSection, setIsInGaleriaSection] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
 
@@ -143,6 +155,18 @@ const Navbar = ({ visible = true }: NavbarProps) => {
         setIsInRSVPSection(false);
       }
 
+      // Galeria section detection — large logo when user is over Gallery3D
+      const galeriaRect = document.getElementById('galeria')?.getBoundingClientRect();
+      if (galeriaRect && galeriaRect.bottom > 0 && galeriaRect.top < wh) {
+        const visTop = Math.max(0, galeriaRect.top);
+        const visBot = Math.min(wh, galeriaRect.bottom);
+        const actual = visBot - visTop;
+        const required = Math.min(galeriaRect.height * 0.4, wh);
+        setIsInGaleriaSection(actual >= required);
+      } else {
+        setIsInGaleriaSection(false);
+      }
+
       if (STATUS_BAR_DEBUG && lastHeroStateRef.current !== nextHeroState) {
         console.log('[status-bar-debug] hero visibility changed', {
           nextHeroState,
@@ -192,7 +216,7 @@ const Navbar = ({ visible = true }: NavbarProps) => {
         lastFooterStateRef.current = nextFooterState;
       }
 
-      // Active section highlight
+      // Active section highlight — check nav links first, then theme-only sections
       let current = '';
       for (const item of navigationItems) {
         const el = document.getElementById(item.id);
@@ -201,6 +225,19 @@ const Navbar = ({ visible = true }: NavbarProps) => {
           if (rect.top <= 140 && rect.bottom > 140) {
             current = item.id;
             break;
+          }
+        }
+      }
+      // If no nav link matched, check sections that only influence the theme
+      if (!current) {
+        for (const id of THEME_ONLY_SECTION_IDS) {
+          const el = document.getElementById(id);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            if (rect.top <= 140 && rect.bottom > 140) {
+              current = id;
+              break;
+            }
           }
         }
       }
@@ -222,7 +259,9 @@ const Navbar = ({ visible = true }: NavbarProps) => {
   const isSpecialSection = isInFooterSection;
 
   const heroLikeNav = isInHeroSection || isInRSVPSection;
-  const logoProgress = heroLikeNav ? 0 : t;
+  // Gallery3D also gets the large logo, but keeps its own color theme (no transparency override)
+  const heroLikeLogoSize = heroLikeNav || isInGaleriaSection;
+  const logoProgress = heroLikeLogoSize ? 0 : t;
   const logoDesktop = lerp(130, 62, logoProgress);
   const logoMobile = lerp(104, 50, logoProgress);
   const logoOpacity = isInHeroSection ? Math.max(0, 1 - t * 1.5) : 1;

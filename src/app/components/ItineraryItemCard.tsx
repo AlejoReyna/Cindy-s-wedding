@@ -109,6 +109,16 @@ export default function ItineraryItemCard({
             className={cls}
           />
         );
+      case 'Cocktail de Bienvenida':
+        return (
+          <Image
+            src={nightClub}
+            alt="Cocktail de Bienvenida"
+            width={32}
+            height={32}
+            className={cls}
+          />
+        );
       case 'Recepción':
         return (
           <Image
