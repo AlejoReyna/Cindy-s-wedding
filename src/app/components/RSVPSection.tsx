@@ -30,7 +30,7 @@ export default function RSVPSection() {
       <div className="absolute inset-x-0 bottom-0 h-[30%] min-h-[280px] z-10 flex items-center justify-center px-5 md:px-8 pb-5 md:pb-8">
         <div className="max-w-3xl mx-auto w-full">
           <p className="rsvp-message">
-            Esperamos celebrar nuestra unión contigo.
+          Tu presencia hará aún más especial este día.
           </p>
 
           <form
@@ -43,7 +43,7 @@ export default function RSVPSection() {
             }}
           >
             <p className="rsvp-form-title">
-Agradecemos tus buenos deseos para esta nueva aventura que comenzamos :)
+            Nos hará muy felices leer tu mensaje en este momento único
             </p>
 
             {!sent && (

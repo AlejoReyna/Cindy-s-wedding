@@ -35,31 +35,34 @@ export default function GiftEnvelopeBannerSection() {
           Si desean tener un detalle adicional, una contribucion en sobre sera recibida con mucho cariño.
         </p>
         <span className="gift-envelope-section__line" />
-        <div className="gift-envelope-section__seal" aria-hidden="true">
-          <svg viewBox="0 0 36 28" fill="none">
-            <rect x="1" y="1" width="34" height="26" rx="2" stroke="currentColor" strokeWidth="1" />
-            <path d="M1 2 L18 15 L35 2" stroke="currentColor" strokeWidth="1" />
-          </svg>
-        </div>
-        <p className="gift-envelope-section__or">ó</p>
+        <div className="gift-envelope-section__options">
+          <div className="gift-envelope-section__seal" aria-hidden="true">
+            <svg viewBox="0 0 36 28" fill="none">
+              <rect x="1" y="1" width="34" height="26" rx="2" stroke="currentColor" strokeWidth="1" />
+              <path d="M1 2 L18 15 L35 2" stroke="currentColor" strokeWidth="1" />
+            </svg>
+          </div>
 
-        <div className="gift-envelope-section__bank-card">
-          <p className="gift-envelope-section__bank-title">Transferencia bancaria</p>
-          <div className="gift-envelope-section__bank-row">
-            <span>Banco</span>
-            <strong>BBVA</strong>
-          </div>
-          <div className="gift-envelope-section__bank-row">
-            <span>CLABE</span>
-            <strong>0125 8001 5127 6602 40</strong>
-          </div>
-          <div className="gift-envelope-section__bank-row">
-            <span>Tarjeta</span>
-            <strong>4152 3141 2145 2463</strong>
-          </div>
-          <div className="gift-envelope-section__bank-row">
-            <span>Titular</span>
-            <strong>Cindy Janeth Medina Sanchez</strong>
+          <p className="gift-envelope-section__or">ó</p>
+
+          <div className="gift-envelope-section__bank-card">
+            <p className="gift-envelope-section__bank-title">Transferencia bancaria</p>
+            <div className="gift-envelope-section__bank-row">
+              <span>Banco</span>
+              <strong>BBVA</strong>
+            </div>
+            <div className="gift-envelope-section__bank-row">
+              <span>CLABE</span>
+              <strong>0125 8001 5127 6602 40</strong>
+            </div>
+            <div className="gift-envelope-section__bank-row">
+              <span>Tarjeta</span>
+              <strong>4152 3141 2145 2463</strong>
+            </div>
+            <div className="gift-envelope-section__bank-row">
+              <span>Titular</span>
+              <strong>Cindy Janeth Medina Sanchez</strong>
+            </div>
           </div>
         </div>
       </div>
@@ -67,7 +70,8 @@ export default function GiftEnvelopeBannerSection() {
       <style jsx>{`
         .gift-envelope-section {
           width: 100%;
-          min-height: 50vh;
+          min-height: 100vh;
+          min-height: 100svh;
           padding: 2.2rem 1.25rem;
           background: linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%);
           border-top: 1px solid rgba(196, 152, 91, 0.2);
@@ -128,6 +132,14 @@ export default function GiftEnvelopeBannerSection() {
           height: 1px;
           margin-top: 0.2rem;
           background: linear-gradient(90deg, rgba(196, 152, 91, 0.45), rgba(139, 90, 43, 0.28));
+        }
+
+        .gift-envelope-section__options {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.85rem;
         }
 
         .gift-envelope-section__seal {
@@ -203,6 +215,18 @@ export default function GiftEnvelopeBannerSection() {
           .gift-envelope-section {
             padding: 3rem 2rem;
           }
+
+          .gift-envelope-section__options {
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+          }
+
+          .gift-envelope-section__bank-card {
+            margin-top: 0;
+          }
+
           .gift-envelope-section__presence {
             font-size: 2.75rem;
           }
