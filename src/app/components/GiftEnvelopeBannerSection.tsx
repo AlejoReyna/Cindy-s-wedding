@@ -29,39 +29,46 @@ export default function GiftEnvelopeBannerSection() {
       <div className="gift-envelope-section__inner">
         <p className="gift-envelope-section__eyebrow">Mesa de regalos</p>
         <p className="gift-envelope-section__presence">
-          Su presencia es nuestro mejor regalo.
+          <span>Su compañía es lo</span>
+          <span>más valioso para nosotros</span>
         </p>
         <p className="gift-envelope-section__text">
-          Si desean tener un detalle adicional, una contribucion en sobre sera recibida con mucho cariño.
+          Si desean tener un detalle adicional, será sinceramente agradecido.
         </p>
         <span className="gift-envelope-section__line" />
         <div className="gift-envelope-section__options">
-          <div className="gift-envelope-section__seal" aria-hidden="true">
-            <svg viewBox="0 0 36 28" fill="none">
-              <rect x="1" y="1" width="34" height="26" rx="2" stroke="currentColor" strokeWidth="1" />
-              <path d="M1 2 L18 15 L35 2" stroke="currentColor" strokeWidth="1" />
-            </svg>
+          {/* ── Left: envelope ── */}
+          <div className="gift-envelope-section__left">
+            <div className="gift-envelope-section__seal" aria-hidden="true">
+              <svg viewBox="0 0 72 56" fill="none">
+                <rect x="1.5" y="1.5" width="69" height="53" rx="3" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M2 3 L36 30 L70 3" stroke="currentColor" strokeWidth="1.2" />
+              </svg>
+            </div>
+            <p className="gift-envelope-section__seal-label">Sobre en mano</p>
           </div>
 
-          <p className="gift-envelope-section__or">ó</p>
 
-          <div className="gift-envelope-section__bank-card">
-            <p className="gift-envelope-section__bank-title">Transferencia bancaria</p>
-            <div className="gift-envelope-section__bank-row">
-              <span>Banco</span>
-              <strong>BBVA</strong>
-            </div>
-            <div className="gift-envelope-section__bank-row">
-              <span>CLABE</span>
-              <strong>0125 8001 5127 6602 40</strong>
-            </div>
-            <div className="gift-envelope-section__bank-row">
-              <span>Tarjeta</span>
-              <strong>4152 3141 2145 2463</strong>
-            </div>
-            <div className="gift-envelope-section__bank-row">
-              <span>Titular</span>
-              <strong>Cindy Janeth Medina Sanchez</strong>
+          {/* ── Right: bank card ── */}
+          <div className="gift-envelope-section__right">
+            <div className="gift-envelope-section__bank-card">
+              <p className="gift-envelope-section__bank-title">Transferencia bancaria</p>
+              <div className="gift-envelope-section__bank-row">
+                <span>Banco</span>
+                <strong>BBVA</strong>
+              </div>
+              <div className="gift-envelope-section__bank-row">
+                <span>CLABE</span>
+                <strong>0125 8001 5127 6602 40</strong>
+              </div>
+              <div className="gift-envelope-section__bank-row">
+                <span>Tarjeta</span>
+                <strong>4152 3141 2145 2463</strong>
+              </div>
+              <div className="gift-envelope-section__bank-row">
+                <span>Titular</span>
+                <strong>Cindy Janeth Medina Sanchez</strong>
+              </div>
             </div>
           </div>
         </div>
@@ -72,7 +79,7 @@ export default function GiftEnvelopeBannerSection() {
           width: 100%;
           min-height: 100vh;
           min-height: 100svh;
-          padding: 2.2rem 1.25rem;
+          padding: 5rem 1.5rem;
           background: linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%);
           border-top: 1px solid rgba(196, 152, 91, 0.2);
           border-bottom: 1px solid rgba(196, 152, 91, 0.2);
@@ -88,19 +95,19 @@ export default function GiftEnvelopeBannerSection() {
         }
 
         .gift-envelope-section__inner {
-          width: min(100%, 42rem);
+          width: min(100%, 68rem);
           text-align: center;
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 0.85rem;
+          gap: 1.6rem;
         }
 
         .gift-envelope-section__eyebrow {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 10px;
-          letter-spacing: 0.35em;
+          font-size: 11px;
+          letter-spacing: 0.45em;
           text-transform: uppercase;
           color: rgba(139, 115, 85, 0.68);
           margin: 0;
@@ -109,21 +116,27 @@ export default function GiftEnvelopeBannerSection() {
         .gift-envelope-section__presence {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 400;
-          font-size: 1.95rem;
+          font-size: 2.6rem;
           line-height: 1.1;
           letter-spacing: 0.03em;
           color: #5a4631;
           margin: 0;
+          max-width: 24rem;
+        }
+
+        .gift-envelope-section__presence span {
+          display: block;
+          white-space: nowrap;
         }
 
         .gift-envelope-section__text {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 1.02rem;
+          font-size: 1.15rem;
           line-height: 1.8;
-          color: rgba(92, 73, 50, 0.86);
+          color: rgba(92, 73, 50, 0.80);
           margin: 0;
-          max-width: 34rem;
+          max-width: 38rem;
         }
 
         .gift-envelope-section__line {
@@ -134,18 +147,50 @@ export default function GiftEnvelopeBannerSection() {
           background: linear-gradient(90deg, rgba(196, 152, 91, 0.45), rgba(139, 90, 43, 0.28));
         }
 
+        /* ── Options: vertical en mobile, 50/50 en desktop ── */
         .gift-envelope-section__options {
           width: 100%;
           display: flex;
           flex-direction: column;
+          margin-top: 0.5rem;
+          border: 1px solid rgba(196, 152, 91, 0.16);
+          border-radius: 6px;
+          overflow: hidden;
+          background: rgba(255, 255, 255, 0.55);
+        }
+
+        @media (min-width: 768px) {
+          .gift-envelope-section__options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr;
+          }
+        }
+
+        /* ── Left panel ── */
+        .gift-envelope-section__left {
+          display: flex;
+          flex-direction: column;
           align-items: center;
-          gap: 0.85rem;
+          justify-content: center;
+          gap: 1.25rem;
+          padding: 2.5rem 2rem;
+          background: rgba(255, 255, 255, 0.30);
+          border-bottom: 1px solid rgba(196, 152, 91, 0.18);
+        }
+
+        @media (min-width: 768px) {
+          .gift-envelope-section__left {
+            border-bottom: none;
+            border-right: 1px solid rgba(196, 152, 91, 0.18);
+            padding: 3.5rem 3rem;
+          }
         }
 
         .gift-envelope-section__seal {
-          color: rgba(139, 115, 85, 0.58);
-          width: 3.4rem;
-          height: 2.55rem;
+          color: rgba(139, 115, 85, 0.50);
+          width: 7rem;
+          height: auto;
         }
 
         .gift-envelope-section__seal svg {
@@ -153,41 +198,47 @@ export default function GiftEnvelopeBannerSection() {
           height: 100%;
         }
 
-        .gift-envelope-section__or {
-          margin: 0.1rem 0 0.05rem;
+        .gift-envelope-section__seal-label {
           font-family: 'Cormorant Garamond', serif;
-          font-weight: 400;
-          font-size: 1.35rem;
-          line-height: 1;
-          color: rgba(122, 98, 69, 0.72);
+          font-weight: 300;
+          font-size: 10px;
+          letter-spacing: 0.40em;
+          text-transform: uppercase;
+          color: rgba(139, 115, 85, 0.55);
+          margin: 0;
+        }
+
+        /* ── Right panel ── */
+        .gift-envelope-section__right {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2.5rem 2rem;
         }
 
         .gift-envelope-section__bank-card {
-          width: min(100%, 34rem);
-          margin-top: 0.35rem;
-          background: rgba(255, 255, 255, 0.36);
-          border: 1px solid rgba(196, 152, 91, 0.14);
-          border-radius: 12px;
-          padding: 0.5rem 1rem;
+          width: 100%;
           text-align: left;
         }
 
         .gift-envelope-section__bank-title {
-          margin: 0.8rem 0 0.35rem;
+          margin: 0 0 1rem 0;
           text-align: center;
           font-family: 'Cormorant Garamond', serif;
           font-weight: 400;
-          font-size: 1.15rem;
-          letter-spacing: 0.05em;
+          font-size: 1.4rem;
+          letter-spacing: 0.06em;
           color: #5a4631;
         }
 
         .gift-envelope-section__bank-row {
           display: flex;
-          flex-direction: column;
-          gap: 0.1rem;
-          padding: 0.65rem 0.4rem;
-          border-bottom: 1px solid rgba(196, 152, 91, 0.1);
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          gap: 1rem;
+          padding: 1rem 0;
+          border-bottom: 1px solid rgba(196, 152, 91, 0.12);
         }
 
         .gift-envelope-section__bank-row:last-child {
@@ -197,50 +248,103 @@ export default function GiftEnvelopeBannerSection() {
         .gift-envelope-section__bank-row span {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 11px;
-          letter-spacing: 0.25em;
+          font-size: 10.5px;
+          letter-spacing: 0.30em;
           text-transform: uppercase;
-          color: rgba(139, 115, 85, 0.75);
+          color: rgba(139, 115, 85, 0.70);
+          flex-shrink: 0;
         }
 
         .gift-envelope-section__bank-row strong {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 500;
-          font-size: 1rem;
-          letter-spacing: 0.02em;
+          font-size: 1.15rem;
+          letter-spacing: 0.03em;
           color: #3d2a14;
+          text-align: right;
+        }
+
+        @media (min-width: 640px) {
+          .gift-envelope-section__presence {
+            font-size: 3.2rem;
+            max-width: 32rem;
+          }
+          .gift-envelope-section__text {
+            font-size: 1.2rem;
+          }
+          .gift-envelope-section__bank-title {
+            font-size: 1.5rem;
+          }
+          .gift-envelope-section__bank-row strong {
+            font-size: 1.2rem;
+          }
         }
 
         @media (min-width: 768px) {
           .gift-envelope-section {
-            padding: 3rem 2rem;
+            padding: 6rem 3rem;
           }
 
-          .gift-envelope-section__options {
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: 1.5rem;
-          }
-
-          .gift-envelope-section__bank-card {
-            margin-top: 0;
+          .gift-envelope-section__inner {
+            gap: 2rem;
           }
 
           .gift-envelope-section__presence {
-            font-size: 2.75rem;
+            font-size: 3.8rem;
+            max-width: 38rem;
           }
+
           .gift-envelope-section__text {
-            font-size: 1.12rem;
+            font-size: 1.25rem;
           }
+
+          .gift-envelope-section__left {
+            padding: 3.5rem 3rem;
+          }
+
+          .gift-envelope-section__seal {
+            width: 9rem;
+          }
+
+          .gift-envelope-section__right {
+            padding: 3.5rem 3rem;
+          }
+
+          .gift-envelope-section__bank-title {
+            font-size: 1.55rem;
+            margin-bottom: 1.25rem;
+          }
+
           .gift-envelope-section__bank-row {
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
+            padding: 1.1rem 0;
           }
+
           .gift-envelope-section__bank-row strong {
-            text-align: right;
+            font-size: 1.25rem;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .gift-envelope-section__presence {
+            font-size: 4.4rem;
+            max-width: 44rem;
+          }
+
+          .gift-envelope-section__seal {
+            width: 10rem;
+          }
+
+          .gift-envelope-section__left,
+          .gift-envelope-section__right {
+            padding: 4rem 4rem;
+          }
+
+          .gift-envelope-section__bank-title {
+            font-size: 1.65rem;
+          }
+
+          .gift-envelope-section__bank-row strong {
+            font-size: 1.35rem;
           }
         }
 

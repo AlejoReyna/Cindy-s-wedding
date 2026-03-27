@@ -4,6 +4,15 @@ import { MdDirections } from 'react-icons/md';
 import Image from 'next/image';
 import receptionImg from '../../../assets/museum.jpg';
 
+const hotels = [
+  { name: 'Ecovergel Hotel Boutique', price: '$1,800', featured: true,  mapsUrl: 'https://share.google/5KEKymd9U5YaPIQ3F' },
+  { name: 'Hotel Mavira',             price: '$700',   featured: false, mapsUrl: 'https://share.google/hyEQ4Bj2LYNtr2CiG' },
+  { name: 'Hotel Aljofar',            price: '$800',   featured: false, mapsUrl: 'https://share.google/pj2nxb28h1sYHLL4b' },
+  { name: 'Hotel Alfa Inn',           price: '$900',   featured: false, mapsUrl: 'https://share.google/7xGCKY4dVtBc6iHF8' },
+  { name: 'Monte Salerno Hotel & Suites', price: '$1,300', featured: true, mapsUrl: 'https://share.google/SveJk5GYsJ1H50V8A' },
+  { name: 'GB Hotel',                 price: '$1,300', featured: true,  mapsUrl: 'https://share.google/P8zeF9yeLpWON0Vqw' },
+];
+
 const locations = [
   {
     label: 'Ceremonia religiosa',
@@ -31,9 +40,11 @@ export default function LocationSection() {
   const headerRef = useRef<HTMLDivElement>(null);
   const row0Ref = useRef<HTMLDivElement>(null);
   const row1Ref = useRef<HTMLDivElement>(null);
+  const hotelsRef = useRef<HTMLDivElement>(null);
   const [headerVisible, setHeaderVisible] = useState(false);
   const [row0Visible, setRow0Visible] = useState(false);
   const [row1Visible, setRow1Visible] = useState(false);
+  const [hotelsVisible, setHotelsVisible] = useState(false);
 
   // ── Header observer ──
   useEffect(() => {
@@ -63,6 +74,17 @@ export default function LocationSection() {
     if (r0) obs.observe(r0);
     if (r1) obs.observe(r1);
     return () => { if (r0) obs.unobserve(r0); if (r1) obs.unobserve(r1); };
+  }, []);
+
+  // ── Hotels observer ──
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) setHotelsVisible(true); },
+      { threshold: 0.1, rootMargin: '-20px' }
+    );
+    const el = hotelsRef.current;
+    if (el) obs.observe(el);
+    return () => { if (el) obs.unobserve(el); };
   }, []);
 
   const rowRefs = [row0Ref, row1Ref];
@@ -204,6 +226,62 @@ export default function LocationSection() {
               </div>
             );
           })}
+        </div>
+
+        {/* ═══ Hotels section ═══ */}
+        <div
+          ref={hotelsRef}
+          className="hotels-section"
+          style={{ maxWidth: '72rem', margin: '0 auto' }}
+        >
+          {/* Divider */}
+          <div className={`hotels-divider${hotelsVisible ? ' hotels-divider--visible' : ''}`} />
+
+          {/* Header */}
+          <div className={`hotels-header${hotelsVisible ? ' hotels-header--visible' : ''}`}>
+            <h3 className="hotels-title">Hoteles en Montemorelos</h3>
+            <p className="hotels-subtitle">Si buscas hospedaje, te sugerimos las siguientes opciones:</p>
+          </div>
+
+          {/* Cards grid */}
+          <div className="hotels-grid">
+            {hotels.map((hotel, i) => (
+              <div
+                key={i}
+                className={`hotel-card${hotelsVisible ? ' hotel-card--visible' : ''}`}
+                style={{ '--card-delay': `${i * 90}ms` } as React.CSSProperties}
+              >
+                {/* Tracing border */}
+                <div
+                  className={`hotel-border-trace${hotelsVisible ? ' hotel-border-trace--visible' : ''}`}
+                  style={{ '--hborder-start': `${200 + i * 90}ms` } as React.CSSProperties}
+                >
+                  <span className="hborder-top" />
+                  <span className="hborder-right" />
+                  <span className="hborder-bottom" />
+                  <span className="hborder-left" />
+                </div>
+
+                {hotel.featured && (
+                  <span className="hotel-star">✦</span>
+                )}
+
+                <p className="hotel-name">{hotel.name}</p>
+                <span className="hotel-rule" />
+                <p className="hotel-price-label">a partir de</p>
+                <p className="hotel-price">{hotel.price} <span className="hotel-price-mxn">MXN / noche</span></p>
+                <a
+                  href={hotel.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hotel-maps-btn"
+                >
+                  <MdDirections className="text-sm" />
+                  <span>Ver en Maps</span>
+                </a>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -582,6 +660,253 @@ export default function LocationSection() {
         /* ── Shared ── */
         @keyframes locFade {
           to { opacity: 1; }
+        }
+
+        /* ═══════════════════════════════════════
+           HOTELS SECTION
+        ═══════════════════════════════════════ */
+
+        .hotels-section {
+          padding-top: 3.5rem;
+        }
+
+        @media (min-width: 768px) {
+          .hotels-section {
+            padding-top: 4.5rem;
+          }
+        }
+
+        /* ── Divider ── */
+        .hotels-divider {
+          height: 1px;
+          width: 0;
+          background: linear-gradient(
+            90deg,
+            rgba(181, 150, 106, 0.10) 0%,
+            rgba(181, 150, 106, 0.30) 40%,
+            rgba(156, 130, 108, 0.15) 100%
+          );
+          margin-bottom: 3rem;
+        }
+
+        .hotels-divider--visible {
+          animation: locRuleGrow 1s cubic-bezier(0.4, 0, 0.2, 1) 0ms forwards;
+        }
+
+        /* ── Header ── */
+        .hotels-header {
+          opacity: 0;
+          transform: translateY(10px);
+          margin-bottom: 2.25rem;
+        }
+
+        .hotels-header--visible {
+          animation: locHeaderFadeUp 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) 200ms forwards;
+        }
+
+        .hotels-eyebrow {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 9px;
+          letter-spacing: 0.42em;
+          text-transform: uppercase;
+          color: rgba(156, 130, 108, 0.50);
+          margin: 0 0 0.5rem 0;
+        }
+
+        @media (min-width: 640px) { .hotels-eyebrow { font-size: 10px; letter-spacing: 0.40em; } }
+
+        .hotels-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 1.8rem;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: #4a3728;
+          margin: 0;
+          line-height: 1.1;
+        }
+
+        @media (min-width: 640px)  { .hotels-title { font-size: 2.1rem; letter-spacing: 0.20em; } }
+        @media (min-width: 768px)  { .hotels-title { font-size: 2.4rem; letter-spacing: 0.22em; } }
+
+        .hotels-subtitle {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 0.88rem;
+          letter-spacing: 0.025em;
+          color: rgba(156, 130, 108, 0.60);
+          line-height: 1.65;
+          margin: 0.85rem 0 0 0;
+          max-width: 38rem;
+        }
+
+        @media (min-width: 640px) { .hotels-subtitle { font-size: 0.95rem; } }
+        @media (min-width: 768px) { .hotels-subtitle { font-size: 1rem; } }
+
+        /* ── Cards grid ── */
+        .hotels-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1px;
+          background-color: rgba(181, 150, 106, 0.10);
+        }
+
+        @media (min-width: 480px) {
+          .hotels-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (min-width: 900px) {
+          .hotels-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+
+        /* ── Individual card ── */
+        .hotel-card {
+          position: relative;
+          background-color: #ffffff;
+          padding: 2rem 1.75rem 1.75rem;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          opacity: 0;
+          transform: translateY(14px);
+          overflow: hidden;
+        }
+
+        .hotel-card--visible {
+          animation: hotelCardIn 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) calc(300ms + var(--card-delay)) forwards;
+        }
+
+        @keyframes hotelCardIn {
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Card tracing border ── */
+        .hotel-border-trace {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+        }
+
+        .hotel-border-trace span {
+          position: absolute;
+          background: linear-gradient(
+            90deg,
+            rgba(156, 130, 108, 0.18),
+            rgba(181, 150, 106, 0.35),
+            rgba(156, 130, 108, 0.15)
+          );
+        }
+
+        .hborder-top    { top: 0; left: 0; height: 1px; width: 0; }
+        .hborder-right  { top: 0; right: 0; width: 1px; height: 0;
+          background: linear-gradient(180deg, rgba(181,150,106,0.35), rgba(156,130,108,0.12)) !important; }
+        .hborder-bottom { bottom: 0; right: 0; height: 1px; width: 0; }
+        .hborder-left   { bottom: 0; left: 0; width: 1px; height: 0;
+          background: linear-gradient(0deg, rgba(181,150,106,0.35), rgba(156,130,108,0.12)) !important; }
+
+        .hotel-border-trace--visible .hborder-top {
+          animation: borderTop 0.5s cubic-bezier(0.4,0,0.2,1) var(--hborder-start) forwards;
+        }
+        .hotel-border-trace--visible .hborder-right {
+          animation: borderRight 0.4s cubic-bezier(0.4,0,0.2,1) calc(var(--hborder-start) + 500ms) forwards;
+        }
+        .hotel-border-trace--visible .hborder-bottom {
+          animation: borderBottom 0.5s cubic-bezier(0.4,0,0.2,1) calc(var(--hborder-start) + 900ms) forwards;
+        }
+        .hotel-border-trace--visible .hborder-left {
+          animation: borderLeft 0.4s cubic-bezier(0.4,0,0.2,1) calc(var(--hborder-start) + 1400ms) forwards;
+        }
+
+        /* ── Star badge ── */
+        .hotel-star {
+          font-size: 9px;
+          color: rgba(181, 150, 106, 0.70);
+          letter-spacing: 0.15em;
+          margin-bottom: 0.5rem;
+          display: block;
+        }
+
+        /* ── Hotel name ── */
+        .hotel-name {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 400;
+          font-size: 1.05rem;
+          letter-spacing: 0.02em;
+          color: #4a3728;
+          line-height: 1.35;
+          margin: 0 0 1rem 0;
+          flex: 1;
+        }
+
+        @media (min-width: 640px) { .hotel-name { font-size: 1.1rem; } }
+        @media (min-width: 768px) { .hotel-name { font-size: 1.15rem; } }
+
+        /* ── Rule ── */
+        .hotel-rule {
+          display: block;
+          height: 1px;
+          width: 2rem;
+          background: linear-gradient(90deg, rgba(181, 150, 106, 0.40), rgba(156, 130, 108, 0.15));
+          margin-bottom: 0.85rem;
+        }
+
+        /* ── Price ── */
+        .hotel-price-label {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 8.5px;
+          letter-spacing: 0.35em;
+          text-transform: uppercase;
+          color: rgba(156, 130, 108, 0.45);
+          margin: 0 0 0.2rem 0;
+        }
+
+        .hotel-price {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 500;
+          font-size: 1.25rem;
+          letter-spacing: 0.04em;
+          color: rgba(181, 150, 106, 0.85);
+          margin: 0;
+          line-height: 1;
+        }
+
+        .hotel-price-mxn {
+          font-weight: 300;
+          font-size: 0.7rem;
+          letter-spacing: 0.12em;
+          color: rgba(156, 130, 108, 0.45);
+          text-transform: uppercase;
+        }
+
+        /* ── Maps button ── */
+        .hotel-maps-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
+          margin-top: 1.1rem;
+          padding: 0.45rem 1.1rem;
+          border: 1px solid rgba(181, 150, 106, 0.20);
+          border-radius: 2px;
+          color: rgba(156, 130, 108, 0.60);
+          text-decoration: none;
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 10px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          transition: color 0.3s, border-color 0.3s, background 0.3s;
+        }
+
+        .hotel-maps-btn:hover {
+          color: #6d5a42;
+          border-color: rgba(181, 150, 106, 0.38);
+          background: rgba(181, 150, 106, 0.04);
         }
       `}</style>
     </section>

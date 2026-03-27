@@ -243,7 +243,7 @@ export default function Gallery3D() {
         <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 md:gap-0">
 
           {/* ── TOP: Text Section ── */}
-          <div className="w-full max-w-6xl flex flex-col items-center text-center shrink-0 pt-1 md:pt-0">
+          <div className="w-full max-w-6xl flex flex-col items-center text-center shrink-0 pt-1 md:pt-0 md:mt-48">
 
             {/* ③ Title */}
             <div className="mb-2 mt-0 md:mb-6 md:mt-8">
@@ -397,7 +397,7 @@ export default function Gallery3D() {
         .gl3d-title-text {
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
           font-weight: 300;
-          font-size: clamp(3rem, 14.2vw, 3.9rem);
+          font-size: clamp(1.75rem, 7vw, 2.6rem);
           letter-spacing: 0.14em;
           text-transform: uppercase;
           color: #ba764e;
@@ -412,9 +412,9 @@ export default function Gallery3D() {
         .gl3d-subtitle-text {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 2.24rem;
+          font-size: 1.05rem;
           color: #8B7355;
-          line-height: 1.45;
+          line-height: 1.55;
           text-align: justify;
           text-align-last: center;
         }
