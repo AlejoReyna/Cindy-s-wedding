@@ -1,11 +1,9 @@
 "use client"
 import { useRef } from 'react';
 import { useState } from 'react';
-import { useTheme } from '../context/ThemeContext';
 
 export default function RSVPSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { isNightMode } = useTheme();
   const [message, setMessage] = useState('');
   const [sent, setSent] = useState(false);
 

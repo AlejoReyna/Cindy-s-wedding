@@ -136,12 +136,10 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
         {/* ── Bottom group: CTA + timer (positioned independently) ───────── */}
         <div className="hero-bottom-group absolute inset-x-0 bottom-[10vh] flex flex-col items-center gap-3">
           <a
-            href="#rsvp"
+            href="https://wa.me/5218132382398"
+            target="_blank"
+            rel="noopener noreferrer"
             className={`hero-cta-btn ${immediate ? 'hero-cta-btn--immediate' : loaded ? 'hero-cta-btn--animate' : ''}`}
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth' });
-            }}
             style={immediate ? undefined : {
               '--btn-delay': `${POST_NAMES + 1000}ms`,
               '--btn-draw-duration': '0.8s',
