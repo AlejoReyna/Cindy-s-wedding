@@ -106,6 +106,8 @@ const Navbar = ({ visible = true }: NavbarProps) => {
   const [isInGaleriaSection, setIsInGaleriaSection] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
+  // Hidden while the monogram has faded out but Hero hasn't fully left the viewport.
+  const [isNavbarHidden, setIsNavbarHidden] = useState(false);
 
   const navRef = useRef<HTMLElement | null>(null);
   const ticking = useRef(false);
@@ -139,6 +141,12 @@ const Navbar = ({ visible = true }: NavbarProps) => {
       } else {
         setIsInHeroSection(false);
       }
+
+      // Hide the navbar once the monogram has faded (logoOpacity === 0, i.e. scrollY ≥ 120px)
+      // and keep it hidden until the Hero component has fully left the viewport.
+      const heroFullyGone = heroRect ? heroRect.bottom <= 0 : true;
+      const currentLogoOpacity = Math.max(0, 1 - Math.min(currentY / SCROLL_RANGE, 1) * 1.5);
+      setIsNavbarHidden(currentLogoOpacity === 0 && !heroFullyGone);
 
       const nextFooterState = footerRect ? footerRect.top < wh * 0.8 : false;
       setIsInFooterSection(nextFooterState);
@@ -254,6 +262,9 @@ const Navbar = ({ visible = true }: NavbarProps) => {
   }, [onScroll]);
 
   // ── Derived visual values ──
+  // Navbar is fully visible only when the prop says so AND we're not in the
+  // "monogram gone but Hero still in viewport" dead zone.
+  const navVisible = visible && !isNavbarHidden;
   const t = scrollProgress;
   const isDark = isInHeroSection || isInRSVPSection || isInFooterSection;
   const isSpecialSection = isInFooterSection;
@@ -358,9 +369,9 @@ const Navbar = ({ visible = true }: NavbarProps) => {
       ref={navRef}
       className="fixed top-0 left-0 right-0 z-50"
       style={{
-        opacity: visible ? 1 : 0,
-        pointerEvents: visible ? undefined : 'none',
-        transition: 'opacity 0.6s ease',
+        opacity: navVisible ? 1 : 0,
+        pointerEvents: navVisible ? undefined : 'none',
+        transition: 'opacity 0.4s ease',
         paddingTop: `calc(${padY}px + env(safe-area-inset-top))`,
         paddingBottom: `${padY}px`,
         paddingLeft: 'clamp(16px, 3vw, 48px)',

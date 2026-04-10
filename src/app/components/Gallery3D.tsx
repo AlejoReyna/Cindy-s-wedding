@@ -79,7 +79,7 @@ export default function Gallery3D() {
   // ── Text data ──
   const titleLine1 = '¡Nos';
   const titleLine2 = 'Casamos!';
-  const subtitleWords = 'Con inmensa alegría en nuestros corazones, queremos invitarte a celebrar el día en que uniremos nuestras vidas para siempre.'.split(' ');
+  const subtitleWords = 'Con gran ilusión, te invitamos a celebrar el inicio de nuestra vida juntos'.split(' ');
 
   // ── Scroll observer → animation cascade ──
   useEffect(() => {
@@ -199,7 +199,7 @@ export default function Gallery3D() {
     <section
       id="galeria"
       ref={sectionRef}
-      className="min-h-[120vh] md:min-h-screen w-full relative overflow-hidden flex items-center"
+      className="min-h-screen w-full relative overflow-hidden flex items-center"
       style={{
         backgroundColor: '#edeae4',
       }}
@@ -239,14 +239,14 @@ export default function Gallery3D() {
 
 
       {/* ═══ Main Layout ═══ */}
-      <div className="w-full max-w-[1600px] mx-auto relative z-10 px-4 md:px-6 lg:px-8 py-8 sm:py-10 md:py-16">
-        <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 md:gap-0">
+      <div className="w-full max-w-[1600px] mx-auto relative z-10 px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+        <div className="flex flex-col items-center justify-center gap-2 sm:gap-3 md:gap-0">
 
           {/* ── TOP: Text Section ── */}
-          <div className="w-full max-w-6xl flex flex-col items-center text-center shrink-0 pt-1 md:pt-0 md:mt-48">
+          <div className="w-full max-w-6xl flex flex-col items-center text-center shrink-0 pt-1 mt-0 md:pt-0 lg:mt-30">
 
             {/* ③ Title */}
-            <div className="mb-2 mt-0 md:mb-6 md:mt-8">
+            <div className="mb-1 mt-0 md:mb-3 md:mt-2">
               <h2 className="gl3d-title-text">
                 <span ref={titleRef} className="gl3d-title-inner">
                   {`${titleLine1} ${titleLine2}`.split('').map((char, i) => (
@@ -265,7 +265,7 @@ export default function Gallery3D() {
             </div>
 
             {/* ④ Decorative divider — expands from center */}
-            <div className="gl3d-divider-wrap mb-1 md:mb-6">
+            <div className="gl3d-divider-wrap mt-2 md:mb-3">
               <div
                 className={`gl3d-divider${dividerVisible ? ' gl3d-divider--visible' : ''}`}
                 style={{ ['--divider-target' as string]: `${titleWidth}px` } as React.CSSProperties}
@@ -274,7 +274,7 @@ export default function Gallery3D() {
 
             {/* ⑤ Subtitle */}
             <div
-              className="w-full px-3 mt-2 mb-4 md:mt-0 md:mb-6"
+              className="w-full px-3 mt-1 mb-3 md:mt-0 md:mb-4"
               style={{ width: `${titleWidth}px`, maxWidth: '100%' }}
             >
               <p className="gl3d-subtitle-text">
@@ -297,7 +297,7 @@ export default function Gallery3D() {
           <div
             className={`w-full flex flex-col items-center relative transition-all duration-1000 ease-out ${
               cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-            } mt-1 md:mt-0`}
+            } mt-0`}
           >
             {/* 3D Stage */}
             <div
@@ -359,7 +359,7 @@ export default function Gallery3D() {
             </div>
 
             {/* ═══ Dot indicators ═══ */}
-            <div className="flex items-center justify-center mt-5 md:mt-8">
+            <div className="flex items-center justify-center mt-3 md:mt-5">
               <div className="flex items-center gap-3">
                 {photos.map((_, i) => (
                   <button
@@ -373,7 +373,7 @@ export default function Gallery3D() {
             </div>
 
             {/* Counter */}
-            <p className="text-center mt-2 md:mt-3 text-[10px] tracking-[0.3em] uppercase text-[#8B7355]/40 garamond-300">
+            <p className="text-center mt-1 md:mt-2 text-[10px] tracking-[0.3em] uppercase text-[#8B7355]/40 garamond-300">
               {currentIndex + 1}&thinsp;/&thinsp;{photos.length}
             </p>
           </div>
@@ -421,13 +421,13 @@ export default function Gallery3D() {
 
         @media (min-width: 640px) {
           .gl3d-date-text { font-size: 15px; }
-          .gl3d-title-text { font-size: 4.5rem; }
-          .gl3d-subtitle-text { font-size: 2.48rem; }
+          .gl3d-title-text { font-size: 3.5rem; }
+          .gl3d-subtitle-text { font-size: 1.3rem; }
         }
         @media (min-width: 768px) {
           .gl3d-date-text { font-size: 16px; }
-          .gl3d-title-text { font-size: 6.8rem; }
-          .gl3d-subtitle-text { font-size: 2.76rem; }
+          .gl3d-title-text { font-size: 5rem; }
+          .gl3d-subtitle-text { font-size: 1.5rem; }
         }
 
         /* ═══ LETTER / WORD WRITING ANIMATIONS ═══ */
@@ -529,7 +529,7 @@ export default function Gallery3D() {
         .gl3d-stage {
           width: 100%;
           max-width: 1600px;
-          height: clamp(320px, 52vw, 620px);
+          height: clamp(374px, 55vw, 682px);
           position: relative;
           cursor: grab;
           overflow: hidden;
@@ -538,7 +538,7 @@ export default function Gallery3D() {
         }
         @media (max-width: 767px) {
           .gl3d-stage {
-            height: clamp(332px, 88vw, 470px);
+            height: clamp(330px, 94vw, 528px);
             perspective: 1100px;
           }
         }

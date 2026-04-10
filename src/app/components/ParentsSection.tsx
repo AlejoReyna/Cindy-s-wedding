@@ -285,10 +285,10 @@ export default function ParentsSection() {
         />
 
         {/* ── Contenido textual ── */}
-        <div className="relative z-10 text-center px-6 md:px-10 py-16 md:py-24 flex flex-col items-center justify-center h-full">
+        <div className="relative z-10 text-center px-4 sm:px-5 md:px-10 py-10 sm:py-12 md:py-24 flex flex-col items-center justify-center h-full">
 
           {/* Quote — palabra a palabra */}
-          <div className="flex justify-center items-center mb-12">
+          <div className="flex justify-center items-center mb-8 sm:mb-10 md:mb-12">
             <p className="ps-quote-text">
               {QUOTE_WORDS.map((word, i) => (
                 <span key={`q-${i}`}>
@@ -305,11 +305,11 @@ export default function ParentsSection() {
           </div>
 
           {/* Bloques de padres */}
-          <div className="w-full max-w-md md:max-w-6xl mx-auto space-y-10 md:space-y-0 md:flex md:items-start md:justify-center md:gap-12">
+          <div className="w-full max-w-md md:max-w-6xl mx-auto space-y-7 sm:space-y-8 md:space-y-0 md:flex md:items-start md:justify-center md:gap-12">
 
             {/* Padres de la novia */}
             <div className="text-center md:flex-[1.2] md:min-w-[420px]">
-              <h3 className="ps-heading-text mb-4 md:whitespace-nowrap">
+              <h3 className="ps-heading-text mb-3 sm:mb-4 whitespace-nowrap">
                 {brideHeadingChars.map((char, i) => (
                   <span
                     key={`bh-${i}`}
@@ -361,7 +361,7 @@ export default function ParentsSection() {
 
             {/* Padres del novio */}
             <div className="text-center md:flex-[1.2] md:min-w-[420px]">
-              <h3 className="ps-heading-text mb-4 md:whitespace-nowrap">
+              <h3 className="ps-heading-text mb-3 sm:mb-4 whitespace-nowrap">
                 {groomHeadingChars.map((char, i) => (
                   <span
                     key={`gh-${i}`}
@@ -434,27 +434,33 @@ export default function ParentsSection() {
         .ps-quote-text {
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
           font-weight: 300;
-          font-size: 1.625rem;
-          letter-spacing: 0.1em;
+          font-size: 1.1rem;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
           color: #8B7355;
-          line-height: 1.8;
+          line-height: 1.65;
         }
         .ps-heading-text {
           font-family: 'Cormorant Garamond', 'EB Garamond', serif;
-          font-size: 2.125rem;
-          letter-spacing: 0.15em;
+          font-size: 1.7rem;
+          letter-spacing: 0.09em;
           text-transform: uppercase;
           color: #5c5c5c;
-          line-height: 1.2;
+          line-height: 1.1;
         }
         .ps-name-text {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 1.55rem;
+          font-size: 1.1rem;
           color: #57534e;
-          line-height: 1.7;
+          line-height: 1.45;
           margin-bottom: 0;
+        }
+
+        @media (min-width: 640px) {
+          .ps-quote-text   { font-size: 1.25rem; }
+          .ps-heading-text { font-size: 1.95rem; }
+          .ps-name-text    { font-size: 1.3rem; }
         }
 
         @media (min-width: 768px) {
