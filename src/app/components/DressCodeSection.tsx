@@ -55,7 +55,7 @@ export default function DressCodeSection() {
   return (
     <section
       ref={sectionRef}
-      className="w-full relative overflow-hidden min-h-screen"
+      className="w-full relative overflow-hidden min-h-[100dvh]"
     >
       {/* ═══ SINGLE COLUMN: Paper (full width) ═══ */}
       <div className="ds-two-col">
@@ -102,11 +102,11 @@ export default function DressCodeSection() {
           />
 
           {/* ── Content — centred on the paper ── */}
-          <div className="relative z-10 flex flex-col items-center justify-center px-6 py-16 md:px-10 md:py-20">
-            <div className="ds-card w-full max-w-3xl text-center px-8 py-12 md:px-16 md:py-16">
+          <div className="relative z-10 flex flex-col items-center justify-center px-3 py-5 sm:px-4 sm:py-7 md:px-10 md:py-20">
+            <div className="ds-card w-full max-w-3xl text-center px-4 py-6 sm:px-6 sm:py-8 md:px-16 md:py-16">
 
             {/* ══ 1) NOTA ESPECIAL HEADING ══ */}
-            <p className="mrs-saint-delafield-regular text-5xl md:text-6xl text-[#6b4f3a] mb-3">
+            <p className="mrs-saint-delafield-regular text-[2.35rem] sm:text-[2.75rem] md:text-6xl text-[#6b4f3a] mb-2 sm:mb-3">
               <LetterReveal
                 text="Nota especial"
                 active={isVisible}
@@ -115,7 +115,7 @@ export default function DressCodeSection() {
               />
             </p>
 
-            <h2 className="garamond-300 text-sm md:text-base tracking-[0.32em] uppercase text-[#5a4635] mb-16">
+            <h2 className="garamond-300 text-[0.63rem] sm:text-xs md:text-base tracking-[0.18em] sm:tracking-[0.26em] md:tracking-[0.32em] uppercase text-[#5a4635] mb-8 sm:mb-10 md:mb-16">
               <LetterReveal
                 text="para nuestros invitados"
                 active={isVisible}
@@ -125,8 +125,8 @@ export default function DressCodeSection() {
             </h2>
 
             {/* ══ 2) DRESS CODE / ETIQUETA FORMAL BLOCK ══ */}
-            <div className="mb-16">
-              <p className="garamond-300 tracking-[0.32em] text-sm md:text-base uppercase mb-5" style={{ color: ACCENT_COLOR, opacity: 0.9 }}>
+            <div className="mb-8 sm:mb-10 md:mb-16">
+              <p className="garamond-300 tracking-[0.2em] sm:tracking-[0.28em] md:tracking-[0.32em] text-[0.68rem] sm:text-xs md:text-base uppercase mb-3 sm:mb-4 md:mb-5" style={{ color: ACCENT_COLOR, opacity: 0.9 }}>
                 <LetterReveal
                   text="Etiqueta"
                   active={isVisible}
@@ -134,7 +134,7 @@ export default function DressCodeSection() {
                   charStagger={22}
                 />
               </p>
-              <p className="garamond-regular text-3xl md:text-5xl leading-snug mb-6" style={{ color: ACCENT_COLOR }}>
+              <p className="garamond-regular text-[2rem] sm:text-[2.35rem] md:text-5xl leading-snug mb-4 sm:mb-5 md:mb-6" style={{ color: ACCENT_COLOR }}>
                 <LetterReveal
                   text="Formal"
                   active={isVisible}
@@ -144,7 +144,7 @@ export default function DressCodeSection() {
               </p>
 
               {/* Dress code icon */}
-              <div className={`flex justify-center mb-7 transition-all duration-[400ms] ease-out ${
+              <div className={`flex justify-center mb-4 sm:mb-5 md:mb-7 transition-all duration-[400ms] ease-out ${
                 isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'
               }`} style={{ transitionDelay: '580ms' }}>
                 <Image
@@ -161,7 +161,7 @@ export default function DressCodeSection() {
                 />
               </div>
 
-              <p className="garamond-300 text-lg md:text-xl text-[#5a4635] leading-relaxed max-w-md mx-auto">
+              <p className="garamond-300 text-[1.22rem] sm:text-[1.32rem] md:text-xl text-[#5a4635] leading-relaxed max-w-md mx-auto">
                 <LetterReveal
                   text="El blanco está reservado para la novia."
                   active={isVisible}
@@ -184,7 +184,7 @@ export default function DressCodeSection() {
               <div className={`ds-no-ninos-badge ${noNinosReady ? 'ds-no-ninos-visible' : ''}`}>
                 <span className="ds-ninos-line" />
                 <span
-                  className="garamond-regular tracking-[0.28em] text-[20px] md:text-[26px] uppercase font-semibold drop-shadow-[0_1px_0_rgba(84,60,36,0.22)]"
+                  className="garamond-regular tracking-[0.2em] sm:tracking-[0.24em] md:tracking-[0.28em] text-[16px] sm:text-[18px] md:text-[26px] uppercase font-semibold drop-shadow-[0_1px_0_rgba(84,60,36,0.22)]"
                   style={{ color: DARK_ACCENT_COLOR }}
                 >
                   <LetterReveal
@@ -198,11 +198,11 @@ export default function DressCodeSection() {
               </div>
 
               {/* Paragraph — simple fade-in after badge */}
-              <div className={`mt-8 max-w-lg mx-auto transition-all duration-[800ms] ease-out ${
+              <div className={`mt-5 sm:mt-6 md:mt-8 max-w-lg mx-auto transition-all duration-[800ms] ease-out ${
                 noNinosTextStart ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}>
                 <p
-                  className="garamond-regular text-[21px] md:text-[24px] leading-relaxed"
+                  className="garamond-regular text-[1.12rem] sm:text-[1.2rem] md:text-[1.12rem] leading-relaxed"
                   style={{ color: DARK_ACCENT_COLOR, opacity: 0.98 }}
                 >
                   Con mucho cariño hemos planeado una velada íntima entre adultos.
@@ -223,13 +223,13 @@ export default function DressCodeSection() {
           display: flex;
           flex-direction: column;
           width: 100%;
-          min-height: 100vh;
+          min-height: 100dvh;
         }
 
         .ds-col-paper {
           position: relative;
           width: 100%;
-          min-height: 100vh;
+          min-height: 100dvh;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -248,10 +248,16 @@ export default function DressCodeSection() {
 
         /* ══ DRESS CODE ICON ══ */
         .dress-icon {
-          width: 76px;
-          height: 76px;
+          width: 64px;
+          height: 64px;
           object-fit: contain;
           display: block;
+        }
+        @media (min-width: 640px) {
+          .dress-icon {
+            width: 70px;
+            height: 70px;
+          }
         }
         @media (min-width: 768px) {
           .dress-icon {
@@ -278,7 +284,7 @@ export default function DressCodeSection() {
         .ds-no-ninos-badge {
           display: inline-flex;
           align-items: center;
-          gap: 1rem;
+          gap: 0.55rem;
           opacity: 0;
           transform: scale(0.7) translateY(12px);
           filter: blur(6px);
@@ -294,12 +300,28 @@ export default function DressCodeSection() {
 
         .ds-ninos-line {
           display: block;
-          width: 4.5rem;
+          width: 2.15rem;
           height: 2px;
           background: rgba(107, 79, 58, 0.38);
           transform-origin: center;
           transform: scaleX(0);
           transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1) 0.15s;
+        }
+        @media (min-width: 640px) {
+          .ds-no-ninos-badge {
+            gap: 0.8rem;
+          }
+          .ds-ninos-line {
+            width: 3.2rem;
+          }
+        }
+        @media (min-width: 768px) {
+          .ds-no-ninos-badge {
+            gap: 1rem;
+          }
+          .ds-ninos-line {
+            width: 4.5rem;
+          }
         }
         .ds-no-ninos-visible .ds-ninos-line {
           transform: scaleX(1);

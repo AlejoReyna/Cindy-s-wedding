@@ -116,7 +116,7 @@ export default function GiftEnvelopeBannerSection() {
         .gift-envelope-section__presence {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 400;
-          font-size: 2.6rem;
+          font-size: 2.1rem;
           line-height: 1.1;
           letter-spacing: 0.03em;
           color: #5a4631;
@@ -126,7 +126,7 @@ export default function GiftEnvelopeBannerSection() {
 
         .gift-envelope-section__presence span {
           display: block;
-          white-space: nowrap;
+          white-space: normal;
         }
 
         .gift-envelope-section__text {
@@ -268,6 +268,9 @@ export default function GiftEnvelopeBannerSection() {
           .gift-envelope-section__presence {
             font-size: 3.2rem;
             max-width: 32rem;
+          }
+          .gift-envelope-section__presence span {
+            white-space: nowrap;
           }
           .gift-envelope-section__text {
             font-size: 1.2rem;

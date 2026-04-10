@@ -9,6 +9,7 @@ import Navbar from './components/Navbar';
 import Gallery3D from './components/Gallery3D';
 import ParentsSection from './components/ParentsSection';
 import DressCodeSection from './components/DressCodeSection';
+import HotelsSection from './components/HotelsSection';
 import GiftEnvelopeBannerSection from './components/GiftEnvelopeBannerSection';
 import { ThemeProvider } from './context/ThemeContext';
 import HeroSection from './components/HeroSection';
@@ -75,6 +76,7 @@ export default function Home() {
       <div id="dresscode">
         <DressCodeSection />
       </div>
+      <HotelsSection />
       <div id="regalos">
         <GiftEnvelopeBannerSection />
       </div>

@@ -229,7 +229,7 @@ export default function ItinerarySection() {
   return (
     <section
       ref={sectionRef}
-      className="min-h-screen w-full py-14 sm:py-20 md:py-24 px-4 md:px-8 relative transition-all duration-1000 ease-in-out"
+      className="min-h-screen w-full pt-0 pb-14 sm:pt-8 sm:pb-20 md:py-24 px-4 md:px-8 relative transition-all duration-1000 ease-in-out"
       style={{
         background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)',
       }}
@@ -260,7 +260,7 @@ export default function ItinerarySection() {
           className="text-center mb-10 sm:mb-12 md:mb-16 transition-all duration-2000 ease-out opacity-100 translate-y-0"
           style={{ transitionDelay: '200ms' }}
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.1em] uppercase mb-6 garamond-300 text-[#8B7355]">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.1em] uppercase mt-0 sm:mt-3 md:mt-6 mb-6 garamond-300 text-[#8B7355]">
             Itinerario
           </h2>
           <div className="w-24 h-px mx-auto mb-2 bg-[#C4985B] opacity-60" />

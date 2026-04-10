@@ -172,7 +172,7 @@ export default function ItineraryItemCard({
       />
 
       <div
-        className={`w-full max-w-[420px] mx-auto md:max-w-none md:w-[calc(50%-2.5rem)] transition-transform duration-500 ${
+        className={`w-full max-w-[378px] mx-auto md:max-w-none md:w-[calc(50%-2.5rem)] transition-transform duration-500 ${
           isActive ? 'scale-[1.02] md:scale-[1.3]' : 'scale-100'
         } ${isLeftSide ? 'md:mr-auto md:pr-10 lg:pr-14' : 'md:ml-auto md:pl-10 lg:pl-14'}`}
         style={{
@@ -257,7 +257,7 @@ export default function ItineraryItemCard({
             {/* ── Title (fades up) ── */}
             <div className="overflow-hidden mb-3 sm:mb-4">
               <h3
-                className={`text-base sm:text-lg md:text-xl font-light tracking-[0.22em] sm:tracking-[0.3em] uppercase garamond-300 transition-all duration-600 ease-out ${
+                className={`text-lg sm:text-xl md:text-2xl font-light tracking-[0.2em] sm:tracking-[0.26em] uppercase garamond-300 transition-all duration-600 ease-out ${
                   showTitle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}
                 style={{ color: cardColor }}

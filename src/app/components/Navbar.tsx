@@ -164,13 +164,15 @@ const Navbar = ({ visible = true }: NavbarProps) => {
       }
 
       // Galeria section detection — large logo when user is over Gallery3D
+      // (desktop/tablet only; mobile keeps the regular compact navbar behavior)
       const galeriaRect = document.getElementById('galeria')?.getBoundingClientRect();
+      const isMobileViewport = window.innerWidth < 768;
       if (galeriaRect && galeriaRect.bottom > 0 && galeriaRect.top < wh) {
         const visTop = Math.max(0, galeriaRect.top);
         const visBot = Math.min(wh, galeriaRect.bottom);
         const actual = visBot - visTop;
         const required = Math.min(galeriaRect.height * 0.4, wh);
-        setIsInGaleriaSection(actual >= required);
+        setIsInGaleriaSection(!isMobileViewport && actual >= required);
       } else {
         setIsInGaleriaSection(false);
       }
