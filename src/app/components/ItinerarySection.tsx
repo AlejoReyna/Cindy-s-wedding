@@ -229,7 +229,7 @@ export default function ItinerarySection() {
   return (
     <section
       ref={sectionRef}
-      className="min-h-screen w-full py-24 px-4 md:px-8 relative transition-all duration-1000 ease-in-out"
+      className="min-h-screen w-full py-14 sm:py-20 md:py-24 px-4 md:px-8 relative transition-all duration-1000 ease-in-out"
       style={{
         background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)',
       }}
@@ -257,7 +257,7 @@ export default function ItinerarySection() {
       <div className="max-w-6xl mx-auto relative" style={{ zIndex: 10 }}>
 
         <div
-          className="text-center mb-16 transition-all duration-2000 ease-out opacity-100 translate-y-0"
+          className="text-center mb-10 sm:mb-12 md:mb-16 transition-all duration-2000 ease-out opacity-100 translate-y-0"
           style={{ transitionDelay: '200ms' }}
         >
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.1em] uppercase mb-6 garamond-300 text-[#8B7355]">
@@ -284,7 +284,7 @@ export default function ItinerarySection() {
               <div
                 key={index}
                 className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 z-10"
-                style={{ top: `${3 + index * 24}rem` }}
+                style={{ top: `${3 + index * 20}rem` }}
               >
                 <div className="w-full h-full rounded-full border-2 shadow-lg transition-colors duration-500 bg-white border-[#947e63]/60">
                   <div className="absolute inset-1 rounded-full transition-colors duration-500 bg-[#947e63]/40" />
@@ -293,7 +293,7 @@ export default function ItinerarySection() {
             ))}
           </div>
 
-          <div ref={cardsRef} className="space-y-24 md:space-y-32 relative z-10">
+          <div ref={cardsRef} className="space-y-16 sm:space-y-20 md:space-y-32 relative z-10">
             {itineraryItems.map((item, index) => (
               <div
                 key={index}

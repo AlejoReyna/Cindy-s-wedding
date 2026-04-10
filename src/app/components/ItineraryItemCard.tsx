@@ -172,23 +172,21 @@ export default function ItineraryItemCard({
       />
 
       <div
-        className={`w-full md:w-[calc(50%-2.5rem)] ${
-          isLeftSide ? 'md:mr-auto md:pr-10 lg:pr-14' : 'md:ml-auto md:pl-10 lg:pl-14'
-        }`}
+        className={`w-full max-w-[420px] mx-auto md:max-w-none md:w-[calc(50%-2.5rem)] transition-transform duration-500 ${
+          isActive ? 'scale-[1.02] md:scale-[1.3]' : 'scale-100'
+        } ${isLeftSide ? 'md:mr-auto md:pr-10 lg:pr-14' : 'md:ml-auto md:pl-10 lg:pl-14'}`}
         style={{
-          transform: isActive ? 'scale(1.3)' : 'scale(1)',
-          transition: 'transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
           zIndex: isActive ? 20 : 1,
           position: 'relative',
         }}
       >
         {/* ── Elegant card container ── */}
         <div
-          className={`relative flex flex-col rounded-none text-center transition-all duration-1000 ease-out ${
+          className={`relative flex flex-col rounded-none text-center h-[300px] sm:h-[330px] md:h-[380px] transition-all duration-1000 ease-out ${
             animating ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
-            height: '380px',
             background: 'rgba(255,255,255,0.45)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
@@ -229,10 +227,10 @@ export default function ItineraryItemCard({
           {/* ── Top half — Icon (sin círculo) ── */}
           <div
             className="flex items-center justify-center"
-            style={{ height: '50%', paddingTop: '2rem', paddingBottom: '1rem', paddingLeft: '2rem', paddingRight: '2rem' }}
+            style={{ height: '50%', paddingTop: '1.1rem', paddingBottom: '0.6rem', paddingLeft: '1.2rem', paddingRight: '1.2rem' }}
           >
             <div
-              className={`transition-all duration-700 group-hover:scale-110 ${
+              className={`transition-all duration-700 scale-90 sm:scale-100 group-hover:scale-100 sm:group-hover:scale-110 ${
                 showIcon ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.6]'
               }`}
               style={{
@@ -254,12 +252,12 @@ export default function ItineraryItemCard({
           {/* ── Bottom half — Texto ── */}
           <div
             className="flex flex-col items-center justify-center"
-            style={{ height: '50%', paddingTop: '1rem', paddingBottom: '2rem', paddingLeft: '2rem', paddingRight: '2rem' }}
+            style={{ height: '50%', paddingTop: '0.7rem', paddingBottom: '1.2rem', paddingLeft: '1.1rem', paddingRight: '1.1rem' }}
           >
             {/* ── Title (fades up) ── */}
-            <div className="overflow-hidden mb-4">
+            <div className="overflow-hidden mb-3 sm:mb-4">
               <h3
-                className={`text-lg md:text-xl font-light tracking-[0.3em] uppercase garamond-300 transition-all duration-600 ease-out ${
+                className={`text-base sm:text-lg md:text-xl font-light tracking-[0.22em] sm:tracking-[0.3em] uppercase garamond-300 transition-all duration-600 ease-out ${
                   showTitle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}
                 style={{ color: cardColor }}
@@ -269,7 +267,7 @@ export default function ItineraryItemCard({
             </div>
 
             {/* ── Accent line (expands from center) ── */}
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-3 sm:mb-4">
               <div
                 className={`h-[1px] transition-all ease-out group-hover:w-16 ${
                   showLine ? 'w-12 opacity-100 duration-600' : 'w-0 opacity-0 duration-300'
@@ -291,7 +289,7 @@ export default function ItineraryItemCard({
                 }`}
               >
                 <span
-                  className="text-3xl md:text-4xl font-light tracking-[0.15em] garamond-300 transition-all duration-500 group-hover:opacity-100"
+                  className="text-2xl sm:text-3xl md:text-4xl font-light tracking-[0.12em] sm:tracking-[0.15em] garamond-300 transition-all duration-500 group-hover:opacity-100"
                   style={{ color: cardColor, opacity: showTime ? 0.8 : 0 }}
                 >
                   {item.time}
