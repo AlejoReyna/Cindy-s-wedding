@@ -1,134 +1,177 @@
 "use client";
-import { useEffect, useRef } from 'react';
+import { useLayoutEffect, RefObject } from 'react';
 
 interface UseNotchColorProps {
-  heroColor?: string;
+  /** Ordered list of section refs. Priority is given to the first intersecting one. */
+  refs: RefObject<HTMLElement | null>[];
+  /** Color for each ref (same index order). */
+  colors: string[];
+  /** Color applied when no section is intersecting. */
   defaultColor?: string;
   isNightMode?: boolean;
 }
 
-export const useNotchColor = ({ 
-  heroColor = '#878074', 
+export const useNotchColor = ({
+  refs,
+  colors,
   defaultColor = '#ffffff',
-  isNightMode = false
-}: UseNotchColorProps = {}) => {
-  const heroSectionRef = useRef<HTMLElement>(null);
+  isNightMode = false,
+}: UseNotchColorProps): void => {
+  useLayoutEffect(() => {
+    // ── Helpers ─────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    // Función para actualizar el color del notch
+    const isColorLight = (hex: string): boolean => {
+      const h = hex.replace('#', '');
+      const r = parseInt(h.substring(0, 2), 16);
+      const g = parseInt(h.substring(2, 4), 16);
+      const b = parseInt(h.substring(4, 6), 16);
+      return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5;
+    };
+
     const updateThemeColor = (color: string) => {
-      // Buscar meta tag existente o crear uno nuevo
-      let metaThemeColor = document.querySelector('meta[name="theme-color"]');
-      
-      if (!metaThemeColor) {
-        metaThemeColor = document.createElement('meta');
-        metaThemeColor.setAttribute('name', 'theme-color');
-        document.getElementsByTagName('head')[0].appendChild(metaThemeColor);
-      }
-      
-      // En modo nocturno, forzar color negro para el status bar
       const finalColor = isNightMode ? '#000000' : color;
-      metaThemeColor.setAttribute('content', finalColor);
-      
-      // También actualizar para dispositivos Apple específicamente
-      let metaAppleStatusBar = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-      
-      if (!metaAppleStatusBar) {
-        metaAppleStatusBar = document.createElement('meta');
-        metaAppleStatusBar.setAttribute('name', 'apple-mobile-web-app-status-bar-style');
-        document.getElementsByTagName('head')[0].appendChild(metaAppleStatusBar);
+
+      let metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (!metaTheme) {
+        metaTheme = document.createElement('meta');
+        metaTheme.setAttribute('name', 'theme-color');
+        document.head.appendChild(metaTheme);
       }
-      
-      // Determinar el estilo del status bar basado en el color de fondo
-      let statusBarStyle: string;
-      
-      if (isNightMode) {
-        // En modo nocturno, usar texto blanco sobre fondo oscuro
-        statusBarStyle = 'black-translucent';
-      } else {
-        // En modo normal, usar lógica basada en el color
-        const isLightColor = isColorLight(color);
-        // Si el fondo es claro, usar texto oscuro (default)
-        // Si el fondo es oscuro, usar texto claro (black-translucent)
-        statusBarStyle = isLightColor ? 'default' : 'black-translucent';
+      metaTheme.setAttribute('content', finalColor);
+
+      // Fills the notch / Dynamic Island area when viewport-fit:cover is active
+      document.documentElement.style.backgroundColor = finalColor;
+      document.body.style.backgroundColor = finalColor;
+
+      let safeAreaOverlay = document.getElementById('notch-safe-area-overlay');
+      if (!safeAreaOverlay) {
+        safeAreaOverlay = document.createElement('div');
+        safeAreaOverlay.id = 'notch-safe-area-overlay';
+        safeAreaOverlay.setAttribute('aria-hidden', 'true');
+        safeAreaOverlay.style.position = 'fixed';
+        safeAreaOverlay.style.top = '0';
+        safeAreaOverlay.style.left = '0';
+        safeAreaOverlay.style.right = '0';
+        safeAreaOverlay.style.height = 'calc(env(safe-area-inset-top, 0px) + 16px)';
+        safeAreaOverlay.style.pointerEvents = 'none';
+        safeAreaOverlay.style.zIndex = '2147483647';
+        safeAreaOverlay.style.transition = 'background-color 180ms ease';
+        document.body.appendChild(safeAreaOverlay);
       }
-      
-      metaAppleStatusBar.setAttribute('content', statusBarStyle);
-      
-      // Asegurar que existe el meta tag de viewport para PWA
-      let metaViewport = document.querySelector('meta[name="viewport"]');
-      if (!metaViewport) {
-        metaViewport = document.createElement('meta');
-        metaViewport.setAttribute('name', 'viewport');
-        metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover');
-        document.getElementsByTagName('head')[0].appendChild(metaViewport);
-      } else {
-        // Asegurar que viewport-fit=cover está incluido
-        const currentContent = metaViewport.getAttribute('content') || '';
-        if (!currentContent.includes('viewport-fit=cover')) {
-          metaViewport.setAttribute('content', currentContent + ', viewport-fit=cover');
+      safeAreaOverlay.style.backgroundColor = finalColor;
+
+      let metaApple = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+      if (!metaApple) {
+        metaApple = document.createElement('meta');
+        metaApple.setAttribute('name', 'apple-mobile-web-app-status-bar-style');
+        document.head.appendChild(metaApple);
+      }
+      metaApple.setAttribute(
+        'content',
+        isNightMode
+          ? 'black-translucent'
+          : isColorLight(finalColor)
+          ? 'default'
+          : 'black-translucent',
+      );
+    };
+
+    let lastAppliedColor = '';
+    let frameId: number | null = null;
+
+    const applyColor = (color: string) => {
+      if (color === lastAppliedColor) {
+        return;
+      }
+      lastAppliedColor = color;
+      updateThemeColor(color);
+    };
+
+    const getActiveColor = () => {
+      const mountedSections = refs
+        .map((ref, index) => ({
+          element: ref.current,
+          color: colors[index] ?? defaultColor,
+        }))
+        .filter(
+          (section): section is { element: HTMLElement; color: string } =>
+            section.element instanceof HTMLElement,
+        );
+
+      if (mountedSections.length === 0) {
+        return defaultColor;
+      }
+
+      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      const triggerY = Math.max(96, Math.min(viewportHeight * 0.2, 180));
+      let activeIndex = 0;
+
+      // A section becomes active once its top crosses a fixed line near the top
+      // of the viewport. This is more predictable on iOS Safari than relying on
+      // IntersectionObserver or waiting for the previous section to fully leave.
+      for (let i = 0; i < mountedSections.length; i++) {
+        const rect = mountedSections[i].element.getBoundingClientRect();
+
+        if (rect.top <= triggerY) {
+          activeIndex = i;
+          continue;
         }
+
+        break;
       }
+
+      return mountedSections[activeIndex]?.color ?? defaultColor;
     };
 
-    // Función auxiliar para determinar si un color es claro u oscuro
-    const isColorLight = (color: string): boolean => {
-      const hex = color.replace('#', '');
-      const r = parseInt(hex.substring(0, 2), 16);
-      const g = parseInt(hex.substring(2, 4), 16);
-      const b = parseInt(hex.substring(4, 6), 16);
-      // Usar la fórmula de luminancia relativa más precisa
-      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-      return luminance > 0.5;
+    const scheduleUpdate = () => {
+      if (frameId !== null) {
+        return;
+      }
+
+      frameId = window.requestAnimationFrame(() => {
+        frameId = null;
+        applyColor(getActiveColor());
+      });
     };
 
-    // Configurar Intersection Observer
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Hero está visible - aplicar color personalizado
-            updateThemeColor(heroColor);
-          } else {
-            // Hero no está visible - restaurar color por defecto
-            updateThemeColor(defaultColor);
-          }
-        });
-      },
-      {
-        // Configuración del observer
-        threshold: 0.3, // Se activa cuando el 30% de la sección está visible
-        rootMargin: '-50px 0px -50px 0px' // Margen para activación más precisa
-      }
+    const visualViewport = window.visualViewport;
+
+    applyColor(defaultColor);
+    scheduleUpdate();
+
+    const settleTimers = [60, 180, 360].map((delay) =>
+      window.setTimeout(scheduleUpdate, delay),
     );
 
-    // Forzar la aplicación inicial del color
-    updateThemeColor(defaultColor);
-    
-    // Observar la sección Hero si existe
-    const currentRef = heroSectionRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-    
-    // Para iOS, forzar un repaint del status bar
-    if (typeof window !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
-      // Pequeño delay para asegurar que los meta tags se apliquen
-      setTimeout(() => {
-        updateThemeColor(defaultColor);
-      }, 100);
-    }
+    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+    window.addEventListener('resize', scheduleUpdate);
+    window.addEventListener('orientationchange', scheduleUpdate);
+    window.addEventListener('pageshow', scheduleUpdate);
+    window.addEventListener('touchstart', scheduleUpdate, { passive: true });
+    window.addEventListener('touchmove', scheduleUpdate, { passive: true });
+    window.addEventListener('touchend', scheduleUpdate, { passive: true });
 
-    // Cleanup
+    visualViewport?.addEventListener('resize', scheduleUpdate);
+    visualViewport?.addEventListener('scroll', scheduleUpdate);
+
     return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId);
       }
-      observer.disconnect();
-      // Restaurar color por defecto al desmontar
+
+      settleTimers.forEach((timerId) => window.clearTimeout(timerId));
+      window.removeEventListener('scroll', scheduleUpdate);
+      window.removeEventListener('resize', scheduleUpdate);
+      window.removeEventListener('orientationchange', scheduleUpdate);
+      window.removeEventListener('pageshow', scheduleUpdate);
+      window.removeEventListener('touchstart', scheduleUpdate);
+      window.removeEventListener('touchmove', scheduleUpdate);
+      window.removeEventListener('touchend', scheduleUpdate);
+      visualViewport?.removeEventListener('resize', scheduleUpdate);
+      visualViewport?.removeEventListener('scroll', scheduleUpdate);
+      document.getElementById('notch-safe-area-overlay')?.remove();
       updateThemeColor(defaultColor);
     };
-  }, [heroColor, defaultColor, isNightMode]);
-
-  return heroSectionRef;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultColor, isNightMode, ...colors]);
 };

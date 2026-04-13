@@ -54,6 +54,8 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
     month: 'long',
     year: 'numeric',
   });
+  const ctaMessage = 'Quiero confirmar mi asistencia a la boda de Cindy & Jorge, mi nombre es:    ';
+  const ctaWhatsappHref = `https://wa.me/5218132382398?text=${encodeURIComponent(ctaMessage)}`;
 
   return (
     <section
@@ -136,7 +138,7 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
         {/* ── Bottom group: CTA + timer (positioned independently) ───────── */}
         <div className="hero-bottom-group absolute inset-x-0 bottom-[10vh] flex flex-col items-center gap-3">
           <a
-            href="https://wa.me/5218132382398"
+            href={ctaWhatsappHref}
             target="_blank"
             rel="noopener noreferrer"
             className={`hero-cta-btn ${immediate ? 'hero-cta-btn--immediate' : loaded ? 'hero-cta-btn--animate' : ''}`}

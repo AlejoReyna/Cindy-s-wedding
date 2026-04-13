@@ -92,10 +92,6 @@ export default function ItinerarySection() {
   const lastTimeRef     = useRef<number>(0)
   const activeRef       = useRef(false)
 
-  const [lineStyle, setLineStyle] = useState<{ top: string | number; height: string | number }>({
-    top: '3rem',
-    height: 'calc(100% - 6rem)',
-  })
   const [activeIndex, setActiveIndex] = useState(0)
 
   // ── card activa por scroll ────────────────────────────────────────
@@ -119,26 +115,6 @@ export default function ItinerarySection() {
       window.removeEventListener('scroll', handleScroll)
       window.removeEventListener('resize', handleScroll)
     }
-  }, [])
-
-  // ── línea timeline ────────────────────────────────────────────────
-  useEffect(() => {
-    const updateLine = () => {
-      const container = containerRef.current
-      const cards     = cardsRef.current
-      if (!container || !cards) return
-      const els = cards.children
-      if (els.length === 0) return
-      const cTop     = container.getBoundingClientRect().top
-      const first    = els[0].getBoundingClientRect()
-      const last     = els[els.length - 1].getBoundingClientRect()
-      const firstMid = first.top + first.height / 2 - cTop
-      const lastMid  = last.top  + last.height  / 2 - cTop
-      setLineStyle({ top: firstMid, height: lastMid - firstMid })
-    }
-    const t = setTimeout(updateLine, 100)
-    window.addEventListener('resize', updateLine)
-    return () => { clearTimeout(t); window.removeEventListener('resize', updateLine) }
   }, [])
 
   // ── loop RAF ──────────────────────────────────────────────────────
@@ -221,8 +197,8 @@ export default function ItinerarySection() {
   const itineraryItems: ItineraryItem[] = useMemo(() => [
     { time: "4:30 PM", displayTime: "4:30", title: "Misa",                   description: "", location: "" },
     { time: "6:00 PM", displayTime: "6:00", title: "Cocktail de Bienvenida", description: "", location: "" },
-    { time: "7:00 PM", displayTime: "7:00", title: "Ceremonia Civil",        description: "", location: "" },
-    { time: "8:00 PM", displayTime: "8:00", title: "Recepción",              description: "", location: "" },
+    { time: "6:30 PM", displayTime: "6:30", title: "Ceremonia Civil",        description: "", location: "" },
+    { time: "7:30 PM", displayTime: "7:30", title: "Recepción",              description: "", location: "" },
   ], [])
 
   // ── render ────────────────────────────────────────────────────────
@@ -270,7 +246,7 @@ export default function ItinerarySection() {
           {/* Línea vertical desktop */}
           <div
             className="absolute left-1/2 transform -translate-x-1/2 w-px transition-all duration-500 opacity-60 hidden md:block"
-            style={{ backgroundColor: '#C4985B', top: lineStyle.top, height: lineStyle.height, zIndex: 1 }}
+            style={{ backgroundColor: '#C4985B', top: '3rem', height: 'calc(100% - 6rem)', zIndex: 1 }}
           />
           {/* Línea vertical mobile */}
           <div

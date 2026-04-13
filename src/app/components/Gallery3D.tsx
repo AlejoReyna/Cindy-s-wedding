@@ -4,13 +4,17 @@ import Image from 'next/image';
 
 // ── Photo data ──
 const photos = [
-  { label: 'FOTO 1', src: '/assets/hero-0682.jpg' },
-  { label: 'FOTO 2', src: '/assets/hero-0682.jpg' },
-  { label: 'FOTO 3', src: '/assets/hero-0682.jpg' },
-  { label: 'FOTO 4', src: '/assets/hero-0682.jpg' },
-  { label: 'FOTO 5', src: '/assets/hero-0682.jpg' },
-  { label: 'FOTO 6', src: '/assets/hero-0682.jpg' },
-  { label: 'FOTO 7', src: '/assets/hero-0682.jpg' },
+  { label: 'FOTO 1', src: '/second_section/1.jpeg' },
+  { label: 'FOTO 2', src: '/second_section/2.jpeg' },
+  { label: 'FOTO 3', src: '/second_section/3.jpeg' },
+  { label: 'FOTO 4', src: '/second_section/4.jpeg' },
+  { label: 'FOTO 5', src: '/second_section/5.jpeg' },
+  { label: 'FOTO 6', src: '/second_section/6.jpeg' },
+  { label: 'FOTO 7', src: '/second_section/7.jpeg' },
+  { label: 'FOTO 8', src: '/second_section/8.jpeg' },
+  { label: 'FOTO 9', src: '/second_section/9.jpeg' },
+  { label: 'FOTO 10', src: '/second_section/10.jpeg' },
+  { label: 'FOTO 11', src: '/second_section/11.jpeg' },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -295,7 +299,7 @@ export default function Gallery3D() {
 
           {/* ── BOTTOM: 3D Coverflow Carousel ── */}
           <div
-            className={`w-full flex flex-col items-center relative transition-all duration-1000 ease-out ${
+            className={`w-full md:w-[80%] flex flex-col items-center relative transition-all duration-1000 ease-out ${
               cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
             } mt-0`}
           >

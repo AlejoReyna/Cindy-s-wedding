@@ -29,8 +29,7 @@ export default function GiftEnvelopeBannerSection() {
       <div className="gift-envelope-section__inner">
         <p className="gift-envelope-section__eyebrow">Mesa de regalos</p>
         <p className="gift-envelope-section__presence">
-          <span>Su compañía es lo</span>
-          <span>más valioso para nosotros</span>
+          <span>Su compañía es lo más valioso para nosotros</span>
         </p>
         <p className="gift-envelope-section__text">
           Si desean tener un detalle adicional, será sinceramente agradecido.
@@ -106,7 +105,7 @@ export default function GiftEnvelopeBannerSection() {
         .gift-envelope-section__eyebrow {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 11px;
+          font-size: 1.47rem;
           letter-spacing: 0.45em;
           text-transform: uppercase;
           color: rgba(139, 115, 85, 0.68);
@@ -116,7 +115,7 @@ export default function GiftEnvelopeBannerSection() {
         .gift-envelope-section__presence {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 400;
-          font-size: 2.1rem;
+          font-size: 1.3rem;
           line-height: 1.1;
           letter-spacing: 0.03em;
           color: #5a4631;
@@ -265,8 +264,11 @@ export default function GiftEnvelopeBannerSection() {
         }
 
         @media (min-width: 640px) {
+          .gift-envelope-section__eyebrow {
+            font-size: 2.24rem;
+          }
           .gift-envelope-section__presence {
-            font-size: 3.2rem;
+            font-size: 1.43rem;
             max-width: 32rem;
           }
           .gift-envelope-section__presence span {
@@ -292,8 +294,11 @@ export default function GiftEnvelopeBannerSection() {
             gap: 2rem;
           }
 
+          .gift-envelope-section__eyebrow {
+            font-size: 2.66rem;
+          }
           .gift-envelope-section__presence {
-            font-size: 3.8rem;
+            font-size: 1.56rem;
             max-width: 38rem;
           }
 
@@ -328,8 +333,11 @@ export default function GiftEnvelopeBannerSection() {
         }
 
         @media (min-width: 1024px) {
+          .gift-envelope-section__eyebrow {
+            font-size: 3.08rem;
+          }
           .gift-envelope-section__presence {
-            font-size: 4.4rem;
+            font-size: 1.69rem;
             max-width: 44rem;
           }
 

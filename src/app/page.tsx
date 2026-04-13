@@ -1,5 +1,5 @@
 "use client"
-import { useState, useLayoutEffect } from 'react';
+import { useState, useLayoutEffect, useRef } from 'react';
 import LocationSection from './components/LocationSection';
 // import GiftSection from './components/GiftSection'; // Hidden — merged into RSVPSection
 import RSVPSection from './components/RSVPSection';
@@ -14,6 +14,7 @@ import GiftEnvelopeBannerSection from './components/GiftEnvelopeBannerSection';
 import { ThemeProvider } from './context/ThemeContext';
 import HeroSection from './components/HeroSection';
 import SplashScreen from './components/SplashScreen';
+import { useNotchColor } from '../hooks/useNotchColor';
 
 const SESSION_KEY = 'cj_envelope_opened';
 
@@ -26,6 +27,16 @@ export default function Home() {
   const [immediate, setImmediate] = useState(false);
   // Navbar stays hidden until the splash finishes its exit animation.
   const [navbarReady, setNavbarReady] = useState(false);
+
+  // Notch / status-bar color per section.
+  const heroRef    = useRef<HTMLElement>(null);
+  const galleryRef = useRef<HTMLElement>(null);
+
+  useNotchColor({
+    refs:         [heroRef, galleryRef],
+    colors:       ['#9b9b9b', '#eceae4'],
+    defaultColor: '#ffffff',
+  });
 
   // useLayoutEffect runs BEFORE the browser paints, so on refresh the splash
   // is removed and hero shows instantly — no flash.
@@ -59,12 +70,14 @@ export default function Home() {
     <ThemeProvider>
       {showSplash && <SplashScreen onEnter={handleEnter} />}
       <Navbar visible={navbarReady} />
-      <HeroSection entered={entered} immediate={immediate} />
+      <section ref={heroRef}>
+        <HeroSection entered={entered} immediate={immediate} />
+      </section>
 
 
-      <div id="galeria">
+      <section ref={galleryRef} id="galeria">
         <Gallery3D />
-      </div>
+      </section>
       <ParentsSection />
       <div id="itinerario">
         <ItinerarySection />

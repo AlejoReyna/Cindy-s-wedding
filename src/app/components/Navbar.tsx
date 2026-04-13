@@ -103,11 +103,13 @@ const Navbar = ({ visible = true }: NavbarProps) => {
   // Start as true — page always loads at the top over the hero image.
   // The scroll handler will correct this once it fires.
   const [isInHeroSection, setIsInHeroSection] = useState(true);
-  const [isInGaleriaSection, setIsInGaleriaSection] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
   // Hidden while the monogram has faded out but Hero hasn't fully left the viewport.
   const [isNavbarHidden, setIsNavbarHidden] = useState(false);
+  // In regular mobile browsers, adding safe-area inset can create extra top space.
+  // Keep it only for standalone/PWA mode where content can extend into the notch.
+  const [isStandaloneMode, setIsStandaloneMode] = useState(false);
 
   const navRef = useRef<HTMLElement | null>(null);
   const ticking = useRef(false);
@@ -161,20 +163,6 @@ const Navbar = ({ visible = true }: NavbarProps) => {
         setIsInRSVPSection(nextRsvpState);
       } else {
         setIsInRSVPSection(false);
-      }
-
-      // Galeria section detection — large logo when user is over Gallery3D
-      // (desktop/tablet only; mobile keeps the regular compact navbar behavior)
-      const galeriaRect = document.getElementById('galeria')?.getBoundingClientRect();
-      const isMobileViewport = window.innerWidth < 768;
-      if (galeriaRect && galeriaRect.bottom > 0 && galeriaRect.top < wh) {
-        const visTop = Math.max(0, galeriaRect.top);
-        const visBot = Math.min(wh, galeriaRect.bottom);
-        const actual = visBot - visTop;
-        const required = Math.min(galeriaRect.height * 0.4, wh);
-        setIsInGaleriaSection(!isMobileViewport && actual >= required);
-      } else {
-        setIsInGaleriaSection(false);
       }
 
       if (STATUS_BAR_DEBUG && lastHeroStateRef.current !== nextHeroState) {
@@ -263,6 +251,12 @@ const Navbar = ({ visible = true }: NavbarProps) => {
     return () => window.removeEventListener('scroll', onScroll);
   }, [onScroll]);
 
+  useEffect(() => {
+    const inStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || (typeof navigator !== 'undefined' && 'standalone' in navigator && Boolean((navigator as Navigator & { standalone?: boolean }).standalone));
+    setIsStandaloneMode(inStandalone);
+  }, []);
+
   // ── Derived visual values ──
   // Navbar is fully visible only when the prop says so AND we're not in the
   // "monogram gone but Hero still in viewport" dead zone.
@@ -272,9 +266,7 @@ const Navbar = ({ visible = true }: NavbarProps) => {
   const isSpecialSection = isInFooterSection;
 
   const heroLikeNav = isInHeroSection || isInRSVPSection;
-  // Gallery3D also gets the large logo, but keeps its own color theme (no transparency override)
-  const heroLikeLogoSize = heroLikeNav || isInGaleriaSection;
-  const logoProgress = heroLikeLogoSize ? 0 : t;
+  const logoProgress = heroLikeNav ? 0 : t;
   const logoDesktop = lerp(130, 62, logoProgress);
   const logoMobile = lerp(104, 50, logoProgress);
   const logoOpacity = isInHeroSection ? Math.max(0, 1 - t * 1.5) : 1;
@@ -361,7 +353,15 @@ const Navbar = ({ visible = true }: NavbarProps) => {
   const handleNavClick = (id: string) => {
     setIsMobileMenuOpen(false);
     setTimeout(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      const section = document.getElementById(id);
+      if (!section) return;
+
+      const navHeight = navRef.current?.getBoundingClientRect().height ?? 0;
+      const extraOffset = 8;
+      const absoluteTop = window.scrollY + section.getBoundingClientRect().top;
+      const targetTop = Math.max(0, absoluteTop - navHeight - extraOffset);
+
+      window.scrollTo({ top: targetTop, behavior: 'smooth' });
     }, 300);
   };
 
@@ -374,7 +374,9 @@ const Navbar = ({ visible = true }: NavbarProps) => {
         opacity: navVisible ? 1 : 0,
         pointerEvents: navVisible ? undefined : 'none',
         transition: 'opacity 0.4s ease',
-        paddingTop: `calc(${padY}px + env(safe-area-inset-top))`,
+        paddingTop: isStandaloneMode
+          ? `calc(${padY}px + env(safe-area-inset-top))`
+          : `${padY}px`,
         paddingBottom: `${padY}px`,
         paddingLeft: 'clamp(16px, 3vw, 48px)',
         paddingRight: 'clamp(16px, 3vw, 48px)',

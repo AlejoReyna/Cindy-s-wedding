@@ -100,11 +100,7 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
             )}
           </div>
 
-          {/* Song info — center */}
-          <div className="song-player-info">
-            <span className="song-player-title">Snow on the Beach</span>
-            <span className="song-player-artist">Taylor Swift</span>
-          </div>
+          
 
           {/* Play / Pause button — right */}
           <div className={`song-player-control ${isPlaying ? 'song-player-control--playing' : ''}`}>
