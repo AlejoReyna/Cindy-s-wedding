@@ -39,26 +39,10 @@ export const useNotchColor = ({
       }
       metaTheme.setAttribute('content', finalColor);
 
-      // Fills the notch / Dynamic Island area when viewport-fit:cover is active
+      // Safari 26+ samples top fixed elements/backgrounds more reliably than
+      // live theme-color updates, so keep a CSS-driven tint probe in sync too.
+      document.documentElement.style.setProperty('--safari-tint-color', finalColor);
       document.documentElement.style.backgroundColor = finalColor;
-      document.body.style.backgroundColor = finalColor;
-
-      let safeAreaOverlay = document.getElementById('notch-safe-area-overlay');
-      if (!safeAreaOverlay) {
-        safeAreaOverlay = document.createElement('div');
-        safeAreaOverlay.id = 'notch-safe-area-overlay';
-        safeAreaOverlay.setAttribute('aria-hidden', 'true');
-        safeAreaOverlay.style.position = 'fixed';
-        safeAreaOverlay.style.top = '0';
-        safeAreaOverlay.style.left = '0';
-        safeAreaOverlay.style.right = '0';
-        safeAreaOverlay.style.height = 'calc(env(safe-area-inset-top, 0px) + 16px)';
-        safeAreaOverlay.style.pointerEvents = 'none';
-        safeAreaOverlay.style.zIndex = '2147483647';
-        safeAreaOverlay.style.transition = 'background-color 180ms ease';
-        document.body.appendChild(safeAreaOverlay);
-      }
-      safeAreaOverlay.style.backgroundColor = finalColor;
 
       let metaApple = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
       if (!metaApple) {
@@ -169,7 +153,6 @@ export const useNotchColor = ({
       window.removeEventListener('touchend', scheduleUpdate);
       visualViewport?.removeEventListener('resize', scheduleUpdate);
       visualViewport?.removeEventListener('scroll', scheduleUpdate);
-      document.getElementById('notch-safe-area-overlay')?.remove();
       updateThemeColor(defaultColor);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -38,6 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
+        <div id="safari-tint-bar" aria-hidden="true" className="safari-tint-bar" />
         {children}
       </body>
     </html>

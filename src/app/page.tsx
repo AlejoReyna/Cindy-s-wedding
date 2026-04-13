@@ -71,11 +71,21 @@ export default function Home() {
       {showSplash && <SplashScreen onEnter={handleEnter} />}
       <Navbar visible={navbarReady} />
       <section ref={heroRef}>
+        <div
+          aria-hidden="true"
+          className="safari-tint-sentinel"
+          style={{ backgroundColor: '#9b9b9b' }}
+        />
         <HeroSection entered={entered} immediate={immediate} />
       </section>
 
 
       <section ref={galleryRef} id="galeria">
+        <div
+          aria-hidden="true"
+          className="safari-tint-sentinel"
+          style={{ backgroundColor: '#eceae4' }}
+        />
         <Gallery3D />
       </section>
       <ParentsSection />
