@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useRef, useState } from 'react';
-import { MdDirections } from 'react-icons/md';
+import { MdDirections, MdApartment } from 'react-icons/md';
 
 const hotels = [
   { name: 'Ecovergel Hotel Boutique', price: '$1,800', featured: true, mapsUrl: 'https://share.google/5KEKymd9U5YaPIQ3F' },
@@ -26,7 +26,7 @@ export default function HotelsSection() {
   }, []);
 
   return (
-    <section className="w-full py-12 md:py-16 px-4 md:px-8 relative overflow-hidden" style={{ backgroundColor: '#f3ebe2' }}>
+    <section className="w-full py-12 md:pb-20 px-4 md:px-8 relative overflow-hidden" style={{ backgroundColor: '#f3ebe2' }}>
       <div className="relative z-10">
         <div
           ref={hotelsRef}
@@ -36,29 +36,12 @@ export default function HotelsSection() {
           <div className={`hotels-divider${hotelsVisible ? ' hotels-divider--visible' : ''}`} />
 
           <div className={`hotels-header${hotelsVisible ? ' hotels-header--visible' : ''}`}>
-            <div className="hotels-banner">
-              <span className="hb-corner hb-corner--tl" />
-              <span className="hb-corner hb-corner--tr" />
-              <span className="hb-corner hb-corner--bl" />
-              <span className="hb-corner hb-corner--br" />
-
-              <div className="hotels-banner-rule-row">
-                <span className="hotels-banner-rule-line" />
-                <span className="hotels-banner-rule-gem">✦</span>
-                <span className="hotels-banner-rule-line" />
-              </div>
-
-              <h3 className="hotels-title">
-                <span className="hotels-title-sup">Hoteles en</span>
-                <span className="hotels-title-main">Montemorelos</span>
-              </h3>
-
-              <div className="hotels-banner-rule-row">
-                <span className="hotels-banner-rule-line" />
-                <span className="hotels-banner-rule-gem">✦</span>
-                <span className="hotels-banner-rule-line" />
-              </div>
-            </div>
+            <MdApartment
+              size={96}
+              color="rgba(181, 150, 106, 0.60)"
+              style={{ display: 'block', margin: '0 auto 0.9rem auto' }}
+            />
+            <h3 className="hotels-title">Hoteles en Montemorelos</h3>
             <p className="hotels-subtitle">Si buscas hospedaje, te sugerimos las siguientes opciones:</p>
           </div>
 
@@ -133,113 +116,26 @@ export default function HotelsSection() {
           opacity: 0;
           transform: translateY(10px);
           margin-bottom: 2.25rem;
-          text-align: left;
+          text-align: center;
         }
 
         .hotels-header--visible {
           animation: hotelsHeaderFadeUp 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) 200ms forwards;
         }
 
-        /* ── Banner container ── */
-        .hotels-banner {
-          position: relative;
-          display: inline-block;
-          padding: 1.6rem 3rem 1.5rem;
-          text-align: left;
-          background: rgba(181, 150, 106, 0.035);
-        }
-
-        @media (min-width: 640px)  { .hotels-banner { padding: 1.8rem 3.75rem 1.7rem; } }
-        @media (min-width: 768px)  { .hotels-banner { padding: 2rem 4.5rem 1.9rem; } }
-
-        /* ── Corner ornaments ── */
-        .hb-corner {
-          position: absolute;
-          width: 14px;
-          height: 14px;
-        }
-
-        @media (min-width: 640px)  { .hb-corner { width: 18px; height: 18px; } }
-
-        .hb-corner--tl { top: 0; left: 0;
-          border-top:  1px solid rgba(181, 150, 106, 0.50);
-          border-left: 1px solid rgba(181, 150, 106, 0.50); }
-        .hb-corner--tr { top: 0; right: 0;
-          border-top:   1px solid rgba(181, 150, 106, 0.50);
-          border-right: 1px solid rgba(181, 150, 106, 0.50); }
-        .hb-corner--bl { bottom: 0; left: 0;
-          border-bottom: 1px solid rgba(181, 150, 106, 0.50);
-          border-left:   1px solid rgba(181, 150, 106, 0.50); }
-        .hb-corner--br { bottom: 0; right: 0;
-          border-bottom: 1px solid rgba(181, 150, 106, 0.50);
-          border-right:  1px solid rgba(181, 150, 106, 0.50); }
-
-        /* ── Decorative rule rows ── */
-        .hotels-banner-rule-row {
-          display: flex;
-          align-items: center;
-          gap: 0.65rem;
-          margin: 0.55rem 0;
-        }
-
-        .hotels-banner-rule-line {
-          flex: 1;
-          height: 1px;
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(181, 150, 106, 0.38) 40%,
-            rgba(181, 150, 106, 0.38) 60%,
-            transparent 100%
-          );
-        }
-
-        .hotels-banner-rule-gem {
-          font-size: 7px;
-          color: rgba(181, 150, 106, 0.65);
-          flex-shrink: 0;
-          line-height: 1;
-        }
-
-        /* ── Title ── */
         .hotels-title {
-          margin: 0;
-          padding: 0.3rem 0;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.2rem;
-        }
-
-        .hotels-title-sup {
-          display: block;
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 0.65rem;
-          letter-spacing: 0.52em;
-          text-transform: uppercase;
-          color: rgba(156, 130, 108, 0.52);
-          line-height: 1;
-          padding-left: 0.52em; /* optical compensation for letter-spacing */
-        }
-
-        @media (min-width: 640px)  { .hotels-title-sup { font-size: 0.7rem;  letter-spacing: 0.55em; } }
-        @media (min-width: 768px)  { .hotels-title-sup { font-size: 0.75rem; letter-spacing: 0.58em; } }
-
-        .hotels-title-main {
-          display: block;
-          font-family: 'Cormorant Garamond', serif;
-          font-weight: 300;
-          font-size: 2rem;
-          letter-spacing: 0.20em;
+          font-size: 1.8rem;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
           color: #4a3728;
+          margin: 0;
           line-height: 1.1;
-          padding-left: 0.20em; /* optical compensation */
         }
 
-        @media (min-width: 640px)  { .hotels-title-main { font-size: 2.35rem; letter-spacing: 0.22em; } }
-        @media (min-width: 768px)  { .hotels-title-main { font-size: 2.7rem;  letter-spacing: 0.24em; } }
+        @media (min-width: 640px)  { .hotels-title { font-size: 2.1rem; letter-spacing: 0.20em; } }
+        @media (min-width: 768px)  { .hotels-title { font-size: 2.4rem; letter-spacing: 0.22em; } }
 
         .hotels-subtitle {
           font-family: 'Cormorant Garamond', serif;
@@ -248,8 +144,10 @@ export default function HotelsSection() {
           letter-spacing: 0.025em;
           color: rgba(156, 130, 108, 0.60);
           line-height: 1.65;
-          margin: 0.85rem 0 0;
+          margin: 0.85rem 0 0 0;
           max-width: 38rem;
+          margin-left: auto;
+          margin-right: auto;
         }
 
         @media (min-width: 640px) { .hotels-subtitle { font-size: 0.95rem; } }

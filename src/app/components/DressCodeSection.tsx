@@ -106,7 +106,7 @@ export default function DressCodeSection() {
             <div className="ds-card w-full max-w-3xl text-center px-4 py-6 sm:px-6 sm:py-8 md:px-16 md:py-16">
 
             {/* ══ 1) NOTA ESPECIAL HEADING ══ */}
-            <p className="mrs-saint-delafield-regular text-[2.35rem] sm:text-[2.75rem] md:text-6xl text-[#6b4f3a] mb-2 sm:mb-3">
+            <p className="garamond-300 text-[2.35rem] sm:text-[2.75rem] md:text-6xl text-[#6b4f3a] mb-2 sm:mb-3">
               <LetterReveal
                 text="Nota especial"
                 active={isVisible}
@@ -126,7 +126,7 @@ export default function DressCodeSection() {
 
             {/* ══ 2) DRESS CODE / ETIQUETA FORMAL BLOCK ══ */}
             <div className="mb-8 sm:mb-10 md:mb-16">
-              <p className="garamond-300 tracking-[0.2em] sm:tracking-[0.28em] md:tracking-[0.32em] text-[0.68rem] sm:text-xs md:text-base uppercase mb-3 sm:mb-4 md:mb-5" style={{ color: ACCENT_COLOR, opacity: 0.9 }}>
+              <p className="garamond-300 tracking-[0.2em] sm:tracking-[0.28em] md:tracking-[0.32em] text-[0.68rem] sm:text-xs md:text-base uppercase mb-3 sm:mb-4 md:mb-0" style={{ color: ACCENT_COLOR, opacity: 0.9 }}>
                 <LetterReveal
                   text="Etiqueta"
                   active={isVisible}
