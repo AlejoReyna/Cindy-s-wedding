@@ -113,10 +113,10 @@ export default function Home() {
       <div id="dresscode">
         <DressCodeSection />
       </div>
-      <HotelsSection />
       <div id="regalos">
         <GiftEnvelopeBannerSection />
       </div>
+      <HotelsSection />
       <div id="rsvp">
         <RSVPSection />
       </div>
