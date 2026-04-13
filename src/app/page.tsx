@@ -33,10 +33,35 @@ export default function Home() {
   const galleryRef = useRef<HTMLElement>(null);
   const parentsRef = useRef<HTMLElement>(null);
   const itineraryRef = useRef<HTMLElement>(null);
+  const locationRef = useRef<HTMLElement>(null);
+  const dressCodeRef = useRef<HTMLElement>(null);
+  const giftRef = useRef<HTMLElement>(null);
+  const hotelsRef = useRef<HTMLElement>(null);
+  const rsvpRef = useRef<HTMLElement>(null);
 
   useNotchColor({
-    refs: [heroRef, galleryRef, parentsRef, itineraryRef],
-    colors: ['#9b9b9b', '#eceae4', '#f8f6f3', '#f8f6f3'],
+    refs: [
+      heroRef,
+      galleryRef,
+      parentsRef,
+      itineraryRef,
+      locationRef,
+      dressCodeRef,
+      giftRef,
+      hotelsRef,
+      rsvpRef,
+    ],
+    colors: [
+      '#9b9b9b',
+      '#eceae4',
+      '#f8f6f3',
+      '#f0efec',
+      '#f4ebe3',
+      '#f8f3eb',
+      '#fffffe',
+      '#fffffe',
+      '#7c7875',
+    ],
     defaultColor: '#ffffff',
   });
 
@@ -102,24 +127,51 @@ export default function Home() {
         <div
           aria-hidden="true"
           className="safari-tint-sentinel"
-          style={{ backgroundColor: '#f8f6f3' }}
+          style={{ backgroundColor: '#f0efec' }}
         />
         <ItinerarySection />
       </section>
-      <div id="ubicacion">
+      <section ref={locationRef} id="ubicacion">
+        <div
+          aria-hidden="true"
+          className="safari-tint-sentinel"
+          style={{ backgroundColor: '#f4ebe3' }}
+        />
         <LocationSection />
-      </div>
+      </section>
 
-      <div id="dresscode">
+      <section ref={dressCodeRef} id="dresscode">
+        <div
+          aria-hidden="true"
+          className="safari-tint-sentinel"
+          style={{ backgroundColor: '#f8f3eb' }}
+        />
         <DressCodeSection />
-      </div>
-      <div id="regalos">
+      </section>
+      <section ref={giftRef} id="regalos">
+        <div
+          aria-hidden="true"
+          className="safari-tint-sentinel"
+          style={{ backgroundColor: '#fffffe' }}
+        />
         <GiftEnvelopeBannerSection />
-      </div>
-      <HotelsSection />
-      <div id="rsvp">
+      </section>
+      <section ref={hotelsRef} id="hoteles">
+        <div
+          aria-hidden="true"
+          className="safari-tint-sentinel"
+          style={{ backgroundColor: '#fffffe' }}
+        />
+        <HotelsSection />
+      </section>
+      <section ref={rsvpRef} id="rsvp">
+        <div
+          aria-hidden="true"
+          className="safari-tint-sentinel"
+          style={{ backgroundColor: '#7c7875' }}
+        />
         <RSVPSection />
-      </div>
+      </section>
       <div id="footer">
         <MinimalistFooter />
       </div>
