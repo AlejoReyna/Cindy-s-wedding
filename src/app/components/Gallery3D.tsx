@@ -42,15 +42,28 @@ export default function Gallery3D() {
   const hasTriggered = useRef(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const borderPathRef = useRef<SVGRectElement>(null);
+  const borderPathMobileRef = useRef<SVGRectElement>(null);
   const titleRef = useRef<HTMLSpanElement>(null);
   const [titleWidth, setTitleWidth] = useState(0);
   const [borderPerimeter, setBorderPerimeter] = useState(0);
+  const [borderMobilePerimeter, setBorderMobilePerimeter] = useState(0);
 
-  // ── Measure SVG rect perimeter ──
+  // ── Measure SVG rect perimeter (desktop) ──
   useEffect(() => {
     const measure = () => {
       const rect = borderPathRef.current;
       if (rect) setBorderPerimeter(rect.getTotalLength());
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+
+  // ── Measure SVG rect perimeter (mobile) ──
+  useEffect(() => {
+    const measure = () => {
+      const rect = borderPathMobileRef.current;
+      if (rect) setBorderMobilePerimeter(rect.getTotalLength());
     };
     measure();
     window.addEventListener('resize', measure);
@@ -208,7 +221,7 @@ export default function Gallery3D() {
         backgroundColor: '#edeae4',
       }}
     >
-      {/* ═══ Border frame ═══ */}
+      {/* ═══ Border frame — desktop ═══ */}
       <div className="gl3d-border-frame pointer-events-none" aria-hidden="true">
         <svg
           className={`gl3d-border-svg ${isVisible && borderPerimeter > 0 ? 'gl3d-border-svg--draw' : ''}`}
@@ -219,6 +232,27 @@ export default function Gallery3D() {
           <rect
             ref={borderPathRef}
             className="gl3d-border-path"
+            x="1" y="1"
+            width="calc(100% - 2px)" height="calc(100% - 2px)"
+            rx="0" ry="0"
+            fill="none"
+            stroke="#dfac59"
+            strokeWidth="0.5"
+          />
+        </svg>
+      </div>
+
+      {/* ═══ Border frame — mobile only ═══ */}
+      <div className="gl3d-border-frame-mobile pointer-events-none" aria-hidden="true">
+        <svg
+          className={`gl3d-border-svg-mobile ${isVisible && borderMobilePerimeter > 0 ? 'gl3d-border-svg-mobile--draw' : ''}`}
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+          style={{ ['--perim-mobile' as string]: borderMobilePerimeter } as React.CSSProperties}
+        >
+          <rect
+            ref={borderPathMobileRef}
+            className="gl3d-border-path-mobile"
             x="1" y="1"
             width="calc(100% - 2px)" height="calc(100% - 2px)"
             rx="0" ry="0"
@@ -250,7 +284,7 @@ export default function Gallery3D() {
           <div className="w-full max-w-6xl flex flex-col items-center text-center shrink-0 pt-1 mt-0 md:pt-0 lg:mt-30">
 
             {/* ③ Title */}
-            <div className="mb-1 mt-0 md:mb-3 md:mt-2">
+            <div className="gl3d-title-mobile-fullbleed mb-1 mt-0 md:mb-3 md:mt-2">
               <h2 className="gl3d-title-text">
                 <span ref={titleRef} className="gl3d-title-inner">
                   {`${titleLine1} ${titleLine2}`.split('').map((char, i) => (
@@ -278,7 +312,7 @@ export default function Gallery3D() {
 
             {/* ⑤ Subtitle */}
             <div
-              className="w-full px-3 mt-1 mb-3 md:mt-0 md:mb-4"
+              className="gl3d-subtitle-mobile-fullbleed w-full px-3 mt-1 mb-3 md:mt-0 md:mb-4"
               style={{ width: `${titleWidth}px`, maxWidth: '100%' }}
             >
               <p className="gl3d-subtitle-text">
@@ -413,6 +447,30 @@ export default function Gallery3D() {
         .gl3d-title-inner > span:last-child {
           letter-spacing: 0;
         }
+        @media (max-width: 767px) {
+          .gl3d-title-mobile-fullbleed {
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+          }
+          .gl3d-title-text {
+            width: 100%;
+          }
+          .gl3d-subtitle-mobile-fullbleed {
+            width: calc(100vw - 70px) !important;
+            max-width: none !important;
+            margin-left: calc(50% - 50vw + 10px);
+            margin-right: calc(50% - 50vw + 10px);
+            padding-left: 0;
+            padding-right: 0;
+          }
+        }
+        /* Mobile: title +15% over prior mobile scale */
+        @media (max-width: 639px) {
+          .gl3d-title-text {
+            font-size: clamp(2.314rem, 9.26vw, 3.44rem);
+          }
+        }
         .gl3d-subtitle-text {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 300;
@@ -422,11 +480,22 @@ export default function Gallery3D() {
           text-align: justify;
           text-align-last: center;
         }
+        @media (max-width: 639px) {
+          .gl3d-subtitle-text {
+            font-size: 1.26rem;
+          }
+        }
 
         @media (min-width: 640px) {
           .gl3d-date-text { font-size: 15px; }
           .gl3d-title-text { font-size: 3.5rem; }
           .gl3d-subtitle-text { font-size: 1.3rem; }
+        }
+        @media (min-width: 640px) and (max-width: 767px) {
+          .gl3d-subtitle-text { font-size: 1.56rem; }
+        }
+        @media (min-width: 640px) and (max-width: 767px) {
+          .gl3d-title-text { font-size: 4.629rem; }
         }
         @media (min-width: 768px) {
           .gl3d-date-text { font-size: 16px; }
@@ -493,7 +562,7 @@ export default function Gallery3D() {
           100% { width: var(--divider-target, 200px); opacity: 1; }
         }
 
-        /* ═══ BORDER FRAME ═══ */
+        /* ═══ BORDER FRAME — desktop ═══ */
         .gl3d-border-frame {
           position: absolute;
           top: 12px; left: 12px; right: 12px; bottom: 12px;
@@ -525,6 +594,37 @@ export default function Gallery3D() {
         }
         @keyframes gl3dDrawBorder {
           0%   { stroke-dashoffset: var(--perim); opacity: 0; }
+          3%   { opacity: 1; }
+          100% { stroke-dashoffset: 0; opacity: 1; }
+        }
+
+        /* ═══ BORDER FRAME — mobile only ═══ */
+        .gl3d-border-frame-mobile {
+          display: none;
+        }
+        @media (max-width: 767px) {
+          .gl3d-border-frame-mobile {
+            display: block;
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            z-index: 2;
+          }
+        }
+
+        .gl3d-border-svg-mobile {
+          display: block; width: 100%; height: 100%; overflow: visible;
+        }
+        .gl3d-border-path-mobile {
+          stroke-dasharray: var(--perim-mobile);
+          stroke-dashoffset: var(--perim-mobile);
+          opacity: 0;
+        }
+        .gl3d-border-svg-mobile--draw .gl3d-border-path-mobile {
+          animation: gl3dDrawBorderMobile 2.0s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+          animation-delay: 0.15s;
+        }
+        @keyframes gl3dDrawBorderMobile {
+          0%   { stroke-dashoffset: var(--perim-mobile); opacity: 0; }
           3%   { opacity: 1; }
           100% { stroke-dashoffset: 0; opacity: 1; }
         }
