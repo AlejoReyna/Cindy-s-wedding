@@ -642,7 +642,7 @@ export default function Gallery3D() {
         }
         @media (max-width: 767px) {
           .gl3d-stage {
-            height: clamp(330px, 94vw, 528px);
+            height: clamp(396px, 112.8vw, 634px);
             perspective: 1100px;
           }
         }
@@ -694,10 +694,10 @@ export default function Gallery3D() {
 
         @media (max-width: 767px) {
           .gl3d-card {
-            width: clamp(300px, 92vw, 560px);
-            aspect-ratio: 4 / 3;
-            margin-left: calc(clamp(300px, 92vw, 560px) / -2);
-            margin-top: calc((clamp(300px, 92vw, 560px) / (4 / 3)) / -2);
+            width: clamp(360px, 110.4vw, 672px);
+            aspect-ratio: 200 / 189;
+            margin-left: calc(clamp(360px, 110.4vw, 672px) / -2);
+            margin-top: calc((clamp(360px, 110.4vw, 672px) / (200 / 189)) / -2);
           }
         }
 
