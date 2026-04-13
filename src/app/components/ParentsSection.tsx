@@ -254,7 +254,7 @@ export default function ParentsSection() {
       className="w-full relative overflow-hidden min-h-screen"
     >
       <div
-        className="ps-col-content"
+        className="ps-col-content min-h-screen"
         style={{
           background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)'
         }}
@@ -285,7 +285,7 @@ export default function ParentsSection() {
         />
 
         {/* ── Contenido textual ── */}
-        <div className="relative z-10 text-center px-4 sm:px-5 md:px-10 py-10 sm:py-12 md:py-24 flex flex-col items-center justify-center h-full">
+        <div className="relative z-10 text-center px-4 sm:px-5 md:px-10 py-10 sm:py-12 md:py-24 flex flex-col items-center justify-center min-h-screen">
 
           {/* Quote — palabra a palabra */}
           <div className="flex justify-center items-center mb-8 sm:mb-10 md:mb-12">
@@ -410,6 +410,7 @@ export default function ParentsSection() {
         .ps-col-content {
           position: relative;
           width: 100%;
+          min-height: 100vh;
           min-height: 100svh;
           display: flex;
           align-items: center;
