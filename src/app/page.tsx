@@ -29,12 +29,14 @@ export default function Home() {
   const [navbarReady, setNavbarReady] = useState(false);
 
   // Notch / status-bar color per section.
-  const heroRef    = useRef<HTMLElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
   const galleryRef = useRef<HTMLElement>(null);
+  const parentsRef = useRef<HTMLElement>(null);
+  const itineraryRef = useRef<HTMLElement>(null);
 
   useNotchColor({
-    refs:         [heroRef, galleryRef],
-    colors:       ['#9b9b9b', '#eceae4'],
+    refs: [heroRef, galleryRef, parentsRef, itineraryRef],
+    colors: ['#9b9b9b', '#eceae4', '#f8f6f3', '#f7ede7'],
     defaultColor: '#ffffff',
   });
 
@@ -88,10 +90,22 @@ export default function Home() {
         />
         <Gallery3D />
       </section>
-      <ParentsSection />
-      <div id="itinerario">
+      <section ref={parentsRef} id="padres">
+        <div
+          aria-hidden="true"
+          className="safari-tint-sentinel"
+          style={{ backgroundColor: '#f8f6f3' }}
+        />
+        <ParentsSection />
+      </section>
+      <section ref={itineraryRef} id="itinerario">
+        <div
+          aria-hidden="true"
+          className="safari-tint-sentinel"
+          style={{ backgroundColor: '#f7ede7' }}
+        />
         <ItinerarySection />
-      </div>
+      </section>
       <div id="ubicacion">
         <LocationSection />
       </div>
