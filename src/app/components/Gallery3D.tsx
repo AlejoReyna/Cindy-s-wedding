@@ -261,6 +261,74 @@ export default function Gallery3D() {
             strokeWidth="0.5"
           />
         </svg>
+
+        {/* ── Corner flowers ── */}
+        {(['tl','tr','bl','br'] as const).map((corner) => (
+          <span
+            key={corner}
+            className={`gl3d-corner-flower gl3d-corner-flower--${corner}${isVisible ? ' gl3d-corner-flower--visible' : ''}`}
+          >
+            {/* Rose ornament — 4 concentric rings of 5 petals */}
+            <svg width="34" height="34" viewBox="-17 -17 34 34" xmlns="http://www.w3.org/2000/svg">
+              {/* Ring 1 — outermost, 5 petals, w=3.6 h=8 */}
+              {[0,72,144,216,288].map((deg) => (
+                <path
+                  key={`r1-${deg}`}
+                  d="M 0 0 C -2.2 -0.8, -3.6 -4.5, 0 -8 C 3.6 -4.5, 2.2 -0.8, 0 0"
+                  fill="#f5ede0"
+                  fillOpacity="0.82"
+                  stroke="#c8b090"
+                  strokeWidth="0.35"
+                  strokeOpacity="0.4"
+                  transform={`rotate(${deg})`}
+                />
+              ))}
+              {/* Ring 2 — 5 petals rotated 36°, w=3.0 h=6.2 */}
+              {[36,108,180,252,324].map((deg) => (
+                <path
+                  key={`r2-${deg}`}
+                  d="M 0 0 C -1.9 -0.6, -3.0 -3.6, 0 -6.2 C 3.0 -3.6, 1.9 -0.6, 0 0"
+                  fill="#ede0c4"
+                  fillOpacity="0.88"
+                  stroke="#baa880"
+                  strokeWidth="0.35"
+                  strokeOpacity="0.45"
+                  transform={`rotate(${deg})`}
+                />
+              ))}
+              {/* Ring 3 — 5 petals, w=2.3 h=4.6 */}
+              {[0,72,144,216,288].map((deg) => (
+                <path
+                  key={`r3-${deg}`}
+                  d="M 0 0 C -1.4 -0.5, -2.3 -2.7, 0 -4.6 C 2.3 -2.7, 1.4 -0.5, 0 0"
+                  fill="#C4985B"
+                  fillOpacity="0.88"
+                  stroke="#9a7240"
+                  strokeWidth="0.3"
+                  strokeOpacity="0.45"
+                  transform={`rotate(${deg})`}
+                />
+              ))}
+              {/* Ring 4 — innermost, 5 tight petals rotated 36°, w=1.6 h=3.0 */}
+              {[36,108,180,252,324].map((deg) => (
+                <path
+                  key={`r4-${deg}`}
+                  d="M 0 0 C -1.0 -0.4, -1.6 -1.8, 0 -3.0 C 1.6 -1.8, 1.0 -0.4, 0 0"
+                  fill="#b07838"
+                  fillOpacity="0.92"
+                  stroke="#8a5c28"
+                  strokeWidth="0.28"
+                  strokeOpacity="0.4"
+                  transform={`rotate(${deg})`}
+                />
+              ))}
+              {/* Center disc */}
+              <circle cx="0" cy="0" r="2.2" fill="#8B6030" fillOpacity="0.95" />
+              <circle cx="0" cy="0" r="1.1" fill="#c8a070" fillOpacity="0.9" />
+              <circle cx="-0.4" cy="-0.4" r="0.45" fill="#f0e4d0" fillOpacity="0.75" />
+            </svg>
+          </span>
+        ))}
       </div>
 
       {/* Organic texture overlay */}
@@ -628,6 +696,34 @@ export default function Gallery3D() {
           3%   { opacity: 1; }
           100% { stroke-dashoffset: 0; opacity: 1; }
         }
+
+        /* ── Corner flowers (mobile) ── */
+        .gl3d-corner-flower {
+          position: absolute;
+          width: 34px;
+          height: 34px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transform: scale(0.4) rotate(-30deg);
+          transition: none;
+        }
+        .gl3d-corner-flower--visible {
+          animation: gl3dFlowerBloom 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          animation-delay: 2.0s;
+        }
+        @keyframes gl3dFlowerBloom {
+          0%   { opacity: 0; transform: scale(0.4) rotate(-30deg); }
+          60%  { opacity: 1; }
+          100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        /* position each corner centred on the frame's corner point */
+        .gl3d-corner-flower--tl { top: -17px;  left: -17px;  }
+        .gl3d-corner-flower--tr { top: -17px;  right: -17px; }
+        .gl3d-corner-flower--bl { bottom: -17px; left: -17px; }
+        .gl3d-corner-flower--br { bottom: -17px; right: -17px; }
 
         /* ═══ 3D CAROUSEL STAGE ═══ */
         .gl3d-stage {

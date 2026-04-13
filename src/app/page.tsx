@@ -36,7 +36,7 @@ export default function Home() {
 
   useNotchColor({
     refs: [heroRef, galleryRef, parentsRef, itineraryRef],
-    colors: ['#9b9b9b', '#eceae4', '#f8f6f3', '#f7ede7'],
+    colors: ['#9b9b9b', '#eceae4', '#f8f6f3', '#f8f6f3'],
     defaultColor: '#ffffff',
   });
 
@@ -102,7 +102,7 @@ export default function Home() {
         <div
           aria-hidden="true"
           className="safari-tint-sentinel"
-          style={{ backgroundColor: '#f7ede7' }}
+          style={{ backgroundColor: '#f8f6f3' }}
         />
         <ItinerarySection />
       </section>

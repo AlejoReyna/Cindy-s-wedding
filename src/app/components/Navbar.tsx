@@ -69,7 +69,7 @@ const SECTION_THEMES: Record<string, SectionTheme> = {
     logoColor: DEFAULT_LOGO_COLOR,
   },
   itinerario: {
-    bgRgb:     '246,236,230',                            // #f6ece6 — ItinerarySection bg
+    bgRgb:     '248,246,243',                            // #f8f6f3 — keep same as ParentsSection
     textCls:   DEFAULT_TEXT_CLS,
     lineColor: DEFAULT_LINE_COLOR,
     dotColor:  DEFAULT_DOT_COLOR,
