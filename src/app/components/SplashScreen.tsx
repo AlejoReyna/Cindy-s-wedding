@@ -16,6 +16,15 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
     return () => clearTimeout(t);
   }, []);
 
+  // Extra safety: prevent touchmove on the splash overlay so iOS Safari
+  // can't rubber-band-scroll the content underneath.
+  useEffect(() => {
+    if (hidden) return;
+    const prevent = (e: TouchEvent) => e.preventDefault();
+    document.addEventListener('touchmove', prevent, { passive: false });
+    return () => document.removeEventListener('touchmove', prevent);
+  }, [hidden]);
+
   const handleEnter = () => {
     window.dispatchEvent(new CustomEvent('startMusic'));
     // Signal parent immediately so Home starts rendering visibly

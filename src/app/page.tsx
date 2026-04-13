@@ -65,22 +65,43 @@ export default function Home() {
     defaultColor: '#ffffff',
   });
 
+  // ── Scroll lock helpers ──────────────────────────────────────────────────
+  // `overflow: hidden` alone doesn't block scroll on iOS Safari.
+  // Fixing the body at its current top position is the only reliable approach.
+  const lockScroll = () => {
+    const scrollY = window.scrollY;
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+  };
+
+  const unlockScroll = () => {
+    const top = document.body.style.top;
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    window.scrollTo(0, parseInt(top || '0') * -1);
+  };
+
   // useLayoutEffect runs BEFORE the browser paints, so on refresh the splash
   // is removed and hero shows instantly — no flash.
   useLayoutEffect(() => {
     if (sessionStorage.getItem(SESSION_KEY) === 'true') {
       window.scrollTo(0, 0);
-      document.body.style.overflow = '';
+      unlockScroll();
       setEntered(true);
       setShowSplash(false);
       setImmediate(true);
       setNavbarReady(true);
     } else {
-      document.body.style.overflow = 'hidden';
+      lockScroll();
     }
     return () => {
-      document.body.style.overflow = '';
+      unlockScroll();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleEnter = () => {
@@ -88,7 +109,7 @@ export default function Home() {
     // Start hero animations — but keep splash mounted for its exit animation.
     // SplashScreen handles its own unmounting via internal `hidden` state.
     setEntered(true);
-    document.body.style.overflow = '';
+    unlockScroll();
     // Show navbar once the splash exit animation is fully done (1400ms).
     setTimeout(() => setNavbarReady(true), 1400);
   };
