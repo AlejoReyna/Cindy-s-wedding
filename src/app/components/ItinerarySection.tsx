@@ -230,7 +230,7 @@ export default function ItinerarySection() {
       />
 
       {/* ── Contenido ── */}
-      <div className="max-w-6xl mx-auto relative pt-14" style={{ zIndex: 10 }}>
+      <div className="max-w-6xl mx-auto relative pt-14 md:pt-4" style={{ zIndex: 10 }}>
 
         <div
           className="text-center mb-10 sm:mb-12 md:mb-16 transition-all duration-2000 ease-out opacity-100 translate-y-0"
