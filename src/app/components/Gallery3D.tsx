@@ -4,17 +4,17 @@ import Image from 'next/image';
 
 // ── Photo data ──
 const photos = [
-  { label: 'FOTO 1', src: '/second_section/1.jpeg' },
-  { label: 'FOTO 2', src: '/second_section/2.jpeg' },
-  { label: 'FOTO 3', src: '/second_section/3.jpeg' },
-  { label: 'FOTO 4', src: '/second_section/4.jpeg' },
-  { label: 'FOTO 5', src: '/second_section/5.jpeg' },
-  { label: 'FOTO 6', src: '/second_section/6.jpeg' },
-  { label: 'FOTO 7', src: '/second_section/7.jpeg' },
-  { label: 'FOTO 8', src: '/second_section/8.jpeg' },
-  { label: 'FOTO 9', src: '/second_section/9.jpeg' },
-  { label: 'FOTO 10', src: '/second_section/10.jpeg' },
-  { label: 'FOTO 11', src: '/second_section/11.jpeg' },
+  { label: 'FOTO 1', src: '/second_section/r1.jpeg' },
+  { label: 'FOTO 2', src: '/second_section/r2.jpeg' },
+  { label: 'FOTO 3', src: '/second_section/r3.jpeg' },
+  { label: 'FOTO 4', src: '/second_section/r4.jpeg' },
+  { label: 'FOTO 5', src: '/second_section/r5.jpeg' },
+  { label: 'FOTO 6', src: '/second_section/r6.jpeg' },
+  { label: 'FOTO 7', src: '/second_section/r7.jpeg' },
+  { label: 'FOTO 8', src: '/second_section/r8.jpeg' },
+  { label: 'FOTO 9', src: '/second_section/r9.jpeg' },
+  { label: 'FOTO 10', src: '/second_section/r10.jpeg' },
+  { label: 'FOTO 11', src: '/second_section/r11.jpeg' },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
