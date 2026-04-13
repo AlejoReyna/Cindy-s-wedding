@@ -206,7 +206,8 @@ export default function Gallery3D() {
       transform: `translateX(${direction * 59}%) translateZ(-40px) rotateY(${direction * -24}deg) scale(0.82)`,
       zIndex: 4,
       opacity: 0.58,
-      filter: 'brightness(0.92) saturate(0.95)',
+      // filter moved to .gl3d-photo so it doesn't create a compositing layer on the card
+      // itself, which would flatten it out of the preserve-3d context
       transition,
       pointerEvents: 'none' as const,
     };
@@ -401,11 +402,12 @@ export default function Gallery3D() {
 
           {/* ── BOTTOM: 3D Coverflow Carousel ── */}
           <div
-            className={`w-full md:w-[80%] flex flex-col items-center relative transition-all duration-1000 ease-out ${
+            className={`w-[90%] flex flex-col items-center relative transition-all duration-1000 ease-out ${
               cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
             } mt-0`}
           >
-            {/* 3D Stage */}
+            {/* 3D Stage — clip wrapper handles overflow so perspective context is preserved */}
+            <div className="gl3d-stage-clip">
             <div
               className="gl3d-stage relative select-none"
               onMouseDown={(e) => handleDragStart(e.clientX)}
@@ -427,7 +429,10 @@ export default function Gallery3D() {
                     className="gl3d-card"
                     style={getCard3DStyle(index)}
                   >
-                    <div className="gl3d-photo relative">
+                    <div
+                      className="gl3d-photo relative"
+                      style={index !== currentIndex ? { filter: 'brightness(0.92) saturate(0.95)' } : undefined}
+                    >
                       <Image
                         src={photo.src}
                         alt={photo.label}
@@ -463,6 +468,7 @@ export default function Gallery3D() {
                 </svg>
               </button>
             </div>
+            </div>{/* /gl3d-stage-clip */}
 
             {/* ═══ Dot indicators ═══ */}
             <div className="flex items-center justify-center mt-3 md:mt-5">
@@ -726,19 +732,35 @@ export default function Gallery3D() {
         .gl3d-corner-flower--br { bottom: -17px; right: -17px; }
 
         /* ═══ 3D CAROUSEL STAGE ═══ */
-        .gl3d-stage {
+
+        /* Clip wrapper: owns overflow:hidden + dimensions. Safe here because this
+           element has no perspective — overflow:hidden only flattens 3D when it
+           sits on the same element as perspective or transform-style:preserve-3d. */
+        .gl3d-stage-clip {
           width: 100%;
           max-width: 1600px;
           height: clamp(374px, 55vw, 682px);
+          overflow: hidden;
+          position: relative;
+        }
+        @media (max-width: 767px) {
+          .gl3d-stage-clip {
+            height: clamp(396px, 112.8vw, 634px);
+          }
+        }
+
+        /* Stage: owns perspective + cursor. No overflow:hidden — that would
+           create a stacking context and flatten transform-style:preserve-3d. */
+        .gl3d-stage {
+          width: 100%;
+          height: 100%;
           position: relative;
           cursor: grab;
-          overflow: hidden;
           perspective: 1400px;
           perspective-origin: center center;
         }
         @media (max-width: 767px) {
           .gl3d-stage {
-            height: clamp(396px, 112.8vw, 634px);
             perspective: 1100px;
           }
         }

@@ -115,21 +115,48 @@ body {
   background-color: #ffffff;
 }
 
-.safari-tint-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  height: max(env(safe-area-inset-top, 0px), 6px);
-  background-color: var(--safari-tint-color);
-  pointer-events: none;
-  z-index: 60;
-  will-change: background-color;
-  animation-name: safari-tint-bar-hide;
-  animation-timeline: scroll();
-  animation-fill-mode: both;
-  animation-range: 4px 5px;
+/* ── Safari tint elements: ocultos en desktop ─────────────────────────────
+   Tanto .safari-tint-bar como .safari-tint-sentinel sirven exclusivamente
+   para iOS Safari. En desktop no tienen utilidad y generan una rayita visible
+   por su height de 6px + background-color inline. Se ocultan por defecto y
+   solo se activan en móvil con soporte real de safe-area-inset-top.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.safari-tint-bar,
+.safari-tint-sentinel {
+  display: none !important;
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  @media (max-width: 768px) {
+    .safari-tint-bar {
+      display: block !important;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      height: max(env(safe-area-inset-top, 0px), 6px);
+      background-color: var(--safari-tint-color);
+      pointer-events: none;
+      z-index: 60;
+      will-change: background-color;
+      animation-name: safari-tint-bar-hide;
+      animation-timeline: scroll();
+      animation-fill-mode: both;
+      animation-range: 4px 5px;
+    }
+
+    .safari-tint-sentinel {
+      display: block !important;
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 6px;
+      pointer-events: none;
+      z-index: 61;
+    }
+  }
 }
 
 .safari-tint-sentinel {
