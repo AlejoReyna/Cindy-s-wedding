@@ -110,6 +110,9 @@
 body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  /* Opaque body blocks the html background-color (used for notch fill) from
+     bleeding through the navbar's semi-transparent rgba background. */
+  background-color: #ffffff;
 }
 
 .safari-tint-bar {

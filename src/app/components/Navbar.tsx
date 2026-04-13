@@ -214,13 +214,17 @@ const Navbar = ({ visible = true }: NavbarProps) => {
         lastFooterStateRef.current = nextFooterState;
       }
 
-      // Active section highlight — check nav links first, then theme-only sections
+      // Active section highlight — check nav links first, then theme-only sections.
+      // Use the viewport midpoint as the trigger line so the navbar only changes
+      // color once a section is clearly dominating the screen, not when it merely
+      // starts peeking in at the top.
+      const sectionTrigger = wh * 0.5;
       let current = '';
       for (const item of navigationItems) {
         const el = document.getElementById(item.id);
         if (el) {
           const rect = el.getBoundingClientRect();
-          if (rect.top <= 140 && rect.bottom > 140) {
+          if (rect.top <= sectionTrigger && rect.bottom > sectionTrigger) {
             current = item.id;
             break;
           }
@@ -232,7 +236,7 @@ const Navbar = ({ visible = true }: NavbarProps) => {
           const el = document.getElementById(id);
           if (el) {
             const rect = el.getBoundingClientRect();
-            if (rect.top <= 140 && rect.bottom > 140) {
+            if (rect.top <= sectionTrigger && rect.bottom > sectionTrigger) {
               current = id;
               break;
             }
