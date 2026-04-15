@@ -87,7 +87,7 @@ export const useNotchColor = ({
       }
 
       const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-      const triggerY = viewportHeight * 0.5;
+      const triggerY = Math.max(96, Math.min(viewportHeight * 0.2, 180));
       let activeIndex = 0;
 
       // A section becomes active once its top crosses a fixed line near the top

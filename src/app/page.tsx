@@ -53,14 +53,14 @@ export default function Home() {
     ],
     colors: [
       '#9b9b9b',
-      '#eceae4',
+      '#edeae4',
+      '#f9f8f4',
       '#f8f6f3',
-      '#f0efec',
-      '#f4ebe3',
-      '#f8f3eb',
-      '#fffffe',
-      '#fffffe',
-      '#7c7875',
+      '#f3ebe2',
+      '#f3ebe2',
+      '#fefefe',
+      '#ffffff',
+      '#7b7774',
     ],
     defaultColor: '#ffffff',
   });
@@ -132,7 +132,7 @@ export default function Home() {
         <div
           aria-hidden="true"
           className="safari-tint-sentinel"
-          style={{ backgroundColor: '#eceae4' }}
+          style={{ backgroundColor: '#edeae4' }}
         />
         <Gallery3D />
       </section>
@@ -140,7 +140,7 @@ export default function Home() {
         <div
           aria-hidden="true"
           className="safari-tint-sentinel"
-          style={{ backgroundColor: '#f8f6f3' }}
+          style={{ backgroundColor: '#f9f8f4' }}
         />
         <ParentsSection />
       </section>
@@ -148,7 +148,7 @@ export default function Home() {
         <div
           aria-hidden="true"
           className="safari-tint-sentinel"
-          style={{ backgroundColor: '#f0efec' }}
+          style={{ backgroundColor: '#f8f6f3' }}
         />
         <ItinerarySection />
       </section>
@@ -156,7 +156,7 @@ export default function Home() {
         <div
           aria-hidden="true"
           className="safari-tint-sentinel"
-          style={{ backgroundColor: '#f4ebe3' }}
+          style={{ backgroundColor: '#f3ebe2' }}
         />
         <LocationSection />
       </section>
@@ -165,7 +165,7 @@ export default function Home() {
         <div
           aria-hidden="true"
           className="safari-tint-sentinel"
-          style={{ backgroundColor: '#f8f3eb' }}
+          style={{ backgroundColor: '#f3ebe2' }}
         />
         <DressCodeSection />
       </section>
@@ -173,7 +173,7 @@ export default function Home() {
         <div
           aria-hidden="true"
           className="safari-tint-sentinel"
-          style={{ backgroundColor: '#fffffe' }}
+          style={{ backgroundColor: '#fefefe' }}
         />
         <GiftEnvelopeBannerSection />
       </section>
@@ -181,7 +181,7 @@ export default function Home() {
         <div
           aria-hidden="true"
           className="safari-tint-sentinel"
-          style={{ backgroundColor: '#fffffe' }}
+          style={{ backgroundColor: '#ffffff' }}
         />
         <HotelsSection />
       </section>
@@ -189,7 +189,7 @@ export default function Home() {
         <div
           aria-hidden="true"
           className="safari-tint-sentinel"
-          style={{ backgroundColor: '#7c7875' }}
+          style={{ backgroundColor: '#7b7774' }}
         />
         <RSVPSection />
       </section>

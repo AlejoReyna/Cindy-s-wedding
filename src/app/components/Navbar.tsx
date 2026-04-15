@@ -83,12 +83,18 @@ const SECTION_THEMES: Record<string, SectionTheme> = {
     logoColor: DEFAULT_LOGO_COLOR,
   },
   dresscode: {
-    // Lighter, warmer variant to avoid the "greenish" cast.
-    bgRgb:     '242,238,228',                            // #f2eee4 — light parchment
+    bgRgb:     '243,235,226',                            // #f3ebe2 — DressCodeSection bg
     textCls:   'text-[#6a6048]/75 hover:text-[#6a6048]',
     lineColor: '#9b9072',
     dotColor:  '#9b9072',
     logoColor: '#6a6048',
+  },
+  regalos: {
+    bgRgb:     '254,254,254',                            // #fefefe — GiftEnvelopeBannerSection bg
+    textCls:   DEFAULT_TEXT_CLS,
+    lineColor: DEFAULT_LINE_COLOR,
+    dotColor:  DEFAULT_DOT_COLOR,
+    logoColor: DEFAULT_LOGO_COLOR,
   },
 };
 
