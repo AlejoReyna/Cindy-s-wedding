@@ -18,7 +18,7 @@ interface ItineraryItem {
 //  pointer-events: none, z-index 5 (entre fondo z-3 y contenido z-10).
 // ═══════════════════════════════════════════════════════════════════
 
-const PETAL_COUNT  = 240
+const PETAL_COUNT  = 280
 const PETAL_COLORS = ['#f4b8c8', '#f0a0b8', '#fad4df', '#e8899e', '#f7c9d4']
 const PETAL_ALPHA  = 0.14
 
@@ -205,10 +205,7 @@ export default function ItinerarySection() {
   return (
     <section
       ref={sectionRef}
-      className="min-h-screen w-full pt-0 pb-14 sm:pt-8 sm:pb-20 md:py-24 px-4 md:px-8 relative transition-all duration-1000 ease-in-out"
-      style={{
-        background: 'linear-gradient(135deg, #fbf9f6 0%, #f8f6f3 35%, #f5f2ee 70%, #f9f7f4 100%)',
-      }}
+      className="min-h-screen w-full bg-white pt-0 pb-14 sm:pt-8 sm:pb-20 md:py-24 px-4 md:px-8 relative transition-all duration-1000 ease-in-out"
     >
       {/* Fondo radial sutil */}
       <div className="absolute inset-0 opacity-[0.02]" style={{ zIndex: 3 }}>
