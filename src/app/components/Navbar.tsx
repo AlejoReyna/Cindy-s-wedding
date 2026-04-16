@@ -116,6 +116,7 @@ const Navbar = ({ visible = true }: NavbarProps) => {
   // In regular mobile browsers, adding safe-area inset can create extra top space.
   // Keep it only for standalone/PWA mode where content can extend into the notch.
   const [isStandaloneMode, setIsStandaloneMode] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
 
   const navRef = useRef<HTMLElement | null>(null);
   const ticking = useRef(false);
@@ -267,6 +268,17 @@ const Navbar = ({ visible = true }: NavbarProps) => {
     setIsStandaloneMode(inStandalone);
   }, []);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const updateViewport = (event?: MediaQueryListEvent) => {
+      setIsMobileViewport(event ? event.matches : mediaQuery.matches);
+    };
+
+    updateViewport();
+    mediaQuery.addEventListener('change', updateViewport);
+    return () => mediaQuery.removeEventListener('change', updateViewport);
+  }, []);
+
   // ── Derived visual values ──
   // Navbar is fully visible only when the prop says so AND we're not in the
   // "monogram gone but Hero still in viewport" dead zone.
@@ -289,7 +301,7 @@ const Navbar = ({ visible = true }: NavbarProps) => {
 
   // Pick a per-section theme override, but only when the navbar isn't already
   // in a "dark" state (hero / rsvp / footer / night-mode take precedence).
-  const sectionTheme = !isDark ? (SECTION_THEMES[activeSection] ?? null) : null;
+  const sectionTheme = isMobileViewport && !isDark ? (SECTION_THEMES[activeSection] ?? null) : null;
 
   const textCls = isDark
     ? 'text-white hover:text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.4)]'
@@ -315,6 +327,8 @@ const Navbar = ({ visible = true }: NavbarProps) => {
   // Dark sections (RSVP, footer, night mode) use their actual bg colors since
   // the navbar is transparent there — the OS bar reveals the page content.
   useEffect(() => {
+    if (!isMobileViewport) return;
+
     const notchColor = isInFooterSection ? '#000000'  // Footer bg-black
       : isInRSVPSection                  ? '#16100c'  // RSVP dark photo overlay
       : isInHeroSection                  ? '#9c9c9c'  // Hero section
@@ -358,7 +372,7 @@ const Navbar = ({ visible = true }: NavbarProps) => {
       });
       lastNotchColorRef.current = notchColor;
     }
-  }, [navBgRgb, isInHeroSection, isInRSVPSection, isInFooterSection]);
+  }, [isMobileViewport, navBgRgb, isInHeroSection, isInRSVPSection, isInFooterSection]);
 
   const handleNavClick = (id: string) => {
     setIsMobileMenuOpen(false);

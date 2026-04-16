@@ -113,6 +113,7 @@ body {
 }
 
 .safari-tint-bar {
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
@@ -130,12 +131,20 @@ body {
 }
 
 .safari-tint-sentinel {
+  display: none;
   position: sticky;
   top: 0;
   width: 100%;
   height: 6px;
   pointer-events: none;
   z-index: 61;
+}
+
+@media (max-width: 767px) {
+  .safari-tint-bar,
+  .safari-tint-sentinel {
+    display: block;
+  }
 }
 
 @keyframes safari-tint-bar-hide {
