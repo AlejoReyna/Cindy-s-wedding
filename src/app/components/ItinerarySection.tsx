@@ -236,10 +236,22 @@ export default function ItinerarySection() {
           className="text-center mb-10 sm:mb-12 md:mb-16 transition-all duration-2000 ease-out opacity-100 translate-y-0"
           style={{ transitionDelay: '200ms' }}
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.1em] uppercase mt-0 sm:mt-3 md:mt-6 mb-6 garamond-300 text-[#8B7355]">
-            Itinerario
-          </h2>
-          <div className="w-24 h-px mx-auto mb-2 bg-[#C4985B] opacity-60" />
+          <div className="itinerary-heading">
+            <div className="itinerary-heading__title-shell">
+              <span className="itinerary-heading__halo" aria-hidden="true" />
+              <h2 className="itinerary-heading__title">
+                Itinerario
+              </h2>
+            </div>
+
+            <div className="itinerary-heading__divider" aria-hidden="true">
+              <span className="itinerary-heading__dot" />
+              <span className="itinerary-heading__rule" />
+              <span className="itinerary-heading__dot itinerary-heading__dot--center" />
+              <span className="itinerary-heading__rule" />
+              <span className="itinerary-heading__dot" />
+            </div>
+          </div>
         </div>
 
         <div ref={containerRef} className="max-w-4xl mx-auto relative">
@@ -284,6 +296,72 @@ export default function ItinerarySection() {
 
       <style jsx>{`
         .celestial-transition { transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .itinerary-heading {
+          position: relative;
+          display: inline-flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+          padding: 1.2rem 1rem 0;
+          max-width: min(92vw, 42rem);
+        }
+        .itinerary-heading__title-shell {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.6rem 1.5rem;
+          isolation: isolate;
+        }
+        .itinerary-heading__halo {
+          position: absolute;
+          inset: 50% auto auto 50%;
+          width: clamp(15rem, 44vw, 21rem);
+          height: clamp(4rem, 11vw, 5.75rem);
+          transform: translate(-50%, -50%);
+          background:
+            linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.58) 18%, rgba(196, 152, 91, 0.12) 50%, rgba(255, 255, 255, 0.58) 82%, transparent 100%);
+          filter: blur(16px);
+          opacity: 0.95;
+          z-index: -1;
+        }
+        .itinerary-heading__title {
+          position: relative;
+          margin: 0;
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(2.35rem, 6.2vw, 4rem);
+          font-weight: 300;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: #8B7355;
+          line-height: 1;
+          text-shadow: 0 8px 24px rgba(139, 115, 85, 0.08);
+        }
+        .itinerary-heading__divider {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.65rem;
+          width: min(100%, 28rem);
+        }
+        .itinerary-heading__rule {
+          flex: 1;
+          min-width: 2.5rem;
+          height: 1px;
+          background: linear-gradient(90deg, transparent 0%, rgba(196, 152, 91, 0.5) 50%, transparent 100%);
+        }
+        .itinerary-heading__dot {
+          width: 0.32rem;
+          height: 0.32rem;
+          border-radius: 999px;
+          background: rgba(196, 152, 91, 0.55);
+          box-shadow: 0 0 0 5px rgba(196, 152, 91, 0.08);
+        }
+        .itinerary-heading__dot--center {
+          width: 0.5rem;
+          height: 0.5rem;
+          background: rgba(139, 115, 85, 0.72);
+        }
         @keyframes celestial-float {
           0%,100% { transform: translateY(0px) rotate(0deg); }
           25%      { transform: translateY(-8px) rotate(1deg); }
@@ -304,6 +382,15 @@ export default function ItinerarySection() {
 
         @media (prefers-reduced-motion: reduce) {
           canvas { display: none !important; }
+        }
+        @media (max-width: 640px) {
+          .itinerary-heading {
+            width: 100%;
+            padding-inline: 0.2rem;
+          }
+          .itinerary-heading__title {
+            letter-spacing: 0.14em;
+          }
         }
       `}</style>
     </section>
