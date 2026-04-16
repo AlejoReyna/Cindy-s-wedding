@@ -204,7 +204,9 @@ export default function ItineraryItemCard({
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
             border: '1px solid rgba(196,152,91,0.12)',
-            boxShadow: '0 2px 20px rgba(139,115,85,0.04), 0 1px 4px rgba(139,115,85,0.02)',
+            boxShadow: isActive
+              ? '0 18px 44px rgba(74, 58, 40, 0.16), 0 8px 18px rgba(58, 45, 31, 0.08), 0 1px 4px rgba(74, 58, 40, 0.06)'
+              : '0 12px 30px rgba(74, 58, 40, 0.1), 0 4px 10px rgba(58, 45, 31, 0.05), 0 1px 4px rgba(74, 58, 40, 0.04)',
           }}
         >
           {/* Corner accents — delicate L-shapes */}
