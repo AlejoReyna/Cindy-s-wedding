@@ -9,7 +9,9 @@ interface SongPlayerProps {
 const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [forceVisible, setForceVisible] = useState(false);
+  const [isInactive, setIsInactive] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -54,6 +56,36 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
 
   const isVisible = loaded || forceVisible;
 
+  useEffect(() => {
+    const resetInactivity = () => {
+      setIsInactive(false);
+
+      if (inactivityTimeoutRef.current) {
+        clearTimeout(inactivityTimeoutRef.current);
+      }
+
+      inactivityTimeoutRef.current = setTimeout(() => {
+        setIsInactive(true);
+      }, 1000);
+    };
+
+    resetInactivity();
+
+    window.addEventListener('mousemove', resetInactivity, { passive: true });
+    window.addEventListener('touchstart', resetInactivity, { passive: true });
+    window.addEventListener('touchmove', resetInactivity, { passive: true });
+
+    return () => {
+      window.removeEventListener('mousemove', resetInactivity);
+      window.removeEventListener('touchstart', resetInactivity);
+      window.removeEventListener('touchmove', resetInactivity);
+
+      if (inactivityTimeoutRef.current) {
+        clearTimeout(inactivityTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <>
       <audio ref={audioRef} src="/snow-on-the-beach-karaoke.mp3" loop />
@@ -69,7 +101,7 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
       >
         <button
           onClick={togglePlay}
-          className="song-player-pill"
+          className={`song-player-pill ${isInactive ? 'song-player-pill--inactive' : ''}`}
           aria-label={isPlaying ? 'Pause music' : 'Play music'}
         >
           {/* Equalizer bars or music note — left side */}
@@ -163,6 +195,11 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
           text-align: left;
           width: fit-content;
           max-width: 100%;
+        }
+
+        .song-player-pill--inactive {
+          opacity: 0.55;
+          transform: scale(0.98);
         }
 
         .song-player-pill:hover {

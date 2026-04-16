@@ -30,9 +30,9 @@ type FooterProps = {
 };
 
 const defaultBrand: BrandInfo = {
-  name: "Nombre Apellido (placeholder)",
-  slogan: "Slogan (placeholder)",
-  href: "https://example.com",
+  name: "Alexis Reyna",
+  slogan: "Desarrollador",
+  href: "https://alexisreyna.dev",
   logoSrc: "/assets/logos/IMG_0340.PNG",
 };
 

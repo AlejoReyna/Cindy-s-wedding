@@ -448,7 +448,7 @@ const Navbar = ({ visible = true }: NavbarProps) => {
           </ul>
 
           {/* Center monogram */}
-          <div className="px-8 xl:px-10 flex items-center justify-center">
+          <div className="px-8 xl:px-10 flex items-center justify-center relative z-[2147483647]">
             <div
               role="img"
               aria-label="Monograma"
@@ -523,7 +523,7 @@ const Navbar = ({ visible = true }: NavbarProps) => {
             ))}
           </ul>
 
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center relative z-[2147483647]">
             <div
               role="img"
               aria-label="Monograma"
@@ -605,7 +605,7 @@ const Navbar = ({ visible = true }: NavbarProps) => {
         <div className="md:hidden grid grid-cols-[1fr_auto_1fr] items-center w-full">
           <div />
 
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center relative z-[2147483647]">
             <div
               role="img"
               aria-label="Monograma"
