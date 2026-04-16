@@ -84,26 +84,39 @@ export default function ItineraryItemCard({
     return () => timers.forEach(clearTimeout);
   }, [animating]);
 
+  const iconClassName =
+    'opacity-60 group-hover:opacity-90 transition-all duration-500 w-auto object-contain';
+
   const getIcon = () => {
-    const cls =
-      'opacity-60 group-hover:opacity-90 transition-opacity duration-500';
     switch (item.title) {
       case 'Misa':
         return (
-          <Image src={church} alt="Misa" width={72} height={72} className={cls} />
+          <Image
+            src={church}
+            alt="Misa"
+            width={112}
+            height={112}
+            className={`${iconClassName} h-[88px] sm:h-[102px] md:h-[118px]`}
+          />
         );
       case 'Ceremonia':
         return (
-          <Image src={church} alt="Ceremonia" width={72} height={72} className={cls} />
+          <Image
+            src={church}
+            alt="Ceremonia"
+            width={112}
+            height={112}
+            className={`${iconClassName} h-[88px] sm:h-[102px] md:h-[118px]`}
+          />
         );
       case 'Ceremonia Civil':
         return (
           <Image
             src={legalDocument}
             alt="Ceremonia Civil"
-            width={44}
-            height={44}
-            className={cls}
+            width={76}
+            height={76}
+            className={`${iconClassName} h-[60px] sm:h-[68px] md:h-[76px]`}
           />
         );
       case 'Cocktail de Bienvenida':
@@ -111,9 +124,9 @@ export default function ItineraryItemCard({
           <Image
             src={nightClub}
             alt="Cocktail de Bienvenida"
-            width={44}
-            height={44}
-            className={cls}
+            width={76}
+            height={76}
+            className={`${iconClassName} h-[60px] sm:h-[68px] md:h-[76px]`}
           />
         );
       case 'Recepción':
@@ -121,9 +134,9 @@ export default function ItineraryItemCard({
           <Image
             src={nightClub}
             alt="Recepción"
-            width={44}
-            height={44}
-            className={`${cls} brightness-0`}
+            width={76}
+            height={76}
+            className={`${iconClassName} h-[60px] sm:h-[68px] md:h-[76px] brightness-0`}
           />
         );
       default:
@@ -227,10 +240,10 @@ export default function ItineraryItemCard({
           {/* ── Top half — Icon (sin círculo) ── */}
           <div
             className="flex items-center justify-center"
-            style={{ height: '50%', paddingTop: '1.1rem', paddingBottom: '0.6rem', paddingLeft: '1.2rem', paddingRight: '1.2rem' }}
+            style={{ height: '50%', paddingTop: '0.5rem', paddingBottom: '0.2rem', paddingLeft: '1rem', paddingRight: '1rem' }}
           >
             <div
-              className={`transition-all duration-700 scale-90 sm:scale-100 group-hover:scale-100 sm:group-hover:scale-110 ${
+              className={`flex h-full w-full items-center justify-center transition-all duration-700 scale-95 group-hover:scale-100 sm:group-hover:scale-110 ${
                 showIcon ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.6]'
               }`}
               style={{

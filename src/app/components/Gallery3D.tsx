@@ -91,6 +91,7 @@ export default function Gallery3D() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [dragX, setDragX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const dragStartX = useRef(0);
 
   // ── Text data ──
@@ -158,6 +159,7 @@ export default function Gallery3D() {
   const handleDragStart = useCallback((clientX: number) => {
     if (isAnimating) return;
     setIsDragging(true);
+    setHoveredIndex(null);
     dragStartX.current = clientX;
     setDragX(0);
   }, [isAnimating]);
@@ -178,11 +180,21 @@ export default function Gallery3D() {
     setDragX(0);
   }, [isDragging, dragX, goPrev, goNext]);
 
+  const handleCardHoverStart = useCallback((index: number) => {
+    if (isDragging) return;
+    setHoveredIndex(index);
+  }, [isDragging]);
+
+  const handleCardHoverEnd = useCallback((index: number) => {
+    setHoveredIndex((prev) => (prev === index ? null : prev));
+  }, []);
+
   // ── Card positioning: active card + side previews ──
   const getCard3DStyle = (index: number): React.CSSProperties => {
     const offset = index - currentIndex;
     const dragInfluence = isDragging ? dragX * 0.3 : 0;
     const absOffset = Math.abs(offset);
+    const isHovered = hoveredIndex === index;
 
     // Only render the active card + 1 buffer on each side for smooth transitions
     if (absOffset > 1) return { display: 'none', opacity: 0 };
@@ -192,10 +204,10 @@ export default function Gallery3D() {
     // Active card — centered and fully visible
     if (offset === 0) {
       return {
-        transform: `translateX(${dragInfluence}px) translateZ(90px) scale(1.03)`,
-        zIndex: 12,
+        transform: `translateX(${dragInfluence}px) translateY(${isHovered ? -18 : 0}px) translateZ(${isHovered ? 125 : 90}px) scale(${isHovered ? 1.05 : 1.03})`,
+        zIndex: isHovered ? 18 : 12,
         opacity: 1,
-        filter: 'brightness(1.02)',
+        filter: `brightness(${isHovered ? '1.08' : '1.02'})`,
         transition,
       };
     }
@@ -203,13 +215,13 @@ export default function Gallery3D() {
     // Adjacent cards (offset ±1) — semi-preview on the sides
     const direction = offset > 0 ? 1 : -1;
     return {
-      transform: `translateX(${direction * 59}%) translateZ(-40px) rotateY(${direction * -24}deg) scale(0.82)`,
-      zIndex: 4,
-      opacity: 0.58,
+      transform: `translateX(${direction * 59}%) translateY(${isHovered ? -16 : 0}px) translateZ(${isHovered ? -6 : -40}px) rotateY(${direction * (isHovered ? -14 : -24)}deg) scale(${isHovered ? 0.9 : 0.82})`,
+      zIndex: isHovered ? 16 : 4,
+      opacity: isHovered ? 0.92 : 0.58,
       // filter moved to .gl3d-photo so it doesn't create a compositing layer on the card
       // itself, which would flatten it out of the preserve-3d context
       transition,
-      pointerEvents: 'none' as const,
+      pointerEvents: 'auto' as const,
     };
   };
 
@@ -428,10 +440,24 @@ export default function Gallery3D() {
                     key={index}
                     className="gl3d-card"
                     style={getCard3DStyle(index)}
+                    onPointerEnter={() => handleCardHoverStart(index)}
+                    onPointerLeave={() => handleCardHoverEnd(index)}
+                    onTouchStart={() => handleCardHoverStart(index)}
+                    onTouchEnd={() => handleCardHoverEnd(index)}
+                    onTouchCancel={() => handleCardHoverEnd(index)}
                   >
                     <div
                       className="gl3d-photo relative"
-                      style={index !== currentIndex ? { filter: 'brightness(0.92) saturate(0.95)' } : undefined}
+                      style={{
+                        filter: hoveredIndex === index
+                          ? 'brightness(1.08) saturate(1.06)'
+                          : index !== currentIndex
+                            ? 'brightness(0.92) saturate(0.95)'
+                            : 'brightness(1.02)',
+                        boxShadow: hoveredIndex === index
+                          ? '0 26px 44px rgba(0, 0, 0, 0.22), 0 10px 18px rgba(0, 0, 0, 0.12)'
+                          : undefined,
+                      }}
                     >
                       <Image
                         src={photo.src}
@@ -484,10 +510,6 @@ export default function Gallery3D() {
               </div>
             </div>
 
-            {/* Counter */}
-            <p className="text-center mt-1 md:mt-2 text-[10px] tracking-[0.3em] uppercase text-[#8B7355]/40 garamond-300">
-              {currentIndex + 1}&thinsp;/&thinsp;{photos.length}
-            </p>
           </div>
         </div>
       </div>
@@ -808,6 +830,7 @@ export default function Gallery3D() {
           margin-top: calc((clamp(280px, 76vw, 1100px) / (3 / 2)) / -2);
           transform-style: preserve-3d;
           will-change: transform, opacity, filter;
+          touch-action: pan-y;
         }
 
         @media (max-width: 767px) {
@@ -830,6 +853,7 @@ export default function Gallery3D() {
           box-shadow:
             0 8px 20px rgba(0, 0, 0, 0.10),
             0 2px 6px rgba(0, 0, 0, 0.05);
+          transition: filter 0.35s ease, box-shadow 0.35s ease;
         }
 
         /* ═══ NAVIGATION BUTTONS ═══ */
