@@ -148,6 +148,7 @@ export default function ItineraryItemCard({
   const cardColor = '#7a6a5a';
   const cardColorLight = '#7a6a5a99';
   const accent = accentColor;
+  const frameColor = '#f4b8c8';
 
   return (
     <div ref={cardRef} className="group relative px-2 md:px-0">
@@ -196,49 +197,19 @@ export default function ItineraryItemCard({
       >
         {/* ── Elegant card container ── */}
         <div
-          className={`relative flex flex-col rounded-none text-center h-[300px] sm:h-[330px] md:h-[380px] transition-all duration-1000 ease-out ${
+          className={`relative flex flex-col rounded-none text-center box-border h-[300px] sm:h-[330px] md:h-[380px] transition-all duration-1000 ease-out ${
             animating ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
             background: 'rgba(255,255,255,0.45)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
-            border: '1px solid rgba(196,152,91,0.12)',
+            border: `0.5px solid ${frameColor}`,
             boxShadow: isActive
               ? '0 18px 44px rgba(74, 58, 40, 0.16), 0 8px 18px rgba(58, 45, 31, 0.08), 0 1px 4px rgba(74, 58, 40, 0.06)'
               : '0 12px 30px rgba(74, 58, 40, 0.1), 0 4px 10px rgba(58, 45, 31, 0.05), 0 1px 4px rgba(74, 58, 40, 0.04)',
           }}
         >
-          {/* Corner accents — delicate L-shapes */}
-          <div
-            className="absolute top-4 left-4 w-6 h-6 pointer-events-none"
-            style={{
-              borderTop: '1px solid rgba(196,152,91,0.25)',
-              borderLeft: '1px solid rgba(196,152,91,0.25)',
-            }}
-          />
-          <div
-            className="absolute top-4 right-4 w-6 h-6 pointer-events-none"
-            style={{
-              borderTop: '1px solid rgba(196,152,91,0.25)',
-              borderRight: '1px solid rgba(196,152,91,0.25)',
-            }}
-          />
-          <div
-            className="absolute bottom-4 left-4 w-6 h-6 pointer-events-none"
-            style={{
-              borderBottom: '1px solid rgba(196,152,91,0.25)',
-              borderLeft: '1px solid rgba(196,152,91,0.25)',
-            }}
-          />
-          <div
-            className="absolute bottom-4 right-4 w-6 h-6 pointer-events-none"
-            style={{
-              borderBottom: '1px solid rgba(196,152,91,0.25)',
-              borderRight: '1px solid rgba(196,152,91,0.25)',
-            }}
-          />
-
           {/* ── Top half — Icon (sin círculo) ── */}
           <div
             className="flex items-center justify-center"
