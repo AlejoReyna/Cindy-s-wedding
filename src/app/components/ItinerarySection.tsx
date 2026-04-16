@@ -18,7 +18,7 @@ interface ItineraryItem {
 //  pointer-events: none, z-index 5 (entre fondo z-3 y contenido z-10).
 // ═══════════════════════════════════════════════════════════════════
 
-const PETAL_COUNT  = 22
+const PETAL_COUNT  = 240
 const PETAL_COLORS = ['#f4b8c8', '#f0a0b8', '#fad4df', '#e8899e', '#f7c9d4']
 const PETAL_ALPHA  = 0.14
 
