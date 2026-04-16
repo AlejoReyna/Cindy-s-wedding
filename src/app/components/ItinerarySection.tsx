@@ -22,7 +22,25 @@ const PETAL_COUNT  = 280
 const PETAL_COLORS = ['#f4b8c8', '#f0a0b8', '#fad4df', '#e8899e', '#f7c9d4']
 const PETAL_ALPHA  = 0.14
 
+const LEAF_COUNT  = 90
+const LEAF_COLORS = ['#8aab8c', '#7a9e7e', '#a5c1a7', '#6b8f6e', '#b2c9b4']
+const LEAF_ALPHA  = 0.16
+
 interface Petal {
+  x: number; y: number
+  vx: number; vy: number
+  size: number
+  ratio: number
+  angle: number
+  spin: number
+  swayAmp: number
+  swayFreq: number
+  swayOffset: number
+  colorIdx: number
+  time: number
+}
+
+interface Leaf {
   x: number; y: number
   vx: number; vy: number
   size: number
@@ -54,12 +72,38 @@ function makePetal(W: number, H: number, init: boolean): Petal {
   }
 }
 
+function makeLeaf(W: number, H: number, init: boolean): Leaf {
+  return {
+    x:          init ? Math.random() * W : -15 + Math.random() * (W + 30),
+    y:          init ? Math.random() * H : -20,
+    vx:         (Math.random() - 0.5) * 0.25,
+    vy:         0.22 + Math.random() * 0.38,
+    size:       7 + Math.random() * 11,
+    ratio:      0.38 + Math.random() * 0.24,
+    angle:      Math.random() * Math.PI * 2,
+    spin:       (Math.random() - 0.5) * 0.016,
+    swayAmp:    12 + Math.random() * 22,
+    swayFreq:   0.004 + Math.random() * 0.005,
+    swayOffset: Math.random() * Math.PI * 2,
+    colorIdx:   Math.floor(Math.random() * LEAF_COLORS.length),
+    time:       Math.random() * 1000,
+  }
+}
+
 function tickPetal(p: Petal, dt: number, H: number): boolean {
   p.time  += dt
   p.angle += p.spin * dt
   p.x     += p.vx * dt + Math.sin(p.time * p.swayFreq + p.swayOffset) * 0.3
   p.y     += p.vy * dt
   return p.y > H + 25
+}
+
+function tickLeaf(l: Leaf, dt: number, H: number): boolean {
+  l.time  += dt
+  l.angle += l.spin * dt
+  l.x     += l.vx * dt + Math.sin(l.time * l.swayFreq + l.swayOffset) * 0.25
+  l.y     += l.vy * dt
+  return l.y > H + 25
 }
 
 function paintPetal(ctx: CanvasRenderingContext2D, p: Petal) {
@@ -77,6 +121,29 @@ function paintPetal(ctx: CanvasRenderingContext2D, p: Petal) {
   ctx.restore()
 }
 
+function paintLeaf(ctx: CanvasRenderingContext2D, l: Leaf) {
+  const a = l.size
+  const b = l.size * l.ratio
+  ctx.save()
+  ctx.translate(l.x, l.y)
+  ctx.rotate(l.angle)
+  // Leaf body: pointed at both ends (classic leaf silhouette)
+  ctx.beginPath()
+  ctx.moveTo(0, -a)
+  ctx.bezierCurveTo( b, -a * 0.3,  b,  a * 0.3,  0,  a)
+  ctx.bezierCurveTo(-b,  a * 0.3, -b, -a * 0.3,  0, -a)
+  ctx.fillStyle = LEAF_COLORS[l.colorIdx]
+  ctx.fill()
+  // Center vein
+  ctx.beginPath()
+  ctx.moveTo(0, -a * 0.85)
+  ctx.lineTo(0,  a * 0.85)
+  ctx.strokeStyle = 'rgba(255,255,255,0.28)'
+  ctx.lineWidth = 0.6
+  ctx.stroke()
+  ctx.restore()
+}
+
 // ═══════════════════════════════════════════════════════════════════
 //  COMPONENTE
 // ═══════════════════════════════════════════════════════════════════
@@ -89,6 +156,7 @@ export default function ItinerarySection() {
   const canvasRef       = useRef<HTMLCanvasElement>(null)
   const rafRef          = useRef<number>(0)
   const petalsRef       = useRef<Petal[]>([])
+  const leavesRef       = useRef<Leaf[]>([])
   const lastTimeRef     = useRef<number>(0)
   const activeRef       = useRef(false)
 
@@ -135,13 +203,21 @@ export default function ItinerarySection() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.save()
     ctx.scale(dpr, dpr)
-    ctx.globalAlpha = PETAL_ALPHA
 
+    ctx.globalAlpha = PETAL_ALPHA
     for (let i = 0; i < petalsRef.current.length; i++) {
       if (tickPetal(petalsRef.current[i], dt, H)) {
         petalsRef.current[i] = makePetal(W, H, false)
       }
       paintPetal(ctx, petalsRef.current[i])
+    }
+
+    ctx.globalAlpha = LEAF_ALPHA
+    for (let i = 0; i < leavesRef.current.length; i++) {
+      if (tickLeaf(leavesRef.current[i], dt, H)) {
+        leavesRef.current[i] = makeLeaf(W, H, false)
+      }
+      paintLeaf(ctx, leavesRef.current[i])
     }
 
     ctx.restore()
@@ -157,6 +233,7 @@ export default function ItinerarySection() {
     canvas.width  = W * dpr
     canvas.height = H * dpr
     petalsRef.current   = Array.from({ length: PETAL_COUNT }, () => makePetal(W, H, true))
+    leavesRef.current   = Array.from({ length: LEAF_COUNT  }, () => makeLeaf(W, H, true))
     activeRef.current   = true
     lastTimeRef.current = performance.now()
     rafRef.current      = requestAnimationFrame(loop)
@@ -235,7 +312,6 @@ export default function ItinerarySection() {
         >
           <div className="itinerary-heading">
             <div className="itinerary-heading__title-shell">
-              <span className="itinerary-heading__halo" aria-hidden="true" />
               <h2 className="itinerary-heading__title">
                 Itinerario
               </h2>
@@ -324,7 +400,7 @@ export default function ItinerarySection() {
           display: inline-flex;
           flex-direction: column;
           align-items: center;
-          gap: 1rem;
+          gap: 0.35rem;
           padding: 1.2rem 1rem 0;
           max-width: min(92vw, 42rem);
         }
@@ -333,20 +409,8 @@ export default function ItinerarySection() {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 0.6rem 1.5rem;
+          padding: 0.55rem 1.5rem 0.12rem;
           isolation: isolate;
-        }
-        .itinerary-heading__halo {
-          position: absolute;
-          inset: 50% auto auto 50%;
-          width: clamp(15rem, 44vw, 21rem);
-          height: clamp(4rem, 11vw, 5.75rem);
-          transform: translate(-50%, -50%);
-          background:
-            linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.58) 18%, rgba(196, 152, 91, 0.12) 50%, rgba(255, 255, 255, 0.58) 82%, transparent 100%);
-          filter: blur(16px);
-          opacity: 0.95;
-          z-index: -1;
         }
         .itinerary-heading__title {
           position: relative;
@@ -358,7 +422,6 @@ export default function ItinerarySection() {
           text-transform: uppercase;
           color: #8B7355;
           line-height: 1;
-          text-shadow: 0 8px 24px rgba(139, 115, 85, 0.08);
         }
         .itinerary-heading__floral {
           display: inline-flex;
