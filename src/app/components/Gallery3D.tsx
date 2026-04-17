@@ -297,7 +297,7 @@ export default function Gallery3D() {
           <div className="w-full max-w-6xl flex flex-col items-center text-center shrink-0 pt-1 mt-0 md:pt-0 lg:mt-30">
 
             {/* ③ Title */}
-            <div className="gl3d-title-mobile-fullbleed mb-1 mt-0 md:mb-3 md:mt-2">
+            <div className="gl3d-title-mobile-fullbleed mb-1 mt-18 md:mb-3 md:mt-2">
               <h2 className="gl3d-title-text">
                 <span ref={titleRef} className="gl3d-title-inner">
                   {`${titleLine1} ${titleLine2}`.split('').map((char, i) => (

@@ -301,9 +301,9 @@ const Navbar = ({ visible = true }: NavbarProps) => {
   const lineAlpha = isSpecialSection ? 0 : navProgress;
   const shadowAlpha = isSpecialSection ? 0 : lerp(0, 0.06, navProgress);
 
-  // Pick a per-section theme override, but only when the navbar isn't already
+  // Pick a per-section theme override whenever the navbar isn't already
   // in a "dark" state (hero / rsvp / footer / night-mode take precedence).
-  const sectionTheme = isMobileViewport && !isDark ? (SECTION_THEMES[activeSection] ?? null) : null;
+  const sectionTheme = !isDark ? (SECTION_THEMES[activeSection] ?? null) : null;
 
   const textCls = isDark
     ? 'text-white hover:text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.4)]'
