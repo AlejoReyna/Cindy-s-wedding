@@ -290,7 +290,7 @@ export default function Gallery3D() {
 
 
       {/* ═══ Main Layout ═══ */}
-      <div className="w-full max-w-[1600px] mx-auto relative z-10 px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+      <div className="w-full max-w-[1760px] mx-auto relative z-10 px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         <div className="flex flex-col items-center justify-center gap-2 sm:gap-3 md:gap-0">
 
           {/* ── TOP: Text Section ── */}
@@ -346,7 +346,7 @@ export default function Gallery3D() {
 
           {/* ── BOTTOM: 3D Coverflow Carousel ── */}
           <div
-            className={`w-[90%] flex flex-col items-center relative transition-all duration-1000 ease-out ${
+            className={`w-[96%] lg:w-full flex flex-col items-center relative transition-all duration-1000 ease-out ${
               cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
             } mt-0`}
           >
@@ -692,7 +692,7 @@ export default function Gallery3D() {
            sits on the same element as perspective or transform-style:preserve-3d. */
         .gl3d-stage-clip {
           width: 100%;
-          max-width: 1600px;
+          max-width: 1760px;
           height: clamp(374px, 55vw, 682px);
           overflow: hidden;
           position: relative;
@@ -756,10 +756,10 @@ export default function Gallery3D() {
           position: absolute;
           top: 50%;
           left: 50%;
-          width: clamp(280px, 76vw, 1100px);
+          width: clamp(320px, 82vw, 1220px);
           aspect-ratio: 3 / 2;
-          margin-left: calc(clamp(280px, 76vw, 1100px) / -2);
-          margin-top: calc((clamp(280px, 76vw, 1100px) / (3 / 2)) / -2);
+          margin-left: calc(clamp(320px, 82vw, 1220px) / -2);
+          margin-top: calc((clamp(320px, 82vw, 1220px) / (3 / 2)) / -2);
           transform-style: preserve-3d;
           will-change: transform, opacity, filter;
           touch-action: pan-y;
