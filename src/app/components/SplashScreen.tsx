@@ -6,6 +6,8 @@ interface SplashScreenProps {
   onEnter: () => void;
 }
 
+const SPLASH_NOTCH_COLOR = '#e8dfd2';
+
 const SplashScreen = ({ onEnter }: SplashScreenProps) => {
   const [ready, setReady] = useState(false);
   const [exiting, setExiting] = useState(false);
@@ -14,6 +16,28 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 150);
     return () => clearTimeout(t);
+  }, []);
+
+  // While the splash is visible, override the status bar / notch color so it
+  // matches the envelope paper rather than the hero section behind it.
+  useEffect(() => {
+    let metaTheme = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (!metaTheme) {
+      metaTheme = document.createElement('meta');
+      metaTheme.name = 'theme-color';
+      document.head.appendChild(metaTheme);
+    }
+    const prev = metaTheme.content;
+    metaTheme.content = SPLASH_NOTCH_COLOR;
+
+    // Also keep document background in sync (Safari samples it for the notch area)
+    const prevBg = document.documentElement.style.backgroundColor;
+    document.documentElement.style.backgroundColor = SPLASH_NOTCH_COLOR;
+
+    return () => {
+      if (metaTheme) metaTheme.content = prev;
+      document.documentElement.style.backgroundColor = prevBg;
+    };
   }, []);
 
   // Extra safety: prevent touchmove on the splash overlay so iOS Safari

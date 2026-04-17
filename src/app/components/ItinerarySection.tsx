@@ -11,6 +11,12 @@ interface ItineraryItem {
   location?: string;
 }
 
+interface TimelineMetrics {
+  top: number;
+  height: number;
+  centers: number[];
+}
+
 // ═══════════════════════════════════════════════════════════════════
 //  PETAL CANVAS
 //  Pétalos minimalistas (lágrima bezier) cayendo con drift sinusoidal.
@@ -161,6 +167,11 @@ export default function ItinerarySection() {
   const activeRef       = useRef(false)
 
   const [activeIndex, setActiveIndex] = useState(0)
+  const [timelineMetrics, setTimelineMetrics] = useState<TimelineMetrics>({
+    top: 0,
+    height: 0,
+    centers: [],
+  })
 
   // ── card activa por scroll ────────────────────────────────────────
   useEffect(() => {
@@ -278,6 +289,58 @@ export default function ItinerarySection() {
     { time: "7:30 PM", displayTime: "7:30", title: "Recepción",              description: "", location: "" },
   ], [])
 
+  // ── mide la línea central a partir del centro real de cada card ─────
+  useEffect(() => {
+    const measureTimeline = () => {
+      const container = containerRef.current
+      if (!container) return
+
+      const containerRect = container.getBoundingClientRect()
+      const centers = cardWrapperRefs.current
+        .map((ref) => {
+          if (!ref) return null
+          const rect = ref.getBoundingClientRect()
+          return rect.top - containerRect.top + rect.height / 2
+        })
+        .filter((center): center is number => center !== null)
+
+      if (centers.length === 0) return
+
+      const top = centers[0]
+      const height = Math.max(centers[centers.length - 1] - centers[0], 0)
+
+      setTimelineMetrics((prev) => {
+        const sameCenters =
+          prev.centers.length === centers.length &&
+          prev.centers.every((center, index) => Math.abs(center - centers[index]) < 0.5)
+
+        if (sameCenters && Math.abs(prev.top - top) < 0.5 && Math.abs(prev.height - height) < 0.5) {
+          return prev
+        }
+
+        return { top, height, centers }
+      })
+    }
+
+    measureTimeline()
+
+    const resizeObserver = new ResizeObserver(() => {
+      measureTimeline()
+    })
+
+    if (containerRef.current) resizeObserver.observe(containerRef.current)
+    cardWrapperRefs.current.forEach((ref) => {
+      if (ref) resizeObserver.observe(ref)
+    })
+
+    window.addEventListener('resize', measureTimeline)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', measureTimeline)
+    }
+  }, [itineraryItems])
+
   // ── render ────────────────────────────────────────────────────────
   return (
     <section
@@ -357,21 +420,30 @@ export default function ItinerarySection() {
           {/* Línea vertical desktop */}
           <div
             className="absolute left-1/2 transform -translate-x-1/2 w-px transition-all duration-500 opacity-60 hidden md:block"
-            style={{ backgroundColor: '#C4985B', top: '3rem', height: 'calc(100% - 6rem)', zIndex: 1 }}
+            style={{
+              backgroundColor: '#C4985B',
+              top: `${timelineMetrics.top}px`,
+              height: `${timelineMetrics.height}px`,
+              zIndex: 1,
+            }}
           />
           {/* Línea vertical mobile */}
           <div
             className="absolute left-1/2 transform -translate-x-1/2 w-px transition-all duration-500 opacity-40 bg-gradient-to-b from-[#C4985B] via-[#8B7355] to-[#C4985B] md:hidden"
-            style={{ top: '2rem', height: 'calc(100% - 4rem)', zIndex: 1 }}
+            style={{
+              top: `${timelineMetrics.top}px`,
+              height: `${timelineMetrics.height}px`,
+              zIndex: 1,
+            }}
           />
 
           {/* Dots mobile */}
           <div className="md:hidden">
-            {itineraryItems.map((_, index) => (
+            {timelineMetrics.centers.map((center, index) => (
               <div
                 key={index}
-                className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 z-10"
-                style={{ top: `${3 + index * 20}rem` }}
+                className="absolute left-1/2 w-4 h-4 z-10"
+                style={{ top: `${center}px`, transform: 'translate(-50%, -50%)' }}
               >
                 <div className="w-full h-full rounded-full border-2 shadow-lg transition-colors duration-500 bg-white border-[#947e63]/60">
                   <div className="absolute inset-1 rounded-full transition-colors duration-500 bg-[#947e63]/40" />
