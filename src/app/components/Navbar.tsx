@@ -22,6 +22,8 @@ const rightNavItems = navigationItems.slice(3);
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const STATUS_BAR_DEBUG = process.env.NODE_ENV !== 'production';
+const RSVP_WHATSAPP_MESSAGE = 'Confirmo mi asistencia a la boda de Cindy & Jorge el 22 de agosto del 2026.💍\nLos nombres de las personas confirmadas en esta invitación son: ____';
+const RSVP_WHATSAPP_HREF = `https://wa.me/5218132382398?text=${encodeURIComponent(RSVP_WHATSAPP_MESSAGE)}`;
 
 // Converts "r,g,b" string → "#rrggbb" for use in meta tags.
 const rgbToHex = (rgb: string): string => {
@@ -376,6 +378,12 @@ const Navbar = ({ visible = true }: NavbarProps) => {
 
   const handleNavClick = (id: string) => {
     setIsMobileMenuOpen(false);
+
+    if (id === 'rsvp') {
+      window.open(RSVP_WHATSAPP_HREF, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
     setTimeout(() => {
       const section = document.getElementById(id);
       if (!section) return;

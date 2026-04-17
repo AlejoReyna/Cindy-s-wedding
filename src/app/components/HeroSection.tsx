@@ -54,7 +54,7 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
     month: 'long',
     year: 'numeric',
   });
-  const ctaMessage = 'Quiero confirmar mi asistencia a la boda de Cindy & Jorge, mi nombre es:    ';
+  const ctaMessage = 'Confirmo mi asistencia a la boda de Cindy & Jorge el 22 de agosto del 2026.💍\nLos nombres de las personas confirmadas en esta invitación son: ____';
   const ctaWhatsappHref = `https://wa.me/5218132382398?text=${encodeURIComponent(ctaMessage)}`;
 
   return (
