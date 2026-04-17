@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useRef, useState } from 'react';
-import { MdDirections, MdApartment } from 'react-icons/md';
+import { MdLocationOn, MdApartment } from 'react-icons/md';
 
 const hotels = [
   { name: 'Ecovergel Hotel Boutique', price: '$1,800', featured: true, mapsUrl: 'https://share.google/5KEKymd9U5YaPIQ3F' },
@@ -26,19 +26,18 @@ export default function HotelsSection() {
   }, []);
 
   return (
-    <section className="w-full py-12 md:pb-20 px-4 md:px-8 relative overflow-hidden" style={{ backgroundColor: '#f3ebe2' }}>
+    <section className="w-full py-12 md:pb-20 px-4 md:px-8 relative overflow-hidden" style={{ backgroundColor: '#efe2d2' }}>
       <div className="relative z-10">
         <div
           ref={hotelsRef}
           className="hotels-section"
           style={{ maxWidth: '72rem', margin: '0 auto' }}
         >
-          <div className={`hotels-divider${hotelsVisible ? ' hotels-divider--visible' : ''}`} />
 
           <div className={`hotels-header${hotelsVisible ? ' hotels-header--visible' : ''}`}>
             <MdApartment
               size={96}
-              color="rgba(181, 150, 106, 0.60)"
+              color="rgba(122, 84, 48, 0.72)"
               style={{ display: 'block', margin: '0 auto 0.9rem auto' }}
             />
             <h3 className="hotels-title">Hoteles en Montemorelos</h3>
@@ -76,7 +75,7 @@ export default function HotelsSection() {
                   rel="noopener noreferrer"
                   className="hotel-maps-btn"
                 >
-                  <MdDirections className="text-sm" />
+                  <MdLocationOn className="text-sm" />
                   <span>Ver en Maps</span>
                 </a>
               </div>
@@ -101,9 +100,9 @@ export default function HotelsSection() {
           width: 0;
           background: linear-gradient(
             90deg,
-            rgba(181, 150, 106, 0.10) 0%,
-            rgba(181, 150, 106, 0.30) 40%,
-            rgba(156, 130, 108, 0.15) 100%
+            rgba(122, 84, 48, 0.14) 0%,
+            rgba(122, 84, 48, 0.42) 40%,
+            rgba(90, 61, 38, 0.20) 100%
           );
           margin-bottom: 3rem;
         }
@@ -129,7 +128,7 @@ export default function HotelsSection() {
           font-size: 1.8rem;
           letter-spacing: 0.18em;
           text-transform: uppercase;
-          color: #4a3728;
+          color: #3d2718;
           margin: 0;
           line-height: 1.1;
         }
@@ -139,25 +138,25 @@ export default function HotelsSection() {
 
         .hotels-subtitle {
           font-family: 'Cormorant Garamond', serif;
-          font-weight: 300;
-          font-size: 0.88rem;
-          letter-spacing: 0.025em;
-          color: rgba(156, 130, 108, 0.60);
-          line-height: 1.65;
-          margin: 0.85rem 0 0 0;
+          font-weight: 500;
+          font-size: 1rem;
+          letter-spacing: 0.02em;
+          color: #4b2f1b;
+          line-height: 1.7;
+          margin: 0.95rem 0 0 0;
           max-width: 38rem;
           margin-left: auto;
           margin-right: auto;
         }
 
-        @media (min-width: 640px) { .hotels-subtitle { font-size: 0.95rem; } }
-        @media (min-width: 768px) { .hotels-subtitle { font-size: 1rem; } }
+        @media (min-width: 640px) { .hotels-subtitle { font-size: 1.05rem; } }
+        @media (min-width: 768px) { .hotels-subtitle { font-size: 1.12rem; } }
 
         .hotels-grid {
           display: grid;
           grid-template-columns: 1fr;
           gap: 1px;
-          background-color: rgba(181, 150, 106, 0.10);
+          background-color: rgba(122, 84, 48, 0.18);
         }
 
         @media (min-width: 480px) {
@@ -174,7 +173,7 @@ export default function HotelsSection() {
 
         .hotel-card {
           position: relative;
-          background-color: #ffffff;
+          background: linear-gradient(180deg, #fffaf5 0%, #fffefc 100%);
           padding: 2rem 1.75rem 1.75rem;
           display: flex;
           flex-direction: column;
@@ -198,18 +197,18 @@ export default function HotelsSection() {
           position: absolute;
           background: linear-gradient(
             90deg,
-            rgba(156, 130, 108, 0.18),
-            rgba(181, 150, 106, 0.35),
-            rgba(156, 130, 108, 0.15)
+            rgba(90, 61, 38, 0.22),
+            rgba(122, 84, 48, 0.42),
+            rgba(90, 61, 38, 0.18)
           );
         }
 
         .hborder-top    { top: 0; left: 0; height: 1px; width: 0; }
         .hborder-right  { top: 0; right: 0; width: 1px; height: 0;
-          background: linear-gradient(180deg, rgba(181,150,106,0.35), rgba(156,130,108,0.12)) !important; }
+          background: linear-gradient(180deg, rgba(122,84,48,0.42), rgba(90,61,38,0.18)) !important; }
         .hborder-bottom { bottom: 0; right: 0; height: 1px; width: 0; }
         .hborder-left   { bottom: 0; left: 0; width: 1px; height: 0;
-          background: linear-gradient(0deg, rgba(181,150,106,0.35), rgba(156,130,108,0.12)) !important; }
+          background: linear-gradient(0deg, rgba(122,84,48,0.42), rgba(90,61,38,0.18)) !important; }
 
         .hotel-border-trace--visible .hborder-top {
           animation: borderTop 0.5s cubic-bezier(0.4,0,0.2,1) var(--hborder-start) forwards;
@@ -226,7 +225,7 @@ export default function HotelsSection() {
 
         .hotel-star {
           font-size: 9px;
-          color: rgba(181, 150, 106, 0.70);
+          color: rgba(122, 84, 48, 0.82);
           letter-spacing: 0.15em;
           margin-bottom: 0.5rem;
           display: block;
@@ -237,7 +236,7 @@ export default function HotelsSection() {
           font-weight: 400;
           font-size: 1.05rem;
           letter-spacing: 0.02em;
-          color: #4a3728;
+          color: #352113;
           line-height: 1.35;
           margin: 0 0 1rem 0;
           flex: 1;
@@ -250,7 +249,7 @@ export default function HotelsSection() {
           display: block;
           height: 1px;
           width: 2rem;
-          background: linear-gradient(90deg, rgba(181, 150, 106, 0.40), rgba(156, 130, 108, 0.15));
+          background: linear-gradient(90deg, rgba(122, 84, 48, 0.55), rgba(90, 61, 38, 0.20));
           margin-bottom: 0.85rem;
         }
 
@@ -260,7 +259,7 @@ export default function HotelsSection() {
           font-size: 8.5px;
           letter-spacing: 0.35em;
           text-transform: uppercase;
-          color: rgba(156, 130, 108, 0.45);
+          color: rgba(90, 61, 38, 0.58);
           margin: 0 0 0.2rem 0;
         }
 
@@ -269,7 +268,7 @@ export default function HotelsSection() {
           font-weight: 500;
           font-size: 1.25rem;
           letter-spacing: 0.04em;
-          color: rgba(181, 150, 106, 0.85);
+          color: #7a5430;
           margin: 0;
           line-height: 1;
         }
@@ -278,7 +277,7 @@ export default function HotelsSection() {
           font-weight: 300;
           font-size: 0.7rem;
           letter-spacing: 0.12em;
-          color: rgba(156, 130, 108, 0.45);
+          color: rgba(90, 61, 38, 0.66);
           text-transform: uppercase;
         }
 
@@ -287,23 +286,37 @@ export default function HotelsSection() {
           align-items: center;
           gap: 0.45rem;
           margin-top: 1.1rem;
-          padding: 0.45rem 1.1rem;
-          border: 1px solid rgba(181, 150, 106, 0.20);
-          border-radius: 2px;
-          color: rgba(156, 130, 108, 0.60);
+          padding: 0.72rem 1.25rem;
+          border: 1px solid #7a5430;
+          border-radius: 999px;
+          color: #fffaf5;
+          background: #744822;
+          box-shadow: 0 10px 24px rgba(107, 68, 35, 0.26);
           text-decoration: none;
           font-family: 'Cormorant Garamond', serif;
-          font-weight: 300;
-          font-size: 10px;
-          letter-spacing: 0.18em;
+          font-weight: 600;
+          font-size: 0.78rem;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          transition: color 0.3s, border-color 0.3s, background 0.3s;
+          transition: transform 0.25s, box-shadow 0.25s, background 0.25s, border-color 0.25s;
+          align-self: stretch;
+          justify-content: center;
         }
 
         .hotel-maps-btn:hover {
-          color: #6d5a42;
-          border-color: rgba(181, 150, 106, 0.38);
-          background: rgba(181, 150, 106, 0.04);
+          transform: translateY(-1px);
+          border-color: #5a3518;
+          background: #87552a;
+          box-shadow: 0 14px 30px rgba(107, 68, 35, 0.32);
+        }
+
+        .hotel-maps-btn:focus-visible {
+          outline: 2px solid #3d2718;
+          outline-offset: 3px;
+        }
+
+        .hotel-maps-btn :global(svg) {
+          font-size: 1rem;
         }
 
         @keyframes hotelsRuleGrow { to { width: clamp(8rem, 32vw, 14rem); } }
