@@ -5,9 +5,10 @@ import { withBasePath } from '@/lib/basePath';
 interface SongPlayerProps {
   loaded: boolean;
   delay: number;
+  allowFallbackVisibility?: boolean;
 }
 
-const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
+const SongPlayer = ({ loaded, delay, allowFallbackVisibility = true }: SongPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [forceVisible, setForceVisible] = useState(false);
   const [isInactive, setIsInactive] = useState(false);
@@ -50,10 +51,13 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
   // Fallback visibility: if parent animation flag never flips in some flows,
   // keep the player accessible instead of leaving it hidden forever.
   useEffect(() => {
-    if (loaded) return;
+    if (loaded || !allowFallbackVisibility) {
+      setForceVisible(false);
+      return;
+    }
     const t = setTimeout(() => setForceVisible(true), 1800);
     return () => clearTimeout(t);
-  }, [loaded]);
+  }, [allowFallbackVisibility, loaded]);
 
   const isVisible = loaded || forceVisible;
 
@@ -164,7 +168,7 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
           position: fixed;
           bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
           right: calc(env(safe-area-inset-right, 0px) + 1rem);
-          z-index: 9999;
+          z-index: 70;
           width: fit-content;
           max-width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 2rem);
         }

@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import Image from 'next/image';
 import { withBasePath } from '@/lib/basePath';
 
@@ -21,7 +21,7 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
 
   // While the splash is visible, override the status bar / notch color so it
   // matches the envelope paper rather than the hero section behind it.
-  useEffect(() => {
+  useLayoutEffect(() => {
     let metaTheme = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (!metaTheme) {
       metaTheme = document.createElement('meta');
@@ -33,11 +33,14 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
 
     // Also keep document background in sync (Safari samples it for the notch area)
     const prevBg = document.documentElement.style.backgroundColor;
+    const prevSafariTint = document.documentElement.style.getPropertyValue('--safari-tint-color');
     document.documentElement.style.backgroundColor = SPLASH_NOTCH_COLOR;
+    document.documentElement.style.setProperty('--safari-tint-color', SPLASH_NOTCH_COLOR);
 
     return () => {
       if (metaTheme) metaTheme.content = prev;
       document.documentElement.style.backgroundColor = prevBg;
+      document.documentElement.style.setProperty('--safari-tint-color', prevSafariTint);
     };
   }, []);
 
@@ -52,7 +55,7 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
 
   const handleEnter = () => {
     window.dispatchEvent(new CustomEvent('startMusic'));
-    // Signal parent immediately so Home starts rendering visibly
+    // Signal parent so it can reveal the app once the splash exit completes.
     onEnter();
     setExiting(true);
     // After fade-out completes (0.3s delay + 0.9s transition), unmount
@@ -348,10 +351,10 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
         .hint {
           font-family: 'EB Garamond', 'Cormorant Garamond', serif;
           font-weight: 300;
-          font-size: 13px;
+          font-size: 15.6px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          color: rgba(132, 88, 69, 0.38);
+          color: rgba(92, 60, 45, 0.72);
           opacity: 0;
           transform: translateY(6px);
         }
@@ -403,7 +406,7 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
           .seal-glow { inset: -12px; }
           .seal-ring { inset: 12px; }
           .seal :global(.seal-monogram) { width: 82px; height: 82px; }
-          .hint { font-size: 14px; }
+          .hint { font-size: 16.8px; }
         }
 
         @media (min-width: 768px) {

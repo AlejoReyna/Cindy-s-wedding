@@ -24,19 +24,21 @@ interface HeroSectionProps {
   entered?: boolean;
   /** When true, skip all entrance animations and show content immediately (e.g. page refresh). */
   immediate?: boolean;
+  /** True once the splash has fully released the main app shell. */
+  revealed?: boolean;
 }
 
-const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) => {
+const HeroSection = ({ entered = false, immediate = false, revealed = false }: HeroSectionProps) => {
   // If immediate, start fully loaded — no animations needed.
   const [loaded, setLoaded] = useState(immediate);
   const [borderDrawn, setBorderDrawn] = useState(immediate);
 
   // Only start animations after the envelope has been opened (skip if immediate)
   useEffect(() => {
-    if (!entered || immediate) return;
+    if (!entered || immediate || !revealed) return;
     const t = setTimeout(() => setLoaded(true), 75);
     return () => clearTimeout(t);
-  }, [entered, immediate]);
+  }, [entered, immediate, revealed]);
 
   // ── Animation timing constants (ms after `loaded` fires at 75ms) ──────────
   // Names:    "Cindy" → pause → "&" → pause → "Jorge"  ≈ 0 – 935ms
@@ -65,7 +67,7 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
       style={{ backgroundColor: '#f9f5e9' }}
     >
       {/* Background photo */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className={`hero-visual-shell${revealed || immediate ? ' hero-visual-shell--visible' : ''}`}>
         <div className="hero-media">
           <Image
             src={HERO_PHOTO_ONE}
@@ -175,6 +177,7 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
       <SongPlayer
         loaded={loaded}
         delay={immediate ? 0 : POST_NAMES + 1500}
+        allowFallbackVisibility={revealed || immediate}
       />
 
       {/* @property must be global so the browser can interpolate the angle */}
@@ -187,6 +190,18 @@ const HeroSection = ({ entered = false, immediate = false }: HeroSectionProps) =
       `}</style>
 
       <style jsx>{`
+        .hero-visual-shell {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.35s ease;
+        }
+
+        .hero-visual-shell--visible {
+          opacity: 1;
+        }
+
         .hero-media {
           position: absolute;
           inset: 0;

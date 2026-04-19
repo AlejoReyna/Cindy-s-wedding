@@ -155,6 +155,5 @@ export const useNotchColor = ({
       visualViewport?.removeEventListener('scroll', scheduleUpdate);
       updateThemeColor(defaultColor);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultColor, isNightMode, ...colors]);
+  }, [colors, defaultColor, isNightMode, refs]);
 };

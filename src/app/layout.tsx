@@ -3,6 +3,7 @@ import "./globals.css";
 import { BASE_PATH } from "@/lib/basePath";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://alexreyna.github.io"),
   title: "Cindy & Jorge ",
   description: "Celebra con nosotros nuestra boda el 22 de Agosto",
   appleWebApp: {
@@ -29,6 +30,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
+  themeColor: "#e8dfd2",
 };
 
 export default function RootLayout({
