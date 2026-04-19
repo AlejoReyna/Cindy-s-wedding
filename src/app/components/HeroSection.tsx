@@ -1,11 +1,12 @@
 "use client"
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { withBasePath } from '@/lib/basePath';
 
 import CountdownTimer from '../../components/CountdownTimer';
 import SongPlayer from './SongPlayer';
 
-const HERO_PHOTO_ONE = '/assets/hero-0624.jpg';
+const HERO_PHOTO_ONE = withBasePath('/assets/hero-0624.jpg');
 
 // ── FLORAL DRAWN ANIMATION ───────────────────────────────────────────────────
 // The ornament is drawn as if by hand: each SVG path is revealed over time using

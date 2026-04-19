@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { MdDirections } from 'react-icons/md';
 import Image from 'next/image';
 import receptionImg from '../../../assets/museum.jpg';
+import { withBasePath } from '@/lib/basePath';
 
 const locations = [
   {
@@ -12,7 +13,7 @@ const locations = [
     city: '67500 Montemorelos, N.L.',
     mapsUrl:
       'https://www.google.com/maps/search/?api=1&query=Iglesia+Sagrado+Corazón+de+Jesús+Calle+Ignacio+Zaragoza+700+Montemorelos+N.L.',
-    image: '/assets/iglesia.jpg',
+    image: withBasePath('/assets/iglesia.jpg'),
     imageAlt: 'Ceremonia religiosa - Iglesia Sagrado Corazón de Jesús',
   },
   {

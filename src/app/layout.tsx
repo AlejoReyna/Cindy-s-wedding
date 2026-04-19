@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { BASE_PATH } from "@/lib/basePath";
 
 export const metadata: Metadata = {
   title: "Cindy & Jorge ",
@@ -9,16 +10,16 @@ export const metadata: Metadata = {
     // Remover statusBarStyle para permitir control dinámico
   },
   icons: {
-    icon: "/Diseño sin título.png",
-    apple: "/Diseño sin título.png",
-    shortcut: "/Diseño sin título.png",
+    icon: `${BASE_PATH}/Diseño sin título.png`,
+    apple: `${BASE_PATH}/Diseño sin título.png`,
+    shortcut: `${BASE_PATH}/Diseño sin título.png`,
   },
   openGraph: {
-    images: ["/Diseño sin título.png"],
+    images: [`${BASE_PATH}/Diseño sin título.png`],
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/Diseño sin título.png"],
+    images: [`${BASE_PATH}/Diseño sin título.png`],
   },
 };
 

@@ -305,11 +305,11 @@ export default function ParentsSection() {
           </div>
 
           {/* Bloques de padres */}
-          <div className="w-full max-w-md md:max-w-6xl mx-auto space-y-7 sm:space-y-8 md:space-y-0 md:flex md:items-start md:justify-center md:gap-12">
+          <div className="w-full max-w-md md:max-w-2xl lg:max-w-6xl mx-auto space-y-7 sm:space-y-8 lg:space-y-0 lg:flex lg:items-start lg:justify-center lg:gap-12">
 
             {/* Padres de la novia */}
-            <div className="text-center md:flex-[1.2] md:min-w-[420px]">
-              <h3 className="ps-heading-text mb-3 sm:mb-4 whitespace-nowrap">
+            <div className="text-center lg:flex-[1.2] lg:min-w-0 xl:min-w-[420px]">
+              <h3 className="ps-heading-text mb-3 sm:mb-4">
                 {brideHeadingChars.map((char, i) => (
                   <span
                     key={`bh-${i}`}
@@ -350,18 +350,18 @@ export default function ParentsSection() {
 
             {/* Divisor entre grupos */}
             <div
-              className={`flex items-center justify-center gap-2 md:gap-0 md:flex-col transition-all duration-[350ms] ease-out ${
+              className={`flex items-center justify-center gap-2 lg:gap-0 lg:flex-col transition-all duration-[350ms] ease-out ${
                 textStarted ? 'opacity-100' : 'opacity-0'
               }`}
             >
-              <span className="block w-8 h-[0.5px] md:w-[0.5px] md:h-8 bg-[#C4985B]/30" />
+              <span className="block w-8 h-[0.5px] lg:w-[0.5px] lg:h-8 bg-[#C4985B]/30" />
               <span className="block w-1 h-1 rounded-full bg-[#C4985B]/25" />
-              <span className="block w-8 h-[0.5px] md:w-[0.5px] md:h-8 bg-[#C4985B]/30" />
+              <span className="block w-8 h-[0.5px] lg:w-[0.5px] lg:h-8 bg-[#C4985B]/30" />
             </div>
 
             {/* Padres del novio */}
-            <div className="text-center md:flex-[1.2] md:min-w-[420px]">
-              <h3 className="ps-heading-text mb-3 sm:mb-4 whitespace-nowrap">
+            <div className="text-center lg:flex-[1.2] lg:min-w-0 xl:min-w-[420px]">
+              <h3 className="ps-heading-text mb-3 sm:mb-4">
                 {groomHeadingChars.map((char, i) => (
                   <span
                     key={`gh-${i}`}

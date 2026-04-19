@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { FiGithub, FiInstagram, FiLinkedin } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
+import { withBasePath } from "@/lib/basePath";
 
 type FooterLink = { label: string; href: string };
 type FooterSection = { title: string; links: FooterLink[] };
@@ -33,7 +34,7 @@ const defaultBrand: BrandInfo = {
   name: "Alexis Reyna",
   slogan: "Desarrollador",
   href: "https://alexisreyna.dev",
-  logoSrc: "/assets/logos/IMG_0340.PNG",
+  logoSrc: withBasePath("/assets/logos/IMG_0340.PNG"),
 };
 
 const defaultSocial: SocialItem[] = [

@@ -1,6 +1,7 @@
 "use client"
 import { useRef } from 'react';
 import { useState } from 'react';
+import { withBasePath } from '@/lib/basePath';
 
 export default function RSVPSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -19,7 +20,7 @@ export default function RSVPSection() {
           rgba(28, 21, 16, 0.54) 35%,
           rgba(34, 25, 18, 0.5) 70%,
           rgba(22, 16, 12, 0.62) 100%
-        ), url('/hands.JPG')`,
+        ), url('${withBasePath('/hands.JPG')}')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'

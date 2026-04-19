@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { withBasePath } from '@/lib/basePath';
 
 interface NavigationItem {
   id: string;
@@ -24,6 +25,7 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const STATUS_BAR_DEBUG = process.env.NODE_ENV !== 'production';
 const RSVP_WHATSAPP_MESSAGE = 'Confirmo mi asistencia a la boda de Cindy & Jorge el 22 de agosto del 2026.💍\nLos nombres de las personas confirmadas en esta invitación son: ____';
 const RSVP_WHATSAPP_HREF = `https://wa.me/5218132382398?text=${encodeURIComponent(RSVP_WHATSAPP_MESSAGE)}`;
+const MONOGRAM_MASK = `url('${withBasePath("/Diseño sin título.png")}')`;
 
 // Converts "r,g,b" string → "#rrggbb" for use in meta tags.
 const rgbToHex = (rgb: string): string => {
@@ -479,8 +481,8 @@ const Navbar = ({ visible = true }: NavbarProps) => {
                 height: `${logoDesktop}px`,
                 opacity: logoOpacity,
                 backgroundColor: navLogoColor,
-                WebkitMaskImage: "url('/Diseño sin título.png')",
-                maskImage: "url('/Diseño sin título.png')",
+                WebkitMaskImage: MONOGRAM_MASK,
+                maskImage: MONOGRAM_MASK,
                 WebkitMaskSize: 'contain',
                 maskSize: 'contain',
                 WebkitMaskRepeat: 'no-repeat',
@@ -554,8 +556,8 @@ const Navbar = ({ visible = true }: NavbarProps) => {
                 height: `${logoMobile}px`,
                 opacity: logoOpacity,
                 backgroundColor: navLogoColor,
-                WebkitMaskImage: "url('/Diseño sin título.png')",
-                maskImage: "url('/Diseño sin título.png')",
+                WebkitMaskImage: MONOGRAM_MASK,
+                maskImage: MONOGRAM_MASK,
                 WebkitMaskSize: 'contain',
                 maskSize: 'contain',
                 WebkitMaskRepeat: 'no-repeat',
@@ -636,8 +638,8 @@ const Navbar = ({ visible = true }: NavbarProps) => {
                 height: `${logoMobile}px`,
                 opacity: logoOpacity,
                 backgroundColor: navLogoColor,
-                WebkitMaskImage: "url('/Diseño sin título.png')",
-                maskImage: "url('/Diseño sin título.png')",
+                WebkitMaskImage: MONOGRAM_MASK,
+                maskImage: MONOGRAM_MASK,
                 WebkitMaskSize: 'contain',
                 maskSize: 'contain',
                 WebkitMaskRepeat: 'no-repeat',

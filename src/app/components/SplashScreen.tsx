@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { withBasePath } from '@/lib/basePath';
 
 interface SplashScreenProps {
   onEnter: () => void;
@@ -89,7 +90,7 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
           <span className="seal-body">
             <span className="seal-ring" />
             <Image
-              src="/Diseño sin título.png"
+              src={withBasePath("/Diseño sin título.png")}
               alt="C&J"
               width={72}
               height={72}

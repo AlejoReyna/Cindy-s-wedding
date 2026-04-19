@@ -1,20 +1,21 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
+import { withBasePath } from '@/lib/basePath';
 
 // ── Photo data ──
 const photos = [
-  { label: 'FOTO 1', src: '/second_section/r1.jpeg' },
-  { label: 'FOTO 2', src: '/second_section/r2.jpeg' },
-  { label: 'FOTO 3', src: '/second_section/r3.jpeg' },
-  { label: 'FOTO 4', src: '/second_section/r4.jpeg' },
-  { label: 'FOTO 5', src: '/second_section/r5.jpeg' },
-  { label: 'FOTO 6', src: '/second_section/r6.jpeg' },
-  { label: 'FOTO 7', src: '/second_section/r7.jpeg' },
-  { label: 'FOTO 8', src: '/second_section/r8.jpeg' },
-  { label: 'FOTO 9', src: '/second_section/r9.jpeg' },
-  { label: 'FOTO 10', src: '/second_section/r10.jpeg' },
-  { label: 'FOTO 11', src: '/second_section/r11.jpeg' },
+  { label: 'FOTO 1', src: withBasePath('/second_section/r1.jpeg') },
+  { label: 'FOTO 2', src: withBasePath('/second_section/r2.jpeg') },
+  { label: 'FOTO 3', src: withBasePath('/second_section/r3.jpeg') },
+  { label: 'FOTO 4', src: withBasePath('/second_section/r4.jpeg') },
+  { label: 'FOTO 5', src: withBasePath('/second_section/r5.jpeg') },
+  { label: 'FOTO 6', src: withBasePath('/second_section/r6.jpeg') },
+  { label: 'FOTO 7', src: withBasePath('/second_section/r7.jpeg') },
+  { label: 'FOTO 8', src: withBasePath('/second_section/r8.jpeg') },
+  { label: 'FOTO 9', src: withBasePath('/second_section/r9.jpeg') },
+  { label: 'FOTO 10', src: withBasePath('/second_section/r10.jpeg') },
+  { label: 'FOTO 11', src: withBasePath('/second_section/r11.jpeg') },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -92,7 +93,17 @@ export default function Gallery3D() {
   const [dragX, setDragX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [fullscreenIndex, setFullscreenIndex] = useState<number | null>(null);
   const dragStartX = useRef(0);
+
+  // ── Window width for responsive 3D calculations ──
+  const [windowWidth, setWindowWidth] = useState(0);
+  useEffect(() => {
+    setWindowWidth(window.innerWidth);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // ── Text data ──
   const titleLine1 = '¡Nos';
@@ -142,16 +153,57 @@ export default function Gallery3D() {
   const goNext = useCallback(() => goTo(currentIndex + 1), [goTo, currentIndex]);
   const canGoPrev = currentIndex > 0;
   const canGoNext = currentIndex < photos.length - 1;
+  const isFullscreenOpen = fullscreenIndex !== null;
+
+  const openFullscreen = useCallback((index: number) => {
+    setFullscreenIndex(index);
+  }, []);
+
+  const closeFullscreen = useCallback(() => {
+    setFullscreenIndex(null);
+  }, []);
+
+  const goFullscreenPrev = useCallback(() => {
+    setFullscreenIndex((prev) => {
+      if (prev === null) return prev;
+      return prev > 0 ? prev - 1 : prev;
+    });
+  }, []);
+
+  const goFullscreenNext = useCallback(() => {
+    setFullscreenIndex((prev) => {
+      if (prev === null) return prev;
+      return prev < photos.length - 1 ? prev + 1 : prev;
+    });
+  }, []);
 
   // ── Keyboard navigation ──
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
+      if (isFullscreenOpen) {
+        if (e.key === 'Escape') closeFullscreen();
+        if (e.key === 'ArrowLeft') goFullscreenPrev();
+        if (e.key === 'ArrowRight') goFullscreenNext();
+        return;
+      }
+
       if (e.key === 'ArrowLeft') goPrev();
       if (e.key === 'ArrowRight') goNext();
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [goPrev, goNext]);
+  }, [closeFullscreen, goFullscreenNext, goFullscreenPrev, goNext, goPrev, isFullscreenOpen]);
+
+  useEffect(() => {
+    if (!isFullscreenOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isFullscreenOpen]);
 
   // ── Swipe / Drag ──
   const SWIPE_THRESHOLD = 60;
@@ -212,10 +264,18 @@ export default function Gallery3D() {
       };
     }
 
+    // Responsive side-card offset:
+    // iPad portrait  (768–1023px): 67% → shows ~40% of side card (less peeking, balanced for tablet)
+    // iPad landscape (1024–1194px): 62% → shows ~45% of side card (slightly more depth)
+    // Desktop        (1195px+):     59% → shows ~52% of side card (full coverflow effect)
+    const isTabletPortrait  = windowWidth >= 768 && windowWidth < 1024;
+    const isTabletLandscape = windowWidth >= 1024 && windowWidth < 1195;
+    const sideOffset = isTabletPortrait ? 67 : isTabletLandscape ? 62 : 59;
+
     // Adjacent cards (offset ±1) — semi-preview on the sides
     const direction = offset > 0 ? 1 : -1;
     return {
-      transform: `translateX(${direction * 59}%) translateY(${isHovered ? -16 : 0}px) translateZ(${isHovered ? -6 : -40}px) rotateY(${direction * (isHovered ? -14 : -24)}deg) scale(${isHovered ? 0.9 : 0.82})`,
+      transform: `translateX(${direction * sideOffset}%) translateY(${isHovered ? -16 : 0}px) translateZ(${isHovered ? -6 : -40}px) rotateY(${direction * (isHovered ? -14 : -24)}deg) scale(${isHovered ? 0.9 : 0.82})`,
       zIndex: isHovered ? 16 : 4,
       opacity: isHovered ? 0.92 : 0.58,
       // filter moved to .gl3d-photo so it doesn't create a compositing layer on the card
@@ -294,7 +354,7 @@ export default function Gallery3D() {
         <div className="flex flex-col items-center justify-center gap-2 sm:gap-3 md:gap-0">
 
           {/* ── TOP: Text Section ── */}
-          <div className="w-full max-w-6xl flex flex-col items-center text-center shrink-0 pt-1 mt-0 md:pt-0 lg:mt-30">
+          <div className="w-full max-w-6xl flex flex-col items-center text-center shrink-0 pt-1 mt-0 md:pt-0 lg:mt-8 xl:mt-20 2xl:mt-28">
 
             {/* ③ Title */}
             <div className="gl3d-title-mobile-fullbleed mb-1 mt-18 md:mb-3 md:mt-2">
@@ -380,6 +440,9 @@ export default function Gallery3D() {
                   >
                     <div
                       className="gl3d-photo relative"
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Ver ${photo.label} en pantalla completa`}
                       style={{
                         filter: hoveredIndex === index
                           ? 'brightness(1.08) saturate(1.06)'
@@ -389,6 +452,13 @@ export default function Gallery3D() {
                         boxShadow: hoveredIndex === index
                           ? '0 26px 44px rgba(0, 0, 0, 0.22), 0 10px 18px rgba(0, 0, 0, 0.12)'
                           : undefined,
+                      }}
+                      onClick={() => openFullscreen(index)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          openFullscreen(index);
+                        }
                       }}
                     >
                       <Image
@@ -445,6 +515,74 @@ export default function Gallery3D() {
           </div>
         </div>
       </div>
+
+      {isFullscreenOpen && fullscreenIndex !== null && (
+        <div
+          className="gl3d-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Vista completa de ${photos[fullscreenIndex].label}`}
+          onClick={closeFullscreen}
+        >
+          <button
+            type="button"
+            className="gl3d-lightbox-close"
+            onClick={closeFullscreen}
+            aria-label="Cerrar pantalla completa"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18" />
+              <path d="M6 6l12 12" />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            className="gl3d-lightbox-nav gl3d-lightbox-nav--left"
+            onClick={(e) => {
+              e.stopPropagation();
+              goFullscreenPrev();
+            }}
+            aria-label="Foto anterior en pantalla completa"
+            disabled={fullscreenIndex === 0}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <div
+            className="gl3d-lightbox-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="gl3d-lightbox-image-wrap">
+              <Image
+                src={photos[fullscreenIndex].src}
+                alt={photos[fullscreenIndex].label}
+                fill
+                className="object-contain"
+                sizes="100vw"
+                priority
+              />
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="gl3d-lightbox-nav gl3d-lightbox-nav--right"
+            onClick={(e) => {
+              e.stopPropagation();
+              goFullscreenNext();
+            }}
+            aria-label="Foto siguiente en pantalla completa"
+            disabled={fullscreenIndex === photos.length - 1}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════
            3D GALLERY STYLES
@@ -529,6 +667,129 @@ export default function Gallery3D() {
           .gl3d-date-text { font-size: 16px; }
           .gl3d-title-text { font-size: 5rem; }
           .gl3d-subtitle-text { font-size: 1.5rem; }
+        }
+
+        /* ═══════════════════════════════════════════════════════
+             iPAD PORTRAIT — 768px … 1023px
+             Cubre: iPad mini, iPad Air, iPad 9ª gen en portrait
+           ═══════════════════════════════════════════════════════ */
+        @media (min-width: 768px) and (max-width: 1023px) {
+          /* Título: 5rem se ve grande en 768px portrait; bajar a 4rem */
+          .gl3d-title-text { font-size: 4rem; }
+          .gl3d-subtitle-text { font-size: 1.3rem; }
+
+          /* Stage: más margen vertical sobre la carta
+             Carta = 82vw ÷ 1.5 (aspect 3:2) = ~55vw de alto.
+             Con 62vw el stage da ~7vw de aire arriba/abajo (≈54px en 768px) */
+          .gl3d-stage-clip {
+            height: clamp(450px, 62vw, 640px);
+          }
+
+          /* Perspective más acotada: 1400px era excesivo para viewport de 768px */
+          .gl3d-stage {
+            perspective: 1150px;
+          }
+
+          /* Border frame: inset moderado para tablet */
+          .gl3d-border-frame {
+            top: 22px; left: 22px; right: 22px; bottom: 22px;
+          }
+
+          /* Botones nav: más grandes para dedos en tablet */
+          .gl3d-nav-btn {
+            width: 54px;
+            height: 54px;
+          }
+          .gl3d-nav-btn--left  { left: 14px; }
+          .gl3d-nav-btn--right { right: 14px; }
+
+          /* Dots: más grandes y con gap para touch */
+          .gl3d-dot {
+            width: 9px;
+            height: 9px;
+          }
+          .gl3d-dot--active {
+            width: 26px;
+          }
+
+          /* Lightbox: botones más grandes para tablet */
+          .gl3d-lightbox-close {
+            width: 52px;
+            height: 52px;
+            top: 20px;
+            right: 20px;
+          }
+          .gl3d-lightbox-nav {
+            width: 58px;
+            height: 58px;
+          }
+          .gl3d-lightbox-nav--left  { left: 22px; }
+          .gl3d-lightbox-nav--right { right: 22px; }
+        }
+
+        /* ═══════════════════════════════════════════════════════
+             iPAD LANDSCAPE + iPAD PRO 11" PORTRAIT — 1024px … 1194px
+             Cubre: iPad Air/mini landscape, iPad Pro 11" portrait
+           ═══════════════════════════════════════════════════════ */
+        @media (min-width: 1024px) and (max-width: 1194px) {
+          /* Carta ≈ 84vw ÷ 1.5 ≈ 56vw alto. Con 58vw hay ~2vw de buffer */
+          .gl3d-stage-clip {
+            height: clamp(460px, 58vw, 680px);
+          }
+
+          .gl3d-stage {
+            perspective: 1280px;
+          }
+
+          /* Título: entre tablet y desktop */
+          .gl3d-title-text { font-size: 4.5rem; }
+
+          /* Botones nav cómodos para touch */
+          .gl3d-nav-btn {
+            width: 52px;
+            height: 52px;
+          }
+          .gl3d-nav-btn--left  { left: 14px; }
+          .gl3d-nav-btn--right { right: 14px; }
+
+          /* Dots */
+          .gl3d-dot {
+            width: 8px;
+            height: 8px;
+          }
+          .gl3d-dot--active {
+            width: 24px;
+          }
+
+          /* Lightbox */
+          .gl3d-lightbox-nav {
+            width: 56px;
+            height: 56px;
+          }
+        }
+
+        /* ═══════════════════════════════════════════════════════
+             iPAD PRO 12.9" — 1195px … 1366px
+             Cubre: iPad Pro 12.9" en portrait y landscape
+           ═══════════════════════════════════════════════════════ */
+        @media (min-width: 1195px) and (max-width: 1366px) {
+          /* Stage con buena proporción en pantalla grande */
+          .gl3d-stage-clip {
+            height: clamp(480px, 54vw, 700px);
+          }
+
+          .gl3d-stage {
+            perspective: 1350px;
+          }
+
+          /* Dots */
+          .gl3d-dot {
+            width: 8px;
+            height: 8px;
+          }
+          .gl3d-dot--active {
+            width: 24px;
+          }
         }
 
         /* ═══ LETTER / WORD WRITING ANIMATIONS ═══ */
@@ -786,6 +1047,12 @@ export default function Gallery3D() {
             0 8px 20px rgba(0, 0, 0, 0.10),
             0 2px 6px rgba(0, 0, 0, 0.05);
           transition: filter 0.35s ease, box-shadow 0.35s ease;
+          cursor: zoom-in;
+        }
+
+        .gl3d-photo:focus-visible {
+          outline: 2px solid rgba(196, 152, 91, 0.8);
+          outline-offset: 3px;
         }
 
         /* ═══ NAVIGATION BUTTONS ═══ */
@@ -874,6 +1141,135 @@ export default function Gallery3D() {
           background: rgba(196, 152, 91, 0.7);
           width: 20px;
           border-radius: 10px;
+        }
+
+        /* ═══ FULLSCREEN LIGHTBOX ═══ */
+        .gl3d-lightbox {
+          position: fixed;
+          inset: 0;
+          z-index: 80;
+          background: rgba(22, 18, 15, 0.92);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px;
+        }
+
+        .gl3d-lightbox-content {
+          width: min(92vw, 1440px);
+          max-height: 90vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .gl3d-lightbox-image-wrap {
+          position: relative;
+          width: min(92vw, 1440px);
+          height: min(82vh, 960px);
+        }
+
+        .gl3d-lightbox-close,
+        .gl3d-lightbox-nav {
+          position: absolute;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: rgba(255, 255, 255, 0.1);
+          color: #fff;
+          backdrop-filter: blur(10px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: background 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+        }
+
+        .gl3d-lightbox-close:hover,
+        .gl3d-lightbox-nav:hover {
+          background: rgba(255, 255, 255, 0.18);
+          transform: scale(1.04);
+        }
+
+        .gl3d-lightbox-close:disabled,
+        .gl3d-lightbox-nav:disabled {
+          opacity: 0.35;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .gl3d-lightbox-close {
+          top: 18px;
+          right: 18px;
+          width: 46px;
+          height: 46px;
+          border-radius: 999px;
+        }
+
+        .gl3d-lightbox-nav {
+          top: 50%;
+          transform: translateY(-50%);
+          width: 52px;
+          height: 52px;
+          border-radius: 999px;
+        }
+
+        .gl3d-lightbox-nav:hover {
+          transform: translateY(-50%) scale(1.04);
+        }
+
+        .gl3d-lightbox-nav:disabled:hover {
+          transform: translateY(-50%);
+        }
+
+        .gl3d-lightbox-nav--left {
+          left: 18px;
+        }
+
+        .gl3d-lightbox-nav--right {
+          right: 18px;
+        }
+
+        @media (max-width: 767px) {
+          .gl3d-lightbox {
+            padding: 16px;
+          }
+
+          .gl3d-lightbox-content,
+          .gl3d-lightbox-image-wrap {
+            width: 100%;
+          }
+
+          .gl3d-lightbox-image-wrap {
+            height: min(72vh, 560px);
+          }
+
+          .gl3d-lightbox-close {
+            top: 12px;
+            right: 12px;
+            width: 42px;
+            height: 42px;
+          }
+
+          .gl3d-lightbox-nav {
+            top: auto;
+            bottom: 18px;
+            transform: none;
+            width: 46px;
+            height: 46px;
+          }
+
+          .gl3d-lightbox-nav:hover,
+          .gl3d-lightbox-nav:disabled:hover {
+            transform: none;
+          }
+
+          .gl3d-lightbox-nav--left {
+            left: calc(50% - 58px);
+          }
+
+          .gl3d-lightbox-nav--right {
+            right: calc(50% - 58px);
+          }
         }
 
         /* ── Scrollbar hide ── */

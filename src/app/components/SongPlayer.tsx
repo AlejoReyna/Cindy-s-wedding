@@ -1,5 +1,6 @@
 "use client"
 import { useState, useRef, useEffect } from 'react';
+import { withBasePath } from '@/lib/basePath';
 
 interface SongPlayerProps {
   loaded: boolean;
@@ -88,7 +89,7 @@ const SongPlayer = ({ loaded, delay }: SongPlayerProps) => {
 
   return (
     <>
-      <audio ref={audioRef} src="/snow-on-the-beach-karaoke.mp3" loop />
+      <audio ref={audioRef} src={withBasePath("/snow-on-the-beach-karaoke.mp3")} loop />
 
       <div
         className={`song-player transition-all ease-out ${
