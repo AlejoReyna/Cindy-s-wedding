@@ -227,14 +227,21 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
             clip-path: polygon(0 0, 100% 0, 50% 55vw);
           }
 
-          /* Hide the bottom flap — on a real envelope you only see the top lid */
+          /* Keep the lower flap visible on mobile with extra contrast so the
+             envelope still reads clearly on smaller, brighter screens. */
           .env-flap--bottom {
-            clip-path: none;
-            background: none;
-            filter: none;
+            clip-path: polygon(0 100%, 100% 100%, 50% 56vw);
+            background: linear-gradient(
+              0deg,
+              rgba(236, 225, 206, 0.98) 0%,
+              rgba(242, 233, 219, 0.96) 44%,
+              rgba(233, 221, 203, 0.98) 100%
+            );
+            filter:
+              drop-shadow(0 -4px 10px rgba(118, 92, 63, 0.12))
+              drop-shadow(0 -1px 2px rgba(118, 92, 63, 0.08));
           }
 
-          /* Hide the crease line on mobile — not needed without bottom flap */
           .env-crease {
             display: none;
           }
@@ -357,6 +364,10 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
           color: rgba(92, 60, 45, 0.72);
           opacity: 0;
           transform: translateY(6px);
+          text-decoration: underline;
+          text-decoration-color: rgba(92, 60, 45, 0.38);
+          text-decoration-thickness: 1px;
+          text-underline-offset: 0.28em;
         }
 
         .hint--visible {
@@ -421,6 +432,14 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
           .seal { width: 190px; height: 190px; }
           .seal-body { width: 176px; height: 176px; }
           .seal :global(.seal-monogram) { width: 100px; height: 100px; }
+        }
+
+        @media (max-width: 639px) {
+          .seal { width: 154px; height: 154px; }
+          .seal-body { width: 143px; height: 143px; }
+          .seal-glow { inset: -11px; }
+          .seal-ring { inset: 11px; }
+          .seal :global(.seal-monogram) { width: 79px; height: 79px; }
         }
       `}</style>
     </div>
