@@ -2,18 +2,6 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  basePath: "/cindy_y_jorge",
-  assetPrefix: "/cindy_y_jorge",
-  async redirects() {
-    return [
-      {
-        source: "/",
-        destination: "/cindy_y_jorge",
-        permanent: false,
-        basePath: false,
-      },
-    ];
-  },
   images: {
     unoptimized: true,
     remotePatterns: [

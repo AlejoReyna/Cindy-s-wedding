@@ -222,15 +222,21 @@ const SplashScreen = ({ onEnter }: SplashScreenProps) => {
         ═══════════════════════════════════════════════════════════ */
 
         @media (orientation: portrait) and (max-width: 639px) {
+          .env-flap--top,
+          .env-flap--bottom {
+            left: clamp(10px, 3.2vw, 18px);
+            right: clamp(10px, 3.2vw, 18px);
+          }
+
           /* Top flap — realistic lid, depth proportional to width */
           .env-flap--top {
-            clip-path: polygon(0 0, 100% 0, 50% 55vw);
+            clip-path: polygon(0 0, 100% 0, 50% 54vw);
           }
 
           /* Keep the lower flap visible on mobile with extra contrast so the
              envelope still reads clearly on smaller, brighter screens. */
           .env-flap--bottom {
-            clip-path: polygon(0 100%, 100% 100%, 50% 56vw);
+            clip-path: polygon(0 100%, 100% 100%, 50% 54vw);
             background: linear-gradient(
               0deg,
               rgba(236, 225, 206, 0.98) 0%,

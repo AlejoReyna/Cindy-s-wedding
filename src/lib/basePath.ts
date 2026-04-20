@@ -1,7 +1,7 @@
-export const BASE_PATH = "/cindy_y_jorge";
+export const BASE_PATH = "";
 
 export const withBasePath = (path: string) => {
-  if (!path.startsWith("/")) {
+  if (!BASE_PATH || !path.startsWith("/")) {
     return path;
   }
 
