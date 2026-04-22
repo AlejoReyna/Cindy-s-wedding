@@ -448,6 +448,7 @@ export default function ParentsSection() {
           text-transform: uppercase;
           color: #5c5c5c;
           line-height: 1.1;
+          white-space: nowrap;
         }
         .ps-name-text {
           font-family: 'Cormorant Garamond', serif;
